@@ -24,7 +24,7 @@
 
     - name: Set a variable for the timedatectl status dictionary
       set_fact:
-        systemd_timedatectl_status: "{{ systemd_timedatectl_status_command.stdout | from_json }}" 
+        systemd_timedatectl_status: "{{ systemd_timedatectl_status_command.stdout | from_json }}"
 
     - name: Debug the timedatectl status
       debug:
