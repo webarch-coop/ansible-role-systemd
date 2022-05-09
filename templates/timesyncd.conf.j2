@@ -1,0 +1,6 @@
+# {{ ansible_managed }}
+
+[Time]
+NTP={% for server in systemd_timesyncd_servers %}{{ server }}{% if not loop.last %},{% endif %}{% endfor %}
+
+# vim: ft=systemd:

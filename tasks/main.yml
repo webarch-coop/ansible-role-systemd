@@ -1,0 +1,12 @@
+---
+- name: Configure some systemd services
+  block:
+
+    - name: Include timesyncd tasks
+      include_tasks: timesyncd.yml
+      when: systemd_timesyncd
+
+  when: systemd
+  tags:
+    - systemd
+...
