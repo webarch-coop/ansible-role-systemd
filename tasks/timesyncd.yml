@@ -22,23 +22,13 @@
       changed_when: false
       register: systemd_timedatectl_status_command
 
-    - name: Set a variable for the timedatectl status
+    - name: Set a variable for the timedatectl status dictionary
       set_fact:
         systemd_timedatectl_status: "{{ systemd_timedatectl_status_command.stdout | from_json }}" 
 
     - name: Debug the timedatectl status
       debug:
         var: systemd_timedatectl_status
-        verbosity: 2
-
-    - name: Debug the timedatectl status variable type
-      debug:
-        msg: "{{ systemd_timedatectl_status | type_debug }}"
-        verbosity: 2
-
-    - name: Debug the timedatectl ntp_service status
-      debug:
-        var: systemd_timedatectl_status.ntp_service
         verbosity: 2
 
     - name: Enable systemd NTP
