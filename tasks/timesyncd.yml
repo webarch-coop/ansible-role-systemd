@@ -27,6 +27,11 @@
         var: systemd_timedatectl_status.stdout
         verbosity: 2
 
+    - name: Debug the timedatectl status variable type
+      debug:
+        msg: "{{ systemd_timedatectl_status.stdout | type_debug }}"
+        verbosity: 2
+
     - name: Debug the timedatectl ntp_service status
       debug:
         var: systemd_timedatectl_status.stdout.ntp_service
