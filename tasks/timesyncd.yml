@@ -21,6 +21,12 @@
         var: systemd_timedatectl_status.stdout
         verbosity: 2
 
+    - name: Enable systemd NTP
+      command: timedatectl set-ntp true
+      when:
+        - systemd_timedatectl_status.stdout.ntp_service is defined
+        - systemd_timedatectl_status.stdout.ntp_service != "active"
+
   tags:
     - systemd
 ...
