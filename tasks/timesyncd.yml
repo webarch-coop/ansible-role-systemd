@@ -2,6 +2,12 @@
 - name: Systemd timesyncd tasks
   block:
 
+    - name: Package systemd-timesyncd present
+      apt:
+        pkg:
+          - systemd-timesyncd
+        state: present
+
     - name: timesyncd configuration in place
       template:
         src: timesyncd.conf.j2
