@@ -31,7 +31,7 @@
         var: systemd_timedatectl_status
         verbosity: 2
 
-    - name: Set time usig systemd and NTP
+    - name: Set time using systemd and NTP
       ansible.builtin.command: timedatectl set-ntp true
       when: >
         ( systemd_timedatectl_status.ntp_service is not defined ) or
