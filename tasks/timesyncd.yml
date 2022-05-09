@@ -16,7 +16,7 @@
       changed_when: false
       register: systemd_timedatectl_status
 
-    - name: Debug the timedatectl status 
+    - name: Debug the timedatectl status
       debug:
         var: systemd_timedatectl_status.stdout
         verbosity: 2
