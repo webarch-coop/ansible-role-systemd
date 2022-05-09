@@ -3,7 +3,7 @@
   block:
 
     - name: Include timesyncd tasks
-      include_tasks: timesyncd.yml
+      ansbile.builtin.include_tasks: timesyncd.yml
       when: systemd_timesyncd
 
   when: systemd
