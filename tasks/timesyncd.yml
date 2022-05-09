@@ -31,11 +31,12 @@
         var: systemd_timedatectl_status
         verbosity: 2
 
-    - name: Enable systemd NTP
+    - name: Set time usig systemd and NTP
       command: timedatectl set-ntp true
       when: >
         ( systemd_timedatectl_status.ntp_service is not defined ) or
-        ( systemd_timedatectl_status.ntp_service != "active" )
+        ( systemd_timedatectl_status.ntp_service != "active" ) or
+        ( not systemd_timedatectl_status.system_clock_synchronized )
 
   tags:
     - systemd
