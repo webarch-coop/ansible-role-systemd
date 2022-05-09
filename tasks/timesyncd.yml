@@ -3,13 +3,13 @@
   block:
 
     - name: Package systemd-timesyncd present
-      ansbile.builtin.apt:
+      ansible.builtin.apt:
         pkg:
           - systemd-timesyncd
         state: present
 
     - name: timesyncd configuration in place
-      ansbile.builtin.template:
+      ansible.builtin.template:
         src: timesyncd.conf.j2
         dest: /etc/systemd/timesyncd.conf
         mode: 0644
@@ -17,22 +17,22 @@
         group: root
 
     - name: Get the timedatectl status
-      ansbile.builtin.command: jc timedatectl status
+      ansible.builtin.command: jc timedatectl status
       check_mode: false
       changed_when: false
       register: systemd_timedatectl_status_command
 
     - name: Set a variable for the timedatectl status dictionary
-      ansbile.builtin.set_fact:
+      ansible.builtin.set_fact:
         systemd_timedatectl_status: "{{ systemd_timedatectl_status_command.stdout | from_json }}"
 
     - name: Debug the timedatectl status
-      ansbile.builtin.debug:
+      ansible.builtin.debug:
         var: systemd_timedatectl_status
         verbosity: 2
 
     - name: Set time usig systemd and NTP
-      ansbile.builtin.command: timedatectl set-ntp true
+      ansible.builtin.command: timedatectl set-ntp true
       when: >
         ( systemd_timedatectl_status.ntp_service is not defined ) or
         ( systemd_timedatectl_status.ntp_service != "active" ) or

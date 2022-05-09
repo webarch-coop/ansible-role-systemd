@@ -3,7 +3,7 @@
   block:
 
     - name: Include timesyncd tasks
-      ansbile.builtin.include_tasks: timesyncd.yml
+      ansible.builtin.include_tasks: timesyncd.yml
       when: systemd_timesyncd
 
   when: systemd
