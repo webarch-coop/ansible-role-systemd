@@ -21,6 +21,11 @@
         var: systemd_timedatectl_status.stdout
         verbosity: 2
 
+    - name: Debug the timedatectl ntp service status
+      debug:
+        var: systemd_timedatectl_status.stdout.ntp_service
+        verbosity: 2
+
     - name: Enable systemd NTP
       command: timedatectl set-ntp true
       when:
