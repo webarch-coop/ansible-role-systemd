@@ -24,7 +24,7 @@
 
     - name: Set a variable for the timedatectl status dictionary
       ansible.builtin.set_fact:
-        systemd_timedatectl_status: "{{ systemd_timedatectl_status_command.stdout | community.general.jc('timedatectl') | from_json }}"
+        systemd_timedatectl_status: "{{ systemd_timedatectl_status_command.stdout | community.general.jc('timedatectl') }}"
 
     - name: Debug the timedatectl status
       ansible.builtin.debug:
