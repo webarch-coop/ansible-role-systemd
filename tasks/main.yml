@@ -2,6 +2,12 @@
 - name: Configure some systemd services
   block:
 
+    - name: Package systemd present
+      ansible.builtin.apt:
+        pkg:
+          - systemd
+        state: present
+
     - name: Include timesyncd tasks
       ansible.builtin.include_tasks: timesyncd.yml
       when: systemd_timesyncd
