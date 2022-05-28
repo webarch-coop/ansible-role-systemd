@@ -34,7 +34,7 @@
 
         - name: Rebooting
           ansible.builtin.reboot:
-          when: ( "Failed to connect to bus: No such file or directory" in systemd_timedatectl_status_command.stderr )
+          when: ( "Failed to connect to bus" in systemd_timedatectl_status_command.stderr )
 
         - name: Get the timedatectl status
           ansible.builtin.command: timedatectl status
