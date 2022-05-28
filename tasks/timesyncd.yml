@@ -34,6 +34,7 @@
 
         - name: Rebooting
           ansible.builtin.reboot:
+            reboot_command: rebooot -h now
           when: ( "Failed to connect to bus" in systemd_timedatectl_status_command.stderr )
 
         - name: Get the timedatectl status
