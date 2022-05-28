@@ -30,7 +30,7 @@
         - name: The servers appears to need a reboot
           ansible.builtin.debug:
             msg: "The server is about to be rebooted since checking the timedatectl status failed in a way that indicates that systemd isn't properly running"
-          when: ( "Failed to connect to bus: No such file or directory" in systemd_timedatectl_status_command.stderr )
+          when: ( "Failed to connect to bus" in systemd_timedatectl_status_command.stderr )
 
         - name: Rebooting
           ansible.builtin.reboot:
