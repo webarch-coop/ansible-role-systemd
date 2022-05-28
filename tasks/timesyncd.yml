@@ -36,11 +36,11 @@
           ansible.builtin.command: reboot -h now
           when: ( "Failed to connect to bus" in systemd_timedatectl_status_command.stderr )
 
-        - name: Get the timedatectl status
-          ansible.builtin.command: timedatectl status
-          check_mode: false
-          changed_when: false
-          register: systemd_timedatectl_status_command
+        # The following can be used when supporting Ansible 2.10 is no longer required
+        # - name: Rebooting
+        #   ansible.builtin.reboot:
+        #     reboot_command: reboot -h now
+        #   when: ( "Failed to connect to bus" in systemd_timedatectl_status_command.stderr )
 
     - name: Set a variable for the timedatectl status dictionary
       ansible.builtin.set_fact:
