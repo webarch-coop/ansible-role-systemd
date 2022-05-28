@@ -16,11 +16,31 @@
         owner: root
         group: root
 
-    - name: Get the timedatectl status
-      ansible.builtin.command: timedatectl status
-      check_mode: false
-      changed_when: false
-      register: systemd_timedatectl_status_command
+    - name: Check the timedatectl status
+      block:
+
+        - name: Get the timedatectl status
+          ansible.builtin.command: timedatectl status
+          check_mode: false
+          changed_when: false
+          register: systemd_timedatectl_status_command
+
+      rescue:
+
+        - name: The servers appears to need a reboot
+          ansible.builtin.debug:
+            msg: "The server is about to be rebooted since checking the timedatectl status failed in a way that indicates that systemd isn't properly running"
+          when: ( "Failed to connect to bus: No such file or directory" in systemd_timedatectl_status_command.stderr )
+
+        - name: Rebooting
+          ansible.builtin.reboot:
+          when: ( "Failed to connect to bus: No such file or directory" in systemd_timedatectl_status_command.stderr )
+
+        - name: Get the timedatectl status
+          ansible.builtin.command: timedatectl status
+          check_mode: false
+          changed_when: false
+          register: systemd_timedatectl_status_command
 
     - name: Set a variable for the timedatectl status dictionary
       ansible.builtin.set_fact:
