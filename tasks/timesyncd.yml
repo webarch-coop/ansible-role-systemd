@@ -42,6 +42,8 @@
         #     reboot_command: reboot -h now
         #   when: ( "Failed to connect to bus" in systemd_timedatectl_status_command.stderr )
 
+    # NOTE This generates a warning:
+    # [WARNING]: Collection community.general does not support Ansible version 2.10.8
     - name: Set a variable for the timedatectl status dictionary
       ansible.builtin.set_fact:
         systemd_timedatectl_status: "{{ systemd_timedatectl_status_command.stdout | community.general.jc('timedatectl') }}"
