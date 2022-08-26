@@ -1,0 +1,11 @@
+---
+- name: Systemd daemon-reload to pick up config changes
+  ansible.builtin.systemd:
+    daemon_reload: true
+  listen: Reload systemd
+
+- name: Systemd restarted
+  ansible.builtin.systemd:
+    state: restart
+  listen: Restart systemd
+...

@@ -15,6 +15,12 @@
         mode: 0644
         owner: root
         group: root
+      register: systemd_timesyncd_conf
+      notify: Reload systemd
+
+    - name: Flush handlers
+      ansible.bulitin.meta: flush_handlers
+      when: systemd_timesyncd_conf.changed
 
     - name: Check the timedatectl status
       block:
