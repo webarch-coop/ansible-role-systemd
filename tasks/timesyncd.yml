@@ -116,7 +116,7 @@
 
     - name: Clock sync status
       ansible.builtin.debug:
-        msg: "The system clock is {% if not systemd_timedatectl_status.system_clock_synchronized %}NOT{% endif %} synchronized" 
+        msg: "The system clock is {% if not systemd_timedatectl_status.system_clock_synchronized %}NOT {% endif %}synchronized" 
 
     - name: Fail if the system clock is not synchronized
       ansible.builtin.assert:
