@@ -37,7 +37,7 @@
             msg: "The server is about to be rebooted since checking the timedatectl status failed in a way that indicates that systemd isn't running properly."
           when: ( "Failed to connect to bus" in systemd_timedatectl_status_command.stderr )
 
-        # The following can be used when supporting Ansible 2.10 or older
+        # The following can be used with Ansible 2.10 or older
         # - name: Rebooting
         #   ansible.builtin.command: reboot -h now
         #   when: ( "Failed to connect to bus" in systemd_timedatectl_status_command.stderr )
@@ -60,12 +60,68 @@
         var: systemd_timedatectl_status
         verbosity: 2
 
-    - name: Set time using systemd and NTP
-      ansible.builtin.command: timedatectl set-ntp true
+    - name: Set the time if not synchronized
+      block:
+
+        - name: Set time using systemd and NTP
+          ansible.builtin.command: timedatectl set-ntp true
+
+        - name: Pause for 5 seconds to allow the clock to synchronized
+          ansible.builtin.pause:
+            seconds: 5
+
+        - name: Get the timedatectl status
+          ansible.builtin.command: timedatectl status
+          check_mode: false
+          changed_when: false
+          register: systemd_timedatectl_status_command
+
+        - name: Set a variable for the timedatectl status dictionary
+          ansible.builtin.set_fact:
+            systemd_timedatectl_status: "{{ systemd_timedatectl_status_command.stdout | community.general.jc('timedatectl') }}"
+
+        - name: Debug the timedatectl status
+          ansible.builtin.debug:
+            var: systemd_timedatectl_status
+            verbosity: 2
+
+        - name: Reboot the server if the time is not synchronized
+          ansible.builtin.reboot:
+            reboot_command: reboot -h now
+          when: not systemd_timedatectl_status.system_clock_synchronized | bool
+
+        - name: Pause for 30 seconds to allow the server to come back up
+          ansible.builtin.pause:
+            seconds: 30
+
+        - name: Get the timedatectl status
+          ansible.builtin.command: timedatectl status
+          check_mode: false
+          changed_when: false
+          register: systemd_timedatectl_status_command
+
+        - name: Set a variable for the timedatectl status dictionary
+          ansible.builtin.set_fact:
+            systemd_timedatectl_status: "{{ systemd_timedatectl_status_command.stdout | community.general.jc('timedatectl') }}"
+
+        - name: Debug the timedatectl status
+          ansible.builtin.debug:
+            var: systemd_timedatectl_status
+            verbosity: 2
+
       when: >
         ( systemd_timedatectl_status.ntp_service is not defined ) or
         ( systemd_timedatectl_status.ntp_service != "active" ) or
-        ( not systemd_timedatectl_status.system_clock_synchronized )
+        ( not systemd_timedatectl_status.system_clock_synchronized  | bool )
+
+    - name: Clock sync status
+      ansible.builtin.debug:
+        msg: "The system clock is {% if not systemd_timedatectl_status.system_clock_synchronized %}NOT{% endif %} synchronized" 
+
+    - name: Fail if the system clock is not synchronized
+      ansible.builtin.assert:
+        that:
+          - systemd_timedatectl_status.system_clock_synchronized  | bool
 
   tags:
     - systemd
