@@ -32,18 +32,20 @@
             msg: "The server is about to be rebooted since checking the timedatectl status failed in a way that indicates that systemd isn't running properly."
           when: ( "Failed to connect to bus" in systemd_timedatectl_status_command.stderr )
 
-        - name: Rebooting
-          ansible.builtin.command: reboot -h now
-          when: ( "Failed to connect to bus" in systemd_timedatectl_status_command.stderr )
-
-        # The following can be used when supporting Ansible 2.10 is no longer required
+        # The following can be used when supporting Ansible 2.10 or older
         # - name: Rebooting
-        #   ansible.builtin.reboot:
-        #     reboot_command: reboot -h now
+        #   ansible.builtin.command: reboot -h now
         #   when: ( "Failed to connect to bus" in systemd_timedatectl_status_command.stderr )
 
-    # NOTE This generates a warning:
-    # [WARNING]: Collection community.general does not support Ansible version 2.10.8
+        - name: Rebooting
+          ansible.builtin.reboot:
+            reboot_command: reboot -h now
+          when: ( "Failed to connect to bus" in systemd_timedatectl_status_command.stderr )
+
+        - name: Pause for 30 seconds to allow the server to come back up
+          ansible.builtin.pause:
+            seconds: 30
+
     - name: Set a variable for the timedatectl status dictionary
       ansible.builtin.set_fact:
         systemd_timedatectl_status: "{{ systemd_timedatectl_status_command.stdout | community.general.jc('timedatectl') }}"

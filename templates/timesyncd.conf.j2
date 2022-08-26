@@ -15,6 +15,7 @@
 
 [Time]
 NTP={% for server in systemd_timesyncd_servers %}{{ server }}{% if not loop.last %},{% endif %}{% endfor %}
+
 #FallbackNTP=0.debian.pool.ntp.org 1.debian.pool.ntp.org 2.debian.pool.ntp.org 3.debian.pool.ntp.org
 #RootDistanceMaxSec=5
 #PollIntervalMinSec=32
