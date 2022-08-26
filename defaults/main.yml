@@ -1,6 +1,7 @@
 ---
 systemd: true
 systemd_timesyncd: true
+systemd_timesyncd_reboot: false
 systemd_timesyncd_servers:
   - 0.pool.ntp.org
   - 1.pool.ntp.org
