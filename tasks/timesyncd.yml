@@ -18,8 +18,8 @@
       register: systemd_timesyncd_conf
       notify: Reload systemd
 
-    - name: Flush handlers
-      ansible.bulitin.meta: flush_handlers
+    # - name: Flush handlers
+    #   ansible.bulitin.meta: flush_handlers
 
     - name: Check the timedatectl status
       block:
