@@ -20,7 +20,6 @@
 
     - name: Flush handlers
       ansible.bulitin.meta: flush_handlers
-      when: systemd_timesyncd_conf.changed
 
     - name: Check the timedatectl status
       block:
