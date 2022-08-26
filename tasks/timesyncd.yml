@@ -47,9 +47,9 @@
             reboot_command: reboot -h now
           when: ( "Failed to connect to bus" in systemd_timedatectl_status_command.stderr )
 
-        - name: Pause for 30 seconds to allow the server to come back up
+        - name: Pause for 60 seconds to allow the server to come back up
           ansible.builtin.pause:
-            seconds: 30
+            seconds: 60
 
     - name: Set a variable for the timedatectl status dictionary
       ansible.builtin.set_fact:
@@ -66,9 +66,9 @@
         - name: Set time using systemd and NTP
           ansible.builtin.command: timedatectl set-ntp true
 
-        - name: Pause for 5 seconds to allow the clock to synchronized
+        - name: Pause for 30 seconds to allow the clock to synchronized
           ansible.builtin.pause:
-            seconds: 5
+            seconds: 30
 
         - name: Get the timedatectl status
           ansible.builtin.command: timedatectl status
@@ -90,9 +90,9 @@
             reboot_command: reboot -h now
           when: not systemd_timedatectl_status.system_clock_synchronized | bool
 
-        - name: Pause for 30 seconds to allow the server to come back up
+        - name: Pause for 60 seconds to allow the server to come back up
           ansible.builtin.pause:
-            seconds: 30
+            seconds: 60
 
         - name: Get the timedatectl status
           ansible.builtin.command: timedatectl status
