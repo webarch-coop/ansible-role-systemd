@@ -37,6 +37,13 @@
             msg: "The server needs to be rebooted since checking the timedatectl status failed in a way that indicates that systemd isn't running properly."
           when: ( "Failed to connect to bus" in systemd_timedatectl_status_command.stderr )
 
+        - name: Pause for 30 seconds to allow time to manually cancel the reboot that is about to happen
+          ansible.builtin.pause:
+            seconds: 30
+          when:
+            - systemd_timesyncd_reboot | bool
+            - ( "Failed to connect to bus" in systemd_timedatectl_status_command.stderr )
+
         - name: Automatically rebooting the server
           ansible.builtin.reboot:
             reboot_command: reboot -h now
@@ -44,9 +51,9 @@
             - systemd_timesyncd_reboot | bool
             - ( "Failed to connect to bus" in systemd_timedatectl_status_command.stderr )
 
-        - name: Pause for 60 seconds to allow the server to come back up
+        - name: Pause for 10 seconds to allow the services on the server to all start
           ansible.builtin.pause:
-            seconds: 60
+            seconds: 10
           when:
             - systemd_timesyncd_reboot | bool
             - ( "Failed to connect to bus" in systemd_timedatectl_status_command.stderr )
@@ -88,14 +95,18 @@
         - name: Reboot the server to sync the clock
           block:
 
+            - name: Pause for 30 seconds to allow time to manually cancel the reboot that is about to happen
+              ansible.builtin.pause:
+                seconds: 30
+
             - name: Reboot the server if the time is not synchronized
               ansible.builtin.reboot:
                 reboot_command: reboot -h now
               when: not systemd_timedatectl_status.system_clock_synchronized | bool
 
-            - name: Pause for 60 seconds to allow the server to come back up
+            - name: Pause for 10 seconds to allow the services on the server to all start
               ansible.builtin.pause:
-                seconds: 60
+                seconds: 10
 
             - name: Get the timedatectl status
               ansible.builtin.command: timedatectl status
