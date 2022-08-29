@@ -5,5 +5,8 @@ skip_list:
   - schema
   # Lines should be no longer than 160 chars
   - "204"
+# warn_list:
+#   # Commands should not change things if nothing needs doing
+#   - no-changed-when
 # vim: syntax=yaml
 ...

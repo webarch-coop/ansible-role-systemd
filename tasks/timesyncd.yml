@@ -72,6 +72,7 @@
 
         - name: Set time using systemd and NTP
           ansible.builtin.command: timedatectl set-ntp true
+          changed_when: true
 
         - name: Pause for 30 seconds to allow the clock to synchronized
           ansible.builtin.pause:
