@@ -1,24 +1,4 @@
 ---
-argument_specs:
-  main:
-    author: Chris Croome
-    description: Ansible role for configuring some systemd services on Debian
-    short_description: The main entry point for the systemd role.
-    options:
-      systemd:
-        type: bool
-        required: true
-        description: Run the tasks in this role
-      systemd_timesyncd:
-        required: true
-        description: Include the timesyncd tasks
-      systemd_timesyncd_reboot:
-        type: bool
-        required: true
-        description: Reboot the server automatically
-      systemd_timesyncd_servers:
-        type: list
-        description: A list of NTP servers
 galaxy_info:
   role_name: systemd
   namespace: chriscroome
