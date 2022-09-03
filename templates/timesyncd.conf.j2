@@ -20,5 +20,7 @@ NTP={% for server in systemd_timesyncd_servers %}{{ server }}{% if not loop.last
 #RootDistanceMaxSec=5
 #PollIntervalMinSec=32
 #PollIntervalMaxSec=2048
+#ConnectionRetrySec=30
+#SaveIntervalSec=60
 
 # vim: ft=systemd:
