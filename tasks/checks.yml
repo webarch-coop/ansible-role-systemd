@@ -8,6 +8,11 @@
       changed_when: false
       register: systemd_list_unit_files
 
+    - name: Debug list systemd unit files standard out
+      ansible.builtin.debug:
+        var: systemd_list_unit_files.stdout
+        verbosity: 2
+
     - name: Set a fact for the systemd unit files
       ansible.builtin.set_fact:
         systemd_unit_files_existing: "{{ systemd_list_unit_files.stdout | from_json | community.general.jc('systemctl-luf') }}"
