@@ -3,7 +3,7 @@
   block:
 
     - name: List systemd unit files
-      ansible.builtin.command: jc systemctl list-unit-files
+      ansible.builtin.command: systemctl list-unit-files
       check_mode: false
       changed_when: false
       register: systemd_list_unit_files
