@@ -8,6 +8,9 @@
           - systemd
         state: present
 
+    - name: Checks
+      ansible.builtin.include_tasks: checks.yml
+
     - name: Include timesyncd tasks
       ansible.builtin.include_tasks: timesyncd.yml
       when: systemd_timesyncd
