@@ -1,0 +1,24 @@
+---
+- name: Configure systemd unit
+  block:
+
+    - name: Systemd unit file absent
+      ansible.builtin.file:
+        path: "{{ systemd_unit.path }}"
+        state: absent
+      when: ( systemd_unit.state is defined ) and ( systemd_unit.state == "absent" )
+      loop: "{{ systemd_units }}"
+      loop_control:
+        loop_var: systemd_unit
+      notify: Reload systemd
+
+    - name: Systemd unit present
+      ansible.builtin.include_tasks: unit.yml
+      when: ( systemd_unit.state is not defined ) or ( systemd_unit.state == "present" )
+      loop: "{{ systemd_units }}"
+      loop_control:
+        loop_var: systemd_unit
+
+  tags:
+    - systemd
+...

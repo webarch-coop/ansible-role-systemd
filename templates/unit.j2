@@ -1,0 +1,17 @@
+# {{ ansible_managed }}
+
+{% if systemd_unit.comment is defined %}
+{% for systemd_comment_line in systemd_unit.comment.split('\n') %}
+# {{ systemd_comment_line }}
+{% endfor %}
+{% endif %}
+
+{% for systemd_section in systemd_unit.conf | dict2items %}
+[{{ systemd_section.key }}]
+{% for systemd_variable_pair in systemd_section.value | dict2items %}
+{{ systemd_variable_pair.key }}={{ systemd_variable_pair.value }}
+{% endfor %}
+
+{% endfor %}
+
+# vim: ft=systemd:

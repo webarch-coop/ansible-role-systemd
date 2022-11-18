@@ -11,9 +11,14 @@
     - name: Checks
       ansible.builtin.include_tasks: checks.yml
 
-    - name: Include timesyncd tasks
-      ansible.builtin.include_tasks: timesyncd.yml
-      when: systemd_timesyncd
+    - name: Include systemd unit tasks
+      ansible.builtin.include_tasks: units.yml
+      when:
+        - systemd_units is defined
+        - systemd_units | length > 0
+
+    # - name: Include timesyncd tasks
+    #   ansible.builtin.include_tasks: timesyncd.yml
 
   when: systemd
   tags:

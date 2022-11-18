@@ -1,10 +1,28 @@
 ---
 systemd: true
-systemd_timesyncd: true
-systemd_timesyncd_reboot: false
-systemd_timesyncd_servers:
-  - 0.pool.ntp.org
-  - 1.pool.ntp.org
-  - 2.pool.ntp.org
-  - 3.pool.ntp.org
+# systemd_timesyncd: true
+# systemd_timesyncd_reboot: false
+# systemd_timesyncd_servers:
+#   - 0.pool.ntp.org
+#   - 1.pool.ntp.org
+#   - 2.pool.ntp.org
+#   - 3.pool.ntp.org
+systemd_units:
+  - name: systemd-timesyncd
+    path: /etc/systemd/timesyncd.conf
+    unit_state: started
+    comment: |
+      Entries in this file show the compile time defaults.
+      You can change settings by editing this file.
+      Defaults can be restored by simply deleting this file.
+      See timesyncd.conf(5) for details.
+    conf:
+      Time:
+        NTP: 0.pool.ntp.org 1.pool.ntp.org 2.pool.ntp.org 3.pool.ntp.org
+        "#FallbackNTP": 0.debian.pool.ntp.org 1.debian.pool.ntp.org 2.debian.pool.ntp.org 3.debian.pool.ntp.org
+        "#RootDistanceMaxSec": 5
+        "#PollIntervalMinSec": 32
+        "#PollIntervalMaxSec": 2048
+        "#ConnectionRetrySec": 30
+        "#SaveIntervalSec": 60
 ...

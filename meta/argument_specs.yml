@@ -9,14 +9,52 @@ argument_specs:
         type: bool
         required: true
         description: Run the tasks in this role
-      systemd_timesyncd:
-        required: true
-        description: Include the timesyncd tasks
-      systemd_timesyncd_reboot:
-        type: bool
-        required: true
-        description: Reboot the server automatically
-      systemd_timesyncd_servers:
+      systemd_units:
         type: list
-        description: A list of NTP servers
+        required: false
+        description: A list of systemd unit files and their contents and state.
+        elements: dict
+        options:
+          comment:
+            type: str
+            required: false
+            description: A comment to be included at the top of the systemd unit file.
+          conf:
+            type: dict
+            required: false
+            description: A dictionary of the values of the systemd unit file.
+          name:
+            type: str
+            required: true
+            description: The name of the systemd service.
+          path:
+            type: str
+            required: true
+            description: The path of the systemd unit file.
+          state:
+            type: str
+            required: false
+            description: The state, present or absent, of the systemd unit file.
+            options:
+              - absent
+              - present
+          unit_state:
+            type: str
+            required: false
+            description: The state of the systemd service.
+            options:
+              - reloaded
+              - restarted
+              - started
+              - stopped
+#      systemd_timesyncd:
+#        required: true
+#        description: Include the timesyncd tasks
+#      systemd_timesyncd_reboot:
+#        type: bool
+#        required: true
+#        description: Reboot the server automatically
+#      systemd_timesyncd_servers:
+#        type: list
+#        description: A list of NTP servers
 ...

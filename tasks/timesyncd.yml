@@ -129,7 +129,7 @@
       when: >
         ( systemd_timedatectl_status.ntp_service is not defined ) or
         ( systemd_timedatectl_status.ntp_service != "active" ) or
-        ( not systemd_timedatectl_status.system_clock_synchronized  | bool )
+        ( not systemd_timedatectl_status.system_clock_synchronized | bool )
 
     - name: Clock sync status
       ansible.builtin.debug:
@@ -138,7 +138,7 @@
     - name: Fail if the system clock is not synchronized
       ansible.builtin.assert:
         that:
-          - systemd_timedatectl_status.system_clock_synchronized  | bool
+          - systemd_timedatectl_status.system_clock_synchronized | bool
 
   tags:
     - systemd
