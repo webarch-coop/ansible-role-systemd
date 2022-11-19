@@ -1,0 +1,26 @@
+---
+- name: Systemd unit file absent
+  block:
+
+    - name: Debug the systemd unit file variables
+      ansible.builtin.debug:
+        var: systemd_file
+        verbosity: 2
+
+    - name: Stat the systemd unit file
+      ansible.builtin.stat:
+        path: "{{ systemd_file.path }}"
+      register: systemd_file_state
+
+    - name: Systemd unit file absent, backup present
+      ansible.builtin.command: "mv {{ systemd_file.path }} {{ systemd_file_backup }}"
+      register: systemd_file_absent
+      when: systemd_file_absent.stat.exists | bool
+
+    - name: Flush handlers
+      ansible.builtin.meta: flush_handlers
+      when: systemd_file_absent.changed | bool
+
+  tags:
+    - systemd
+...

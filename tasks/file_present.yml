@@ -1,0 +1,68 @@
+---
+- name: Systemd unit file present
+  block:
+
+    - name: Debug the proposed systemd unit file variables
+      ansible.builtin.debug:
+        var: systemd_file
+        verbosity: 2
+
+    - name: Stat the systemd unit file
+      ansible.builtin.stat:
+        path: "{{ systemd_file.path }}"
+      register: systemd_file_state
+
+    - name: Read the existing systemd unit file variables
+      block:
+
+        - name: Slurp the systemd unit file
+          ansible.builtin.slurp:
+            path: "{{ systemd_file.path }}"
+          register: systemd_file_b64encoded
+
+        - name: Set a fact for the existing systemd unit file variables
+          ansible.builtin.set_fact:
+            systemd_file_vars: "{{ systemd_file_b64encoded['content'] | b64decode | community.general.jc('ini') }}"
+
+        - name: Debug the existing systemd unit file variables
+          ansible.builtin.debug:
+            var: systemd_file_vars
+            verbosity: 2
+
+        - name: Backup copy of the existing systemd unit file present
+          ansible.builtin.copy:
+            src: "{{ systemd_file.path }}"
+            dest: "{{ systemd_file_backup }}"
+            mode: "0644"
+            owner: root
+            group: root
+            remote_src: true
+          when: systemd_file.conf != systemd_file_vars
+
+      when: systemd_file_state.stat.exists | bool
+
+    - name: Systemd unit file directory present
+      ansible.builtin.file:
+        path: "{{ systemd_file.path | ansible.builtin.dirname }}"
+        state: directory
+        mode: 0755
+        owner: root
+        group: root
+
+    - name: Systemd unit file present
+      ansible.builtin.template:
+        src: unit.j2
+        dest: "{{ systemd_file.path }}"
+        mode: 0644
+        owner: root
+        group: root
+      register: systemd_file_present
+      notify: Reload systemd
+
+    - name: Include flush handlers task
+      ansible.builtin.include_tasks: flush_handlers.yml
+      when: systemd_file_present.changed | bool
+
+  tags:
+    - systemd
+...

@@ -1,0 +1,45 @@
+---
+- name: Systemd unit configuration
+  block:
+
+    - name: Debug the systemd unit variables
+      ansible.builtin.debug:
+        var: systemd_unit
+        verbosity: 2
+
+    - name: Systemd unit packages present
+      ansible.builtin.apt:
+        pkg: "{{ systemd_unit.pkgs }}"
+        state: present
+      when:
+        - systemd_unit.pkgs is defined
+        - systemd_unit.pkgs | length > 0
+
+    - name: Include the systemd unit file absent tasks
+      ansible.builtin.include_tasks: file_absent.yml
+      loop: "{{ systemd_unit.files }}"
+      loop_control:
+        loop_var: systemd_file
+        label: "{{ systemd_file.path | basename }}"
+      when:
+        - systemd_file.state is defined
+        - systemd_file.state == "absent"
+
+    - name: Include the systemd unit file present tasks
+      ansible.builtin.include_tasks: file_present.yml
+      loop: "{{ systemd_unit.files }}"
+      loop_control:
+        loop_var: systemd_file
+        label: "{{ systemd_file.path | basename }}"
+      when: >-
+        ( systemd_file.state is not defined ) or
+        ( systemd_file.state == "present" )
+
+    - name: Unit state set
+      ansible.builtin.systemd:
+        name: "{{ systemd_unit.name }}"
+        state: "{{ systemd_unit.unit_state | default('started') }}"
+
+  tags:
+    - systemd
+...

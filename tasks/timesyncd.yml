@@ -2,25 +2,6 @@
 - name: Systemd timesyncd tasks
   block:
 
-    - name: Package systemd-timesyncd present
-      ansible.builtin.apt:
-        pkg:
-          - systemd-timesyncd
-        state: present
-
-    - name: Configuration for timesyncd in place
-      ansible.builtin.template:
-        src: timesyncd.conf.j2
-        dest: /etc/systemd/timesyncd.conf
-        mode: 0644
-        owner: root
-        group: root
-      register: systemd_timesyncd_conf
-      notify: Reload systemd
-
-    # - name: Flush handlers
-    #   ansible.bulitin.meta: flush_handlers
-
     - name: Check the timedatectl status
       block:
 

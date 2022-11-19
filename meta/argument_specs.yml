@@ -15,22 +15,39 @@ argument_specs:
         description: A list of systemd unit files and their contents and state.
         elements: dict
         options:
-          comment:
-            type: str
+          files:
+            type: list
             required: false
-            description: A comment to be included at the top of the systemd unit file.
-          conf:
-            type: dict
-            required: false
-            description: A dictionary of the values of the systemd unit file.
+            description: A list of systemd files and their content.
+            elements: dict
+            options:
+              comment:
+                type: str
+                required: false
+                description: A comment to be included at the top of the systemd unit file.
+              conf:
+                type: dict
+                required: false
+                description: A dictionary of the values of the systemd unit file.
+              path:
+                type: str
+                required: true
+                description: The path of the systemd unit file.
+              state:
+                type: str
+                required: false
+                description: The state, present or absent, of the systemd unit file.
+                options:
+                  - absent
+                  - present
           name:
             type: str
             required: true
             description: The name of the systemd service.
-          path:
-            type: str
-            required: true
-            description: The path of the systemd unit file.
+          pkgs:
+            type: list
+            required: false
+            description: A list of packages that should be present.
           state:
             type: str
             required: false
@@ -47,13 +64,13 @@ argument_specs:
               - restarted
               - started
               - stopped
+      systemd_timesyncd_reboot:
+        type: bool
+        required: false
+        description: Reboot if the clock isn't not synced with time servers.
 #      systemd_timesyncd:
 #        required: true
 #        description: Include the timesyncd tasks
-#      systemd_timesyncd_reboot:
-#        type: bool
-#        required: true
-#        description: Reboot the server automatically
 #      systemd_timesyncd_servers:
 #        type: list
 #        description: A list of NTP servers

@@ -19,14 +19,14 @@
 
     - name: Set a fact for the enabled systemd unit files
       ansible.builtin.set_fact:
-        systemd_unit_files_enabled: "{{ systemd_unit_files_existing | community.general.json_query(systemd_unit_files_enabled_jmespath_query) }}"
-      vars:
-        systemd_unit_files_enabled_jmespath_query: "[?state == 'enabled'].unit_file"
+        systemd_unit_files_enabled: "{{ systemd_unit_files_existing | community.general.json_query(systemd_unit_files_enabled_query) }}"
 
     - name: Debug enabled systemd unit files
       ansible.builtin.debug:
         var: systemd_unit_files_enabled
         verbosity: 2
+
+    # TODO Add checks for systemd_units variables
 
   tags:
     - systemd

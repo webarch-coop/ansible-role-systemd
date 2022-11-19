@@ -1,6 +1,19 @@
 ---
-- name: Systemd unit file present
+- name: Systemd unit absent
   block:
+
+    - name: Debug the systemd unit variables
+      ansible.builtin.debug:
+        var: systemd_unit
+        verbosity: 2
+
+    - name: Systemd packages present
+      ansible.builtin.apt:
+        pkg: "{{ systemd_unit.pkgs }}"
+        state: present
+      when:
+        - systemd_unit.pkgs is defined
+        - systemd_unit.pkgs | length > 0
 
     - name: Systemd unit file directory present
       ansible.builtin.file:

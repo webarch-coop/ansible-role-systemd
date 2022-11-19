@@ -13,7 +13,7 @@
       notify: Reload systemd
 
     - name: Systemd unit present
-      ansible.builtin.include_tasks: unit.yml
+      ansible.builtin.include_tasks: unit_present.yml
       when: ( systemd_unit.state is not defined ) or ( systemd_unit.state == "present" )
       loop: "{{ systemd_units }}"
       loop_control:

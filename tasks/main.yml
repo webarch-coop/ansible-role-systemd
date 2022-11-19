@@ -8,17 +8,38 @@
           - systemd
         state: present
 
-    - name: Checks
-      ansible.builtin.include_tasks: checks.yml
+    - name: Check and run tasks
+      block:
 
-    - name: Include systemd unit tasks
-      ansible.builtin.include_tasks: units.yml
+        - name: Include check tasks
+          ansible.builtin.include_tasks: checks.yml
+
+        - name: Include the systemd unit absent tasks
+          ansible.builtin.include_tasks: unit_absent.yml
+          loop_control:
+            loop_var: systemd_unit
+            label: "{{ systemd_unit.name }}"
+          when:
+            - systemd_unit.state is defined
+            - systemd_unit.state == "absent"
+
+        - name: Include the systemd unit present tasks
+          ansible.builtin.include_tasks: unit_present.yml
+          loop: "{{ systemd_units }}"
+          loop_control:
+            loop_var: systemd_unit
+            label: "{{ systemd_unit.name }}"
+          when: >-
+            ( systemd_unit.state is not defined ) or
+            ( systemd_unit.state == "present" )
+
       when:
         - systemd_units is defined
         - systemd_units | length > 0
 
-    # - name: Include timesyncd tasks
-    #   ansible.builtin.include_tasks: timesyncd.yml
+    - name: Include timesyncd tasks
+      ansible.builtin.include_tasks: timesyncd.yml
+      when: ( "systemd-timesyncd" in systemd_unit_names )
 
   when: systemd
   tags:
