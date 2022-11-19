@@ -12,13 +12,13 @@ argument_specs:
       systemd_units:
         type: list
         required: false
-        description: A list of systemd unit files and their contents and state.
+        description: A list of systemd units and contents.
         elements: dict
         options:
           files:
             type: list
             required: false
-            description: A list of systemd files and their content.
+            description: A list of systemd unit files and their content.
             elements: dict
             options:
               comment:
@@ -36,7 +36,7 @@ argument_specs:
               state:
                 type: str
                 required: false
-                description: The state, present or absent, of the systemd unit file.
+                description: The state of the systemd unit file.
                 options:
                   - absent
                   - present
@@ -51,7 +51,7 @@ argument_specs:
           state:
             type: str
             required: false
-            description: The state, present or absent, of the systemd unit file.
+            description: The state of the systemd unit.
             options:
               - absent
               - present
@@ -67,11 +67,5 @@ argument_specs:
       systemd_timesyncd_reboot:
         type: bool
         required: false
-        description: Reboot if the clock isn't not synced with time servers.
-#      systemd_timesyncd:
-#        required: true
-#        description: Include the timesyncd tasks
-#      systemd_timesyncd_servers:
-#        type: list
-#        description: A list of NTP servers
+        description: Reboot if the clock is not synced with time servers.
 ...
