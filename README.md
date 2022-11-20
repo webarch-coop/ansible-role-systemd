@@ -1,3 +1,67 @@
 # Webarchitects systemd Ansible role
 
-Ansible role for configuring some systemd services on Debian, currently only `systemd-timesyncd`.
+[![pipeline status](https://git.coop/webarch/systemd/badges/main/pipeline.svg)](https://git.coop/webarch/systemd/-/commits/main)
+
+An Ansible role for configuring systemd services on Debian, this role has been designed to be as generic as possible in order to enable to it be used to configure any Systemd service.
+
+## Role variables
+
+See the [defaults/main.yml](defaults/main.yml) file for the default variables.
+
+### systemd
+
+Set the `systemd` variable to `false` to prevent any tasks in this role being run, it defaults to `true`.
+
+### systemd_timesyncd_reboot
+
+Set the `systemd_timesyncd_reboot` variable to `true` for servers which have incorrect clocks to be rebooted by this role in order to correct their clocks, this variable defaults to false.
+
+### systemd_units
+
+A list of System units to configure, by default there is curently only one service defined, `systemd-timesyncd`:
+
+```yaml
+systemd_units:
+  - name: systemd-timesyncd
+    files:
+      - path: /etc/systemd/timesyncd.conf
+        comment: |
+          Entries in this file show the compile time defaults.
+          You can change settings by editing this file.
+          Defaults can be restored by simply deleting this file.
+          See timesyncd.conf(5) for details.
+        conf:
+          Time:
+            NTP: 0.pool.ntp.org 1.pool.ntp.org 3.pool.ntp.org 2.pool.ntp.org
+        state: present
+    pkgs:
+      - systemd-timesyncd
+    state: present
+    unit_state: started
+```
+
+The only required variables is `name`, see the [meta/argument_specs.yml](meta/argument_specs.yml) for the variable types.
+
+For each service required `.deb` packages can be specified, the state of the service can be specified and the files to be created / amended.
+
+Files are read using the [JC ini parser](https://kellyjonbrazil.github.io/jc/docs/parsers/ini) and only updated if the `conf` is to be changed.
+
+When files are updated or deleted backups are created based on the existing file name but prefixed with a leading `.` and suffixed with a timestamp in ISO8601 format and the file extension `.bak`.
+
+## Dependencies
+
+This role requires Ansible 2.11 or newer, [JC](https://pypi.org/project/jc/) and [JMESPath](https://pypi.org/project/jmespath/) to be installed using `pip3`.
+
+## Repo
+
+The primary URL of this repo is [`https://git.coop/webarch/systemd`](https://git.coop/webarch/systemd) however it is also [mirrored to GitHub](https://github.com/webarch-coop/ansible-role-systemd) and [available via Ansible Galaxy](https://galaxy.ansible.com/chriscroome/systemd).
+
+If you use this role please use a tagged release, see [the release notes](https://git.coop/webarch/systemd/-/releases).
+
+## License
+
+This role is released under the same terms as Ansible itself, the [GNU GENERAL PUBLIC LICENSE, Version 3](LICENSE).
+
+## Author
+
+[Chris Croome](https://git.coop/chris).

@@ -14,11 +14,11 @@ galaxy_info:
         - bullseye
         - buster
         - stretch
-  dependencies:
-    - name: jc
-      src: https://git.coop/webarch/jc
-      version: 1.6.0
-      scm: git
+  # dependencies:
+  #   - name: jc
+  #     src: https://git.coop/webarch/jc
+  #     version: 1.6.0
+  #     scm: git
   galaxy_tags:
     - debian
     - systemd
