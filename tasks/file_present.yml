@@ -7,12 +7,21 @@
         var: systemd_file
         verbosity: 2
 
+    # - name: Set a fact for the systemd unit file sections
+    #   ansible.builtin.set_fact:
+    #     systemd_sections: "{{ systemd_file.conf.keys() }}"         
+
+    # - name: Debug the proposed systemd unit file sections
+    #   ansible.builtin.debug:
+    #     var: systemd_sections
+    #     verbosity: 2
+
     - name: Stat the systemd unit file
       ansible.builtin.stat:
         path: "{{ systemd_file.path }}"
       register: systemd_file_state
 
-    - name: Read the existing systemd unit file variables
+    - name: Systemd unit file read and backed up
       block:
 
         - name: Slurp the systemd unit file
@@ -29,6 +38,15 @@
             var: systemd_file_vars
             verbosity: 2
 
+        - name: Set a fact for the existing systemd unit file sections
+          ansible.builtin.set_fact:
+            systemd_file_sections: "{{ systemd_file_vars.keys() }}"    
+
+        - name: Debug the existing systemd unit file sections
+          ansible.builtin.debug:
+            var: systemd_file_sections
+            verbosity: 2
+
         - name: Backup copy of the existing systemd unit file present
           ansible.builtin.copy:
             src: "{{ systemd_file.path }}"
@@ -41,23 +59,65 @@
 
       when: systemd_file_state.stat.exists | bool
 
-    - name: Systemd unit file directory present
-      ansible.builtin.file:
-        path: "{{ systemd_file.path | ansible.builtin.dirname }}"
-        state: directory
-        mode: 0755
-        owner: root
-        group: root
+    - name: Modify systemd unit file
+      block:
 
-    - name: Systemd unit file present
-      ansible.builtin.template:
-        src: unit.j2
-        dest: "{{ systemd_file.path }}"
-        mode: 0644
-        owner: root
-        group: root
-      register: systemd_file_present
-      notify: Reload systemd
+        - name: Comment present at the top of the systemd unit file
+          ansible.builtin.blockinfile:
+            path: "{{ systemd_file.path }}"
+            block: |
+              {% for systemd_comment_line in systemd_file.comment.split('\n') %}
+              # {{ systemd_comment_line }}
+              {% endfor %}
+            insertbefore: BOF
+            mode: "0644"
+            owner: root
+            group: root
+          when:
+            - systemd_file.comment is defined
+            - systemd_file.comment | length > 0
+
+        - name: Ansible managed comment present at the top of the file
+          ansible.builtin.lineinfile:
+            path: "{{ systemd_file.path }}"
+            line: "# Ansible managed"
+            state: present
+            insertbefore: BOF
+
+        - name: Include the systemd unit file edited tasks
+          ansible.builtin.include_tasks: file_edited.yml
+          loop: "{{ systemd_file.conf | dict2items }}"
+          loop_control:
+            loop_var: systemd_section
+
+      when:
+        - systemd_file_state.stat.exists | bool
+        - systemd_file.state == "edited"
+
+    - name: Template systemd unit file
+      block:
+
+        - name: Systemd unit file directory present
+          ansible.builtin.file:
+            path: "{{ systemd_file.path | ansible.builtin.dirname }}"
+            state: directory
+            mode: 0755
+            owner: root
+            group: root
+
+        - name: Systemd unit file present
+          ansible.builtin.template:
+            src: unit.j2
+            dest: "{{ systemd_file.path }}"
+            mode: 0644
+            owner: root
+            group: root
+          register: systemd_file_present
+          notify: Reload systemd
+
+      when: >-
+        ( not systemd_file_state.stat.exists | bool ) or
+        ( systemd_file.state == "present" )
 
     - name: Include flush handlers task
       ansible.builtin.include_tasks: flush_handlers.yml

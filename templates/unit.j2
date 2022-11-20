@@ -1,9 +1,11 @@
 # {{ ansible_managed }}
 
 {% if systemd_file.comment is defined %}
+# BEGIN ANSIBLE MANAGED BLOCK
 {% for systemd_comment_line in systemd_file.comment.split('\n') %}
 # {{ systemd_comment_line }}
 {% endfor %}
+# END ANSIBLE MANAGED BLOCK
 {% endif %}
 
 {% for systemd_section in systemd_file.conf | dict2items %}

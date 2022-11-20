@@ -36,9 +36,10 @@ argument_specs:
               state:
                 type: str
                 required: false
-                description: The state of the systemd unit file.
+                description: The state of the systemd unit file, present templates the file, edited updates an existing file.
                 options:
                   - absent
+                  - edited
                   - present
           name:
             type: str

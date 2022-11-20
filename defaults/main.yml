@@ -5,15 +5,15 @@ systemd_units:
   - name: systemd-timesyncd
     files:
       - path: /etc/systemd/timesyncd.conf
-        comment: |
-          Entries in this file show the compile time defaults.
-          You can change settings by editing this file.
-          Defaults can be restored by simply deleting this file.
-          See timesyncd.conf(5) for details.
+        # comment: |
+        #   Entries in this file show the compile time defaults.
+        #   You can change settings by editing this file.
+        #   Defaults can be restored by simply deleting this file.
+        #   See timesyncd.conf(5) for details.
         conf:
           Time:
-            NTP: 0.pool.ntp.org 1.pool.ntp.org 3.pool.ntp.org 2.pool.ntp.org
-        state: present
+            NTP: 1.pool.ntp.org 0.pool.ntp.org 3.pool.ntp.org 2.pool.ntp.org
+        state: edited
     pkgs:
       - systemd-timesyncd
     state: present

@@ -1,0 +1,35 @@
+---
+- name: Systemd unit file edited
+  block:
+
+    - name: Vim modelines comment absent
+      ansible.builtin.lineinfile:
+        path: "{{ systemd_file.path }}"
+        line: "# vim: ft=systemd:"
+        state: absent
+      when: systemd_section.key not in systemd_file_sections
+
+    - name: Systemd unit file updated
+      community.general.ini_file:
+        path: "{{ systemd_file.path }}"
+        section: "{{ systemd_section.key }}"
+        option: "{{ systemd_variable_pair.key }}"
+        value: "{{ systemd_variable_pair.value }}"
+        no_extra_spaces: true
+        mode: "0644"
+        owner: root
+        group: root
+      loop: "{{ systemd_section.value | dict2items }}"
+      loop_control:
+        loop_var: systemd_variable_pair
+
+    - name: Vim modelines comment present at the end of the file
+      ansible.builtin.lineinfile:
+        path: "{{ systemd_file.path }}"
+        line: "# vim: ft=systemd:"
+        state: present
+        insertafter: EOF
+
+  tags:
+    - systemd
+...
