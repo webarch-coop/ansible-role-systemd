@@ -42,11 +42,22 @@ systemd_units:
 
 The only required variables is `name`, see the [meta/argument_specs.yml](meta/argument_specs.yml) for the variable types.
 
-For each service required `.deb` packages can be specified, the state of the service can be specified and the files to be created / amended.
+For each service required `.deb` packages can be specified, the state of the service can be specified and the files to be created / amended and their content in YAML, which will be converted into ini format using the [templates/unit.j2](templates/unit.j2) template.
 
 Files are read using the [JC ini parser](https://kellyjonbrazil.github.io/jc/docs/parsers/ini) and only updated if the `conf` is to be changed.
 
 When files are updated or deleted backups are created based on the existing file name but prefixed with a leading `.` and suffixed with a timestamp in ISO8601 format and the file extension `.bak`.
+
+## Read existing Systemd files using JC
+
+You can read existing systemd files as YAML on the command line using [JC](https://github.com/kellyjonbrazil/jc), for example:
+
+```bash
+cat /etc/systemd/timesyncd.conf | jc --ini -py
+---
+Time:
+  NTP: 0.pool.ntp.org 1.pool.ntp.org 3.pool.ntp.org 2.pool.ntp.org
+```
 
 ## Dependencies
 
