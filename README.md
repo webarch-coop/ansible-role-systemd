@@ -18,7 +18,7 @@ When the `systemd_timesyncd_reboot` variable is set to `true` servers which have
 
 ### systemd_units
 
-A list of System units to configure, for example:
+A list of systemd units to configure, for example:
 
 ```yaml
 systemd_units:
@@ -58,7 +58,7 @@ The `edited` option can not remove variables and, unlike the `templated` option,
 
 When files are updated or deleted backups are created based on the existing file name but prefixed with a leading `.` and suffixed with a timestamp in ISO8601 format and the file extension `.bak`.
 
-## Read existing Systemd files using JC
+## Read existing systemd files using JC
 
 You can read existing systemd files as YAML on the command line using [JC](https://github.com/kellyjonbrazil/jc), for example:
 
