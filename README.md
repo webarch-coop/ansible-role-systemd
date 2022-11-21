@@ -2,7 +2,7 @@
 
 [![pipeline status](https://git.coop/webarch/systemd/badges/main/pipeline.svg)](https://git.coop/webarch/systemd/-/commits/main)
 
-An Ansible role for configuring systemd services on Debian, this role has been designed to be as generic as possible in order to enable to it be used to configure any Systemd service.
+An Ansible role for configuring systemd services on Debian, this role has been designed to be as generic as possible in order to enable to it be used to configure any systemd service.
 
 ## Role variables
 
@@ -48,13 +48,11 @@ Files are read using the [JC ini parser](https://kellyjonbrazil.github.io/jc/doc
 
 Files can have one of three states set:
 
-* `absent` - file deleted.
-* `edited` - edit an existing file.
-* `templated` - create a file if one does not exist or replace an existing one.
+* `absent` - the file will be deleted.
+* `edited` - the existing file will be edited using the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html).
+* `templated` - the file will be created if it does not exist or updated if it already exists using the [templates/unit.j2](templates/unit.j2) template.
 
-The `edited` option uses the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html) to change or add specified variables, howveer it can't remove variables, unlike the `templated` option it preserves existing comments the file.
-
-The `templated` option generates the systemd file using the [templates/unit.j2](templates/unit.j2) template.
+Note that the `edited` option can not remove variables and, unlike the `templated` option, it preserves existing comments.
 
 When files are updated or deleted backups are created based on the existing file name but prefixed with a leading `.` and suffixed with a timestamp in ISO8601 format and the file extension `.bak`.
 
