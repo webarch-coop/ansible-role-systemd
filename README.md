@@ -14,7 +14,7 @@ Set the `systemd` variable to `false` to prevent any tasks in this role being ru
 
 ### systemd_timesyncd_reboot
 
-Set the `systemd_timesyncd_reboot` variable to `true` for servers which have incorrect clocks to be rebooted by this role in order to correct their clocks, this variable defaults to false.
+When the `systemd_timesyncd_reboot` variable is set to `true` servers which have incorrect clocks will be rebooted by this role in order to correct their clocks, this variable defaults to `false`.
 
 ### systemd_units
 
@@ -46,13 +46,15 @@ For each service required `.deb` packages, the state of the service and the file
 
 Files are read using the [JC ini parser](https://kellyjonbrazil.github.io/jc/docs/parsers/ini) and only updated if the `conf` is to be changed.
 
-Files can have one of three states set:
+Files can optionally have one of three optional states set:
 
 * `absent` - the file will be deleted.
 * `edited` - the existing file will be edited using the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html).
 * `templated` - the file will be created if it does not exist or updated if it already exists using the [templates/unit.j2](templates/unit.j2) template.
 
-Note that the `edited` option can not remove variables and, unlike the `templated` option, it preserves existing comments.
+If the `state` is not set it defaults to `templated`.
+
+The `edited` option can not remove variables and, unlike the `templated` option, it preserves existing comments.
 
 When files are updated or deleted backups are created based on the existing file name but prefixed with a leading `.` and suffixed with a timestamp in ISO8601 format and the file extension `.bak`.
 
@@ -83,4 +85,4 @@ This role is released under the same terms as Ansible itself, the [GNU GENERAL P
 
 ## Author
 
-[Chris Croome](https://git.coop/chris).
+Copyright [Chris Croome](https://git.coop/chris).
