@@ -22,6 +22,7 @@
       loop: "{{ systemd_section.value | dict2items }}"
       loop_control:
         loop_var: systemd_variable_pair
+      notify: Reload systemd
 
     - name: Vim modelines comment present at the end of the file
       ansible.builtin.lineinfile:

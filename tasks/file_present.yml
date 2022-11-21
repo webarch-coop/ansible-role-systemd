@@ -90,6 +90,7 @@
 
       when:
         - systemd_file_state.stat.exists | bool
+        - systemd_file.state is defined
         - systemd_file.state == "edited"
 
     - name: Systemd unit file templated
@@ -115,6 +116,7 @@
 
       when: >-
         ( not systemd_file_state.stat.exists | bool ) or
+        ( systemd_file.state is not defined ) or
         ( systemd_file.state == "templated" )
 
     - name: Include flush handlers task
