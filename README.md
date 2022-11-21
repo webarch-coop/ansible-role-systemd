@@ -18,7 +18,7 @@ Set the `systemd_timesyncd_reboot` variable to `true` for servers which have inc
 
 ### systemd_units
 
-A list of System units to configure, by default there is curently only one service defined, `systemd-timesyncd`:
+A list of System units to configure, for example:
 
 ```yaml
 systemd_units:
@@ -33,7 +33,7 @@ systemd_units:
         conf:
           Time:
             NTP: 0.pool.ntp.org 1.pool.ntp.org 3.pool.ntp.org 2.pool.ntp.org
-        state: present
+        state: templated
     pkgs:
       - systemd-timesyncd
     state: present
@@ -42,9 +42,19 @@ systemd_units:
 
 The only required variables is `name`, see the [meta/argument_specs.yml](meta/argument_specs.yml) for the variable types.
 
-For each service required `.deb` packages can be specified, the state of the service can be specified and the files to be created / amended and their content in YAML, which will be converted into ini format using the [templates/unit.j2](templates/unit.j2) template.
+For each service required `.deb` packages, the state of the service and the files to be created / amended and their content in YAML can be specified.
 
 Files are read using the [JC ini parser](https://kellyjonbrazil.github.io/jc/docs/parsers/ini) and only updated if the `conf` is to be changed.
+
+Files can have one of three states set:
+
+* `absent` - file deleted.
+* `edited` - edit an existing file.
+* `templated` - create a file if one does not exist or replace an existing one.
+
+The `edited` option uses the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html) to change or add specified variables, howveer it can't remove variables, unlike the `templated` option it preserves existing comments the file.
+
+The `templated` option generates the systemd file using the [templates/unit.j2](templates/unit.j2) template.
 
 When files are updated or deleted backups are created based on the existing file name but prefixed with a leading `.` and suffixed with a timestamp in ISO8601 format and the file extension `.bak`.
 
@@ -63,7 +73,7 @@ Time:
 
 This role requires Ansible 2.11 or newer, [JC](https://pypi.org/project/jc/) and [JMESPath](https://pypi.org/project/jmespath/) to be installed using `pip3` on the Ansible controller.
 
-## Repo
+## Repository
 
 The primary URL of this repo is [`https://git.coop/webarch/systemd`](https://git.coop/webarch/systemd) however it is also [mirrored to GitHub](https://github.com/webarch-coop/ansible-role-systemd) and [available via Ansible Galaxy](https://galaxy.ansible.com/chriscroome/systemd).
 

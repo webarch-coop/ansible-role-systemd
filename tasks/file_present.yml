@@ -7,19 +7,17 @@
         var: systemd_file
         verbosity: 2
 
-    # - name: Set a fact for the systemd unit file sections
-    #   ansible.builtin.set_fact:
-    #     systemd_sections: "{{ systemd_file.conf.keys() }}"         
-
-    # - name: Debug the proposed systemd unit file sections
-    #   ansible.builtin.debug:
-    #     var: systemd_sections
-    #     verbosity: 2
-
     - name: Stat the systemd unit file
       ansible.builtin.stat:
         path: "{{ systemd_file.path }}"
       register: systemd_file_state
+
+    - name: Ensure that contradictory variables are not defined
+      ansible.builtin.assert:
+        that:
+          - systemd_file.state != "edited"
+        fail_msg: "The {{ systemd_file.path }} file needs to exist before it can be edited, set state to templated for the file to be created."
+      when: not systemd_file_state.stat.exists | bool
 
     - name: Systemd unit file read and backed up
       block:
@@ -40,7 +38,7 @@
 
         - name: Set a fact for the existing systemd unit file sections
           ansible.builtin.set_fact:
-            systemd_file_sections: "{{ systemd_file_vars.keys() }}"    
+            systemd_file_sections: "{{ systemd_file_vars.keys() }}"
 
         - name: Debug the existing systemd unit file sections
           ansible.builtin.debug:
@@ -59,7 +57,7 @@
 
       when: systemd_file_state.stat.exists | bool
 
-    - name: Modify systemd unit file
+    - name: Systemd unit file edited
       block:
 
         - name: Comment present at the top of the systemd unit file
@@ -94,7 +92,7 @@
         - systemd_file_state.stat.exists | bool
         - systemd_file.state == "edited"
 
-    - name: Template systemd unit file
+    - name: Systemd unit file templated
       block:
 
         - name: Systemd unit file directory present
@@ -117,7 +115,7 @@
 
       when: >-
         ( not systemd_file_state.stat.exists | bool ) or
-        ( systemd_file.state == "present" )
+        ( systemd_file.state == "templated" )
 
     - name: Include flush handlers task
       ansible.builtin.include_tasks: flush_handlers.yml

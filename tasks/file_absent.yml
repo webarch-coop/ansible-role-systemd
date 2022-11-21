@@ -17,8 +17,8 @@
       register: systemd_file_absent
       when: systemd_file_absent.stat.exists | bool
 
-    - name: Flush handlers
-      ansible.builtin.meta: flush_handlers
+    - name: Include flush handlers task
+      ansible.builtin.include_tasks: flush_handlers.yml
       when: systemd_file_absent.changed | bool
 
   tags:

@@ -36,11 +36,11 @@ argument_specs:
               state:
                 type: str
                 required: false
-                description: The state of the systemd unit file, present templates the file, edited updates an existing file.
-                options:
+                description: The state of the systemd unit file.
+                choices:
                   - absent
                   - edited
-                  - present
+                  - templated
           name:
             type: str
             required: true
@@ -53,14 +53,14 @@ argument_specs:
             type: str
             required: false
             description: The state of the systemd unit.
-            options:
+            choices:
               - absent
               - present
           unit_state:
             type: str
             required: false
             description: The state of the systemd service.
-            options:
+            choices:
               - reloaded
               - restarted
               - started

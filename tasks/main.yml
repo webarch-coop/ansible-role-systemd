@@ -1,5 +1,5 @@
 ---
-- name: Configure some systemd services
+- name: Configure specified systemd services
   block:
 
     - name: Package systemd present
@@ -33,13 +33,13 @@
             ( systemd_unit.state is not defined ) or
             ( systemd_unit.state == "present" )
 
+        - name: Include timesyncd tasks
+          ansible.builtin.include_tasks: timesyncd.yml
+          when: ( "systemd-timesyncd" in systemd_unit_names )
+
       when:
         - systemd_units is defined
         - systemd_units | length > 0
-
-    - name: Include timesyncd tasks
-      ansible.builtin.include_tasks: timesyncd.yml
-      when: ( "systemd-timesyncd" in systemd_unit_names )
 
   when: systemd
   tags:

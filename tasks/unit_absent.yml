@@ -7,47 +7,28 @@
         var: systemd_unit
         verbosity: 2
 
-    - name: Systemd packages present
+    - name: Systend unit stopped
+      ansible.builtin.systemd:
+        name: "{{ systemd_unit.name }}"
+        state: stopped
+      when: systemd_unit_file_name in systemd_unit_files_enabled
+      vars:
+        systemd_unit_file_name: "{{ systemd_unit.name }}.service"
+
+    - name: Systemd packages absent
       ansible.builtin.apt:
         pkg: "{{ systemd_unit.pkgs }}"
-        state: present
+        state: absent
       when:
         - systemd_unit.pkgs is defined
         - systemd_unit.pkgs | length > 0
 
-    - name: Systemd unit file directory present
-      ansible.builtin.file:
-        path: "{{ systemd_unit.path | ansible.builtin.dirname }}"
-        state: directory
-        mode: 0755
-        owner: root
-        group: root
-
-    - name: Systemd unit file present
-      ansible.builtin.template:
-        src: unit.j2
-        dest: "{{ systemd_unit.path }}"
-        backup: true
-        mode: 0644
-        owner: root
-        group: root
-      register: systend_unit_present
-      notify: Reload systemd
-
-    - name: Flush handlers
-      ansible.builtin.meta: flush_handlers
-      when: systend_unit_present.changed | bool
-
-    - name: Stat the systemd unit file
-      ansible.builtin.stat:
-        path: "{{ systemd_unit.path }}"
-      register: systemd_unit_state
-
-    - name: Unit state set
-      ansible.builtin.systemd:
-        name: "{{ systemd_unit.name }}"
-        state: "{{ systemd_unit.unit_state | default('started') }}"
-      when: systemd_unit_state.stat.exists | bool
+    - name: Systemd unit files absent
+      ansible.builtin.include_tasks: file_absent.yml
+      loop: "{{ systemd_unit.files }}"
+      loop_control:
+        loop_var: systemd_file
+        label: "{{ systemd_file.path | basename }}"
 
   tags:
     - systemd
