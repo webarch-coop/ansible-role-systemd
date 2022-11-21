@@ -9,7 +9,7 @@
         state: absent
       when: systemd_section.key not in systemd_file_sections
 
-    - name: Systemd unit file updated
+    - name: Systemd unit file edited
       community.general.ini_file:
         path: "{{ systemd_file.path }}"
         section: "{{ systemd_section.key }}"
@@ -29,6 +29,10 @@
       ansible.builtin.debug:
         var: systemd_file_edited
         verbosity: 2
+
+    - name: Set systemd_file_changed if one or more variable in the systemd unit file was edited
+      ansible.builtin.set_fact:
+        systemd_file_changed: "{{ systemd_file_edited | community.general.json_query('results[].changed') | ansible.builtin.unique | community.general.json_query('[0]') }}"
 
     - name: Vim modelines comment present at the end of the file
       ansible.builtin.lineinfile:

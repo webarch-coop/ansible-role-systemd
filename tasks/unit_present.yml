@@ -2,6 +2,10 @@
 - name: Systemd unit configuration
   block:
 
+    - name: Set systemd_file_changed to false
+      ansible.builtin.set_fact:
+        systemd_file_changed: false
+
     - name: Debug the systemd unit variables
       ansible.builtin.debug:
         var: systemd_unit
@@ -48,15 +52,13 @@
         name: "{{ systemd_unit.name }}"
         state: "{{ systemd_unit.unit_state | default('started') }}"
 
-    - name: Systemd services restarted
+    - name: Systemd unit restarted
       ansible.builtin.systemd:
-        service: "{{ systemd_service }}"
+        service: "{{ systemd_unit.name }}"
         state: restarted
-      loop: "{{ systemd_units_restarted }}"
-      loop_control:
-        loop_var: systemd_service
       when:
-        - systemd_units_restarted != []
+        - systemd_file_changed is defined
+        - systemd_file_changed | bool
 
   tags:
     - systemd

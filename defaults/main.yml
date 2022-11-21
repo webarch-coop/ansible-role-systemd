@@ -12,8 +12,7 @@ systemd_units:
           See timesyncd.conf(5) for details.
         conf:
           Time:
-            NTP: 1.pool.ntp.org 0.pool.ntp.org 3.pool.ntp.org 2.pool.ntp.org
-        state: edited
+            NTP: 0.pool.ntp.org 1.pool.ntp.org 2.pool.ntp.org 3.pool.ntp.org
     pkgs:
       - systemd-timesyncd
 ...

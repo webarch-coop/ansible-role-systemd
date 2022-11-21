@@ -71,7 +71,7 @@ Time:
 
 ## Dependencies
 
-This role requires Ansible 2.11 or newer, [JC](https://pypi.org/project/jc/) and [JMESPath](https://pypi.org/project/jmespath/) to be installed using `pip3` on the Ansible controller.
+This role requires Ansible `2.13` or newer, [JC](https://pypi.org/project/jc/) and [JMESPath](https://pypi.org/project/jmespath/) to be installed using `pip3` on the Ansible controller.
 
 ## Repository
 

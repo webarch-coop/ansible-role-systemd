@@ -113,12 +113,12 @@
           register: systemd_file_present
           notify: Reload systemd
 
-        - name: Add systemd unit to the list of services to restart
+        - name: Set systemd_file_changed if the systemd unit file was changed
           ansible.builtin.set_fact:
-            systemd_units_restarted: "{{ systemd_units_restarted + [systemd_unit.name] }}"
+            systemd_file_changed: true
           when:
+            - systemd_file_present is defined
             - systemd_file_present.changed | bool
-            - systemd_unit.name not in systemd_units_restarted
 
       when: >-
         ( not systemd_file_state.stat.exists | bool ) or
