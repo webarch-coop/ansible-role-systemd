@@ -11,6 +11,7 @@
       ansible.builtin.systemd:
         name: "{{ systemd_unit.name }}"
         state: stopped
+      register: systemd_unit_stopped
       when: systemd_unit_file_name in systemd_unit_files_enabled
       vars:
         systemd_unit_file_name: "{{ systemd_unit.name }}.service"
@@ -19,9 +20,16 @@
       ansible.builtin.apt:
         pkg: "{{ systemd_unit.pkgs }}"
         state: absent
+      register: systemd_unit_absent
       when:
         - systemd_unit.pkgs is defined
         - systemd_unit.pkgs | length > 0
+
+    - name: Include check tasks
+      ansible.builtin.include_tasks: checks.yml
+      when: >-
+        ( systemd_unit_stopped.changed | bool ) or
+        ( systemd_unit_absent.changed | bool )
 
     - name: Systemd unit files absent
       ansible.builtin.include_tasks: file_absent.yml

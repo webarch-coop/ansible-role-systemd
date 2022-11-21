@@ -2,4 +2,5 @@
 systemd_file_backup: "{{ systemd_file.path | ansible.builtin.dirname }}/.{{ systemd_file.path | ansible.builtin.basename }}.{{ ansible_date_time.iso8601_basic_short }}.bak }}"
 systemd_unit_files_enabled_query: "[?state == 'enabled'].unit_file"
 systemd_unit_names: "{{ systemd_units | community.general.json_query('[*].name') }}"
+systemd_units_restarted: []
 ...

@@ -2,6 +2,12 @@
 - name: Systemd checks
   block:
 
+    - name: Ensure that Ansible is version 2.13 or greater
+      ansible.builtin.assert:
+        that:
+          - ansible_version.full is version('2.13.0', '>=')
+        quiet: "{% if ansible_verbosity == 0 %}true{% else %}false{% endif %}"
+
     - name: List systemd unit files
       ansible.builtin.command: systemctl list-unit-files
       check_mode: false

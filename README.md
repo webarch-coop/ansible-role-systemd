@@ -81,8 +81,4 @@ If you use this role please use a tagged release, see [the release notes](https:
 
 ## License
 
-This role is released under the same terms as Ansible itself, the [GNU GENERAL PUBLIC LICENSE, Version 3](LICENSE).
-
-## Author
-
-Copyright [Chris Croome](https://git.coop/chris).
+This role is released under [the same terms as Ansible itself](https://github.com/ansible/ansible/blob/devel/COPYING), the [GNU GPLv3](LICENSE).

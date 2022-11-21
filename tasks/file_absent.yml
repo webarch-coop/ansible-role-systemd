@@ -17,9 +17,18 @@
       register: systemd_file_absent
       when: systemd_file_absent.stat.exists | bool
 
-    - name: Include flush handlers task
-      ansible.builtin.include_tasks: flush_handlers.yml
-      when: systemd_file_absent.changed | bool
+    - name: Include check and flush handler tasks when files have changed
+      block:
+
+        - name: Include flush handlers task
+          ansible.builtin.include_tasks: flush_handlers.yml
+
+        - name: Include check tasks
+          ansible.builtin.include_tasks: checks.yml
+
+      when:
+        - systemd_file_absent is defined
+        - systemd_file_absent.changed | bool
 
   tags:
     - systemd

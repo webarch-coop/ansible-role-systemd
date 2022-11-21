@@ -2,9 +2,7 @@
 
 {% if systemd_file.comment is defined %}
 # BEGIN ANSIBLE MANAGED BLOCK
-{% for systemd_comment_line in systemd_file.comment.split('\n') %}
-# {{ systemd_comment_line }}
-{% endfor %}
+{{ systemd_file.comment | ansible.builtin.comment }}
 # END ANSIBLE MANAGED BLOCK
 {% endif %}
 

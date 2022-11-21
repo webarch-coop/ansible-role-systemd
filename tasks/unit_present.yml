@@ -11,9 +11,16 @@
       ansible.builtin.apt:
         pkg: "{{ systemd_unit.pkgs }}"
         state: present
+      register: systemd_pgks_present
       when:
         - systemd_unit.pkgs is defined
         - systemd_unit.pkgs | length > 0
+
+    - name: Include check tasks
+      ansible.builtin.include_tasks: checks.yml
+      when:
+        - systemd_pgks_present is defined
+        - systemd_pgks_present.changed | bool
 
     - name: Include the systemd unit file absent tasks
       ansible.builtin.include_tasks: file_absent.yml
@@ -40,6 +47,16 @@
       ansible.builtin.systemd:
         name: "{{ systemd_unit.name }}"
         state: "{{ systemd_unit.unit_state | default('started') }}"
+
+    - name: Systemd services restarted
+      ansible.builtin.systemd:
+        service: "{{ systemd_service }}"
+        state: restarted
+      loop: "{{ systemd_units_restarted }}"
+      loop_control:
+        loop_var: systemd_service
+      when:
+        - systemd_units_restarted != []
 
   tags:
     - systemd

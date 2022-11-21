@@ -23,6 +23,12 @@
       loop_control:
         loop_var: systemd_variable_pair
       notify: Reload systemd
+      register: systemd_file_edited
+
+    - name: Debug systemd_file_edited variable
+      ansible.builtin.debug:
+        var: systemd_file_edited
+        verbosity: 2
 
     - name: Vim modelines comment present at the end of the file
       ansible.builtin.lineinfile:
