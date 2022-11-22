@@ -16,7 +16,7 @@
       ansible.builtin.assert:
         that:
           - systemd_file.state != "edited"
-        fail_msg: "The {{ systemd_file.path }} file needs to exist before it can be edited, set state to templated for the file to be created."
+        fail_msg: "The {{ systemd_file.path }} file needs to exist before it can be edited, set state to present or templated for the file to be created."
       when:
         - systemd_file.state is defined
         - not systemd_file_state.stat.exists | bool
@@ -90,7 +90,7 @@
       when:
         - systemd_file_state.stat.exists | bool
         - systemd_file.state is defined
-        - systemd_file.state == "edited"
+        - systemd_file.state is regex('^edited|present$')
 
     - name: Systemd unit file templated
       block:

@@ -36,7 +36,7 @@
         - systemd_file.state is defined
         - systemd_file.state == "absent"
 
-    - name: Include the systemd unit file edited or templated tasks
+    - name: Include the systemd unit file edited, present or templated tasks
       ansible.builtin.include_tasks: file_present.yml
       loop: "{{ systemd_unit.files }}"
       loop_control:
@@ -44,8 +44,7 @@
         label: "{{ systemd_file.path | basename }}"
       when: >-
         ( systemd_file.state is not defined ) or
-        ( systemd_file.state == "edited" ) or
-        ( systemd_file.state == "templated" )
+        ( systemd_file.state is regex('^edited|present|templated$') )
 
     - name: Unit state set
       ansible.builtin.systemd:

@@ -2,7 +2,7 @@
 argument_specs:
   main:
     author: Chris Croome
-    description: Ansible role for configuring some systemd services on Debian
+    description: Ansible role for configuring systemd services on Debian.
     short_description: The main entry point for the systemd role.
     options:
       systemd:
@@ -28,7 +28,7 @@ argument_specs:
               conf:
                 type: dict
                 required: false
-                description: A dictionary of the values of the systemd unit file.
+                description: A dictionary of the values for the systemd unit file.
               path:
                 type: str
                 required: true
@@ -40,6 +40,7 @@ argument_specs:
                 choices:
                   - absent
                   - edited
+                  - present
                   - templated
           name:
             type: str

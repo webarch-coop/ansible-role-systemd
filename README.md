@@ -2,11 +2,11 @@
 
 [![pipeline status](https://git.coop/webarch/systemd/badges/main/pipeline.svg)](https://git.coop/webarch/systemd/-/commits/main)
 
-An Ansible role for configuring systemd services on Debian, this role has been designed to be as generic as possible in order to enable to it be used to configure any systemd service.
+An Ansible role for configuring systemd services on Debian, this role has been designed to be as generic as possible in order to enable to it be used to configure any systemd service, by default it configures `systemd-timesyncd`.
 
 ## Role variables
 
-See the [defaults/main.yml](defaults/main.yml) file for the default variables.
+See the [defaults/main.yml](defaults/main.yml) file for the default variables, these are described below.
 
 ### systemd
 
@@ -14,7 +14,7 @@ Set the `systemd` variable to `false` to prevent any tasks in this role being ru
 
 ### systemd_timesyncd_reboot
 
-When the `systemd_timesyncd_reboot` variable is set to `true` servers which have incorrect clocks will be rebooted by this role in order to correct their clocks, this variable defaults to `false`.
+When the `systemd_timesyncd_reboot` variable is set to `true` servers which have incorrect clocks will be rebooted by this role in order to correct their clocks, it defaults to `false`.
 
 ### systemd_units
 
@@ -33,7 +33,7 @@ systemd_units:
         conf:
           Time:
             NTP: 0.pool.ntp.org 1.pool.ntp.org 3.pool.ntp.org 2.pool.ntp.org
-        state: templated
+        state: present
     pkgs:
       - systemd-timesyncd
     state: present
@@ -42,17 +42,18 @@ systemd_units:
 
 The only required variables is `name`, see the [meta/argument_specs.yml](meta/argument_specs.yml) for the variable types.
 
-For each service required `.deb` packages, the state of the service and the files to be created / amended and their content in YAML can be specified.
+For each service required `.deb` packages, the state of the service and the files to be created / amended and their content as YAML can be specified.
 
 Files are read using the [JC ini parser](https://kellyjonbrazil.github.io/jc/docs/parsers/ini) and only updated if the `conf` is to be changed.
 
-Files can optionally have one of three optional states set:
+Files can optionally have one of four optional states set:
 
 * `absent` - the file will be deleted.
 * `edited` - the existing file will be edited using the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html).
+* `present` - if the file exists it will be edited using the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html), if not it will be created using the [templates/unit.j2](templates/unit.j2) template.
 * `templated` - the file will be created if it does not exist or updated if it already exists using the [templates/unit.j2](templates/unit.j2) template.
 
-If the `state` is not set it defaults to `templated`.
+If the `state` is not set it defaults to `present`.
 
 The `edited` option can not remove variables and, unlike the `templated` option, it preserves existing comments.
 
