@@ -75,7 +75,7 @@
             - name: Ansible managed comment present at the top of the file
               ansible.builtin.lineinfile:
                 path: "{{ systemd_file.path }}"
-                line: "{{ ansible_managed | ansible.builtin.comment }}"
+                line: "# {{ systemd_ansible_managed }}"
                 state: present
                 insertbefore: BOF
 
@@ -121,8 +121,7 @@
 
       when: >-
         ( not systemd_file_state.stat.exists | bool ) or
-        ( systemd_file.state is not defined ) or
-        ( systemd_file.state == "templated" )
+        ( systemd_file.state is defined and systemd_file.state == "templated" )
 
     - name: Include flush handlers task
       ansible.builtin.include_tasks: flush_handlers.yml
