@@ -120,6 +120,7 @@
       ansible.builtin.assert:
         that:
           - systemd_timedatectl_status.system_clock_synchronized | bool
+        quiet: "{% if ansible_verbosity == 0 %}true{% else %}false{% endif %}"
 
   tags:
     - systemd
