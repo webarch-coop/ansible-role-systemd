@@ -1,4 +1,4 @@
-# {{ ansible_managed }}
+{{ ansible_managed | ansible.builtin.comment }}
 
 {% if systemd_file.comment is defined %}
 # BEGIN ANSIBLE MANAGED BLOCK
