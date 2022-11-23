@@ -8,6 +8,8 @@
           - ansible_version.full is version('2.13.0', '>=')
         quiet: "{% if ansible_verbosity == 0 %}true{% else %}false{% endif %}"
 
+    # TODO Find files that are not symlinks https://git.coop/webarch/systemd/-/issues/2
+
     - name: List systemd unit files
       ansible.builtin.command: systemctl list-unit-files
       check_mode: false
