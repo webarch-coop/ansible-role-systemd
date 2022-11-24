@@ -70,4 +70,8 @@ argument_specs:
         type: bool
         required: false
         description: Reboot if the clock is not synced with time servers.
+      systemd_tz:
+        type: str
+        required: true
+        description: The timezone for the clock to be set to.
 ...

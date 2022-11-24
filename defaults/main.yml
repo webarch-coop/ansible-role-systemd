@@ -1,6 +1,7 @@
 ---
 systemd: true
 systemd_timesyncd_reboot: false
+systemd_tz: Etc/UTC
 systemd_units:
   - name: systemd-timesyncd
     files:

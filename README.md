@@ -16,6 +16,10 @@ Set the `systemd` variable to `false` to prevent any tasks in this role being ru
 
 When the `systemd_timesyncd_reboot` variable is set to `true` servers which have incorrect clocks will be rebooted by this role in order to correct their clocks, it defaults to `false`.
 
+### systemd_tz
+
+The time zone to be used (the hardware clock is set to UTC), for example `Europe/London`, it defaults to `Etc/UTC`.
+
 ### systemd_units
 
 A list of systemd units to configure, for example:
