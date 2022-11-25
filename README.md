@@ -4,7 +4,7 @@
 
 An Ansible role for configuring systemd services on Debian, this role has been designed to be as generic as possible in order to enable to it be used to configure any systemd service, by default it configures `systemd-timesyncd`.
 
-On Debian Buster [backports](https://backports.debian.org/Instructions/) needs to be enabled to get the [latest version of systemd](https://packages.debian.org/buster-backports/systemd), the [Webarchitects apt role](https://git.coop/webarch/apt) can be used to do this.
+On Debian Buster [backports](https://backports.debian.org/Instructions/) is required to get the [latest version of systemd](https://packages.debian.org/buster-backports/systemd), the [Webarchitects apt role](https://git.coop/webarch/apt) can be used to enable backports.
 
 ## Role variables
 
@@ -12,15 +12,21 @@ See the [defaults/main.yml](defaults/main.yml) file for the default variables, t
 
 ### systemd
 
-Set the `systemd` variable to `false` to prevent any tasks in this role being run, `systemd` defaults to `true`.
+Set the `systemd` variable to `false` to prevent any tasks in this role being run.
+
+The `systemd` variable defaults to `true`.
 
 ### systemd_timesyncd_reboot
 
-When the `systemd_timesyncd_reboot` variable is set to `true` servers which have incorrect clocks will be rebooted by this role in order to correct their clocks, `systemd_timesyncd_reboot` defaults to `false`.
+When the `systemd_timesyncd_reboot` variable is set to `true` servers which have incorrect clocks will be rebooted by this role in order to correct their clocks.
+
+The `systemd_timesyncd_reboot` variable defaults to `false`.
 
 ### systemd_tz
 
-The time zone to be used (the hardware clock is set to UTC), for example `Europe/London`, it defaults to `Etc/UTC`.
+The time zone to be used (the hardware clock is set to UTC), for example `Europe/London`.
+
+The `systemd_tz` variable defaults to `Etc/UTC`.
 
 ### systemd_units
 
@@ -65,7 +71,9 @@ The `edited` option can not remove variables and, unlike the `templated` option,
 
 When files are updated or deleted backups are created based on the existing file name but prefixed with a leading `.` and suffixed with a timestamp in ISO8601 format and the file extension `.bak`.
 
-## Read existing systemd files using JC
+See the [defaults/main.yml](defaults/main.yml) file for the default `systemd_units` YAML dictionary.
+
+## Read existing systemd files as YAML using JC
 
 You can read existing systemd files as YAML on the command line using [JC](https://github.com/kellyjonbrazil/jc), for example:
 
