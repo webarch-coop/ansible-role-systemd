@@ -4,6 +4,8 @@
 
 An Ansible role for configuring systemd services on Debian, this role has been designed to be as generic as possible in order to enable to it be used to configure any systemd service, by default it configures `systemd-timesyncd`.
 
+On Debian Buster [backports](https://backports.debian.org/Instructions/) needs to be enabled to get the [latest version of systemd](https://packages.debian.org/buster-backports/systemd), the [Webarchitects apt role](https://git.coop/webarch/apt) can be used to do this.
+
 ## Role variables
 
 See the [defaults/main.yml](defaults/main.yml) file for the default variables, these are described below.
@@ -77,8 +79,6 @@ Time:
 ## Dependencies
 
 This role requires Ansible `2.13` or newer, [JC](https://pypi.org/project/jc/) and [JMESPath](https://pypi.org/project/jmespath/) to be installed using `pip3` on the Ansible controller.
-
-On Debian Buster [backports](https://backports.debian.org/Instructions/) needs to be enabled to get the [latest version of systemd](https://packages.debian.org/buster-backports/systemd), the [Webarchitects apt role](https://git.coop/webarch/apt) can be used to do this.
 
 ## Repository
 
