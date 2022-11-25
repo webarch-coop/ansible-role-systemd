@@ -1,0 +1,32 @@
+---
+- name: Systemd installed
+  block:
+
+    - name: Systemd present from backports on Debian Buster
+      block:
+
+        - name: Run apt-cache policy systemd
+          ansible.builtin.command: apt-cache policy systemd
+          check_mode: false
+          changed_when: false
+          register: systemd_apt_cache_policy_systemd
+
+        - name: Install systemd from backports
+          ansible.builtin.apt:
+            pkg:
+              - systemd
+            state: present
+            default_release: "{{ ansible_distribution_release }}-backports"
+          when: ( "buster-backports" in systemd_apt_cache_policy_systemd.stdout )
+
+      when: ansible_distribution_release == "buster"
+
+    - name: Systemd present
+      ansible.builtin.apt:
+        pkg:
+          - systemd
+        state: present
+
+  tags:
+    - systemd
+...

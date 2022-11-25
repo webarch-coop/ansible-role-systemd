@@ -2,11 +2,8 @@
 - name: Configure specified systemd services
   block:
 
-    - name: Package systemd present
-      ansible.builtin.apt:
-        pkg:
-          - systemd
-        state: present
+    - name: Systemd install tasks included
+      ansible.builtin.include_tasks: install.yml
 
     - name: Check and run tasks
       block:
