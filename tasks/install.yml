@@ -2,7 +2,7 @@
 - name: Systemd installed
   block:
 
-    - name: Systemd present from backports on Debian Buster
+    - name: Systemd present from backports on Debian Buster and Bullseye
       block:
 
         - name: Run apt-cache policy systemd
@@ -17,9 +17,9 @@
               - systemd
             state: latest
             default_release: "{{ ansible_distribution_release }}-backports"
-          when: ( "buster-backports" in systemd_apt_cache_policy_systemd.stdout )
+          when: ( "-backports" in systemd_apt_cache_policy_systemd.stdout )
 
-      when: ansible_distribution_release == "buster"
+      when: ansible_distribution_release is ansible.builtin.regex('^buster|bullseye$')
 
     - name: Systemd present
       ansible.builtin.apt:
