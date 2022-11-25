@@ -12,11 +12,11 @@ See the [defaults/main.yml](defaults/main.yml) file for the default variables, t
 
 ### systemd
 
-Set the `systemd` variable to `false` to prevent any tasks in this role being run, it defaults to `true`.
+Set the `systemd` variable to `false` to prevent any tasks in this role being run, `systemd` defaults to `true`.
 
 ### systemd_timesyncd_reboot
 
-When the `systemd_timesyncd_reboot` variable is set to `true` servers which have incorrect clocks will be rebooted by this role in order to correct their clocks, it defaults to `false`.
+When the `systemd_timesyncd_reboot` variable is set to `true` servers which have incorrect clocks will be rebooted by this role in order to correct their clocks, `systemd_timesyncd_reboot` defaults to `false`.
 
 ### systemd_tz
 
