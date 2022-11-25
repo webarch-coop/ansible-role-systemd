@@ -15,7 +15,7 @@
           ansible.builtin.apt:
             pkg:
               - systemd
-            state: present
+            state: latest
             default_release: "{{ ansible_distribution_release }}-backports"
           when: ( "buster-backports" in systemd_apt_cache_policy_systemd.stdout )
 
