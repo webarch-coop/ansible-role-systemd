@@ -13,9 +13,9 @@
 
         - name: Debug apt-cache policy results
           ansible.builtin.debug:
-            var: systemd_apt_cache_policy_pkg.stdout
+            var: systemd_apt_cache_policy_pkg.stdout_lines
             verbosity: 2
-          when: systemd_apt_cache_policy_pkg.stdout is defined
+          when: systemd_apt_cache_policy_pkg.stdout_lines is defined
 
         - name: Install from backports
           ansible.builtin.apt:
