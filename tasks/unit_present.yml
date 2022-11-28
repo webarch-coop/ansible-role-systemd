@@ -11,47 +11,18 @@
         var: systemd_unit
         verbosity: 2
 
-    - name: Systemd present from backports on Debian Buster and Bullseye
-      block:
-
-        - name: Run apt-cache policy systemd
-          ansible.builtin.command: apt-cache policy systemd
-          check_mode: false
-          changed_when: false
-          register: systemd_apt_cache_policy_systemd
-
-        - name: Install systemd from backports
-          ansible.builtin.apt:
-            pkg: "{{ systemd_unit.pkgs }}"
-            state: latest
-            default_release: "{{ ansible_distribution_release }}-backports"
-          when: ( "-backports" in systemd_apt_cache_policy_systemd.stdout )
-
-      when: ansible_distribution_release is ansible.builtin.regex('^buster|bullseye$')
-
-    - name: Systemd unit packages present
-      ansible.builtin.apt:
-        pkg: "{{ systemd_unit.pkgs }}"
-        state: present
-      register: systemd_pgks_present
-      when:
-        - systemd_unit.pkgs is defined
-        - systemd_unit.pkgs | length > 0
-
-    - name: Systemd unit packages present from backports
-      ansible.builtin.apt:
-        pkg: "{{ systemd_unit.pkgs }}"
-        state: present
-      register: systemd_pgks_present
+    - name: Include the package install tasks when defined
+      ansible.builtin.include_tasks: pkg_present.yml
+      loop: "{{ systemd_unit.pkgs }}"
+      loop_control:
+        loop_var: systemd_pkg
+        label: "{{ systemd_pkg }}"
       when:
         - systemd_unit.pkgs is defined
         - systemd_unit.pkgs | length > 0
 
     - name: Include check tasks
       ansible.builtin.include_tasks: checks.yml
-      when:
-        - systemd_pgks_present is defined
-        - systemd_pgks_present.changed | bool
 
     - name: Include the systemd unit file absent tasks
       ansible.builtin.include_tasks: file_absent.yml

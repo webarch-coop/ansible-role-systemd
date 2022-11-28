@@ -1,0 +1,30 @@
+---
+- name: Install package
+  block:
+
+    - name: Install from backports on Debian Buster and Bullseye
+      block:
+
+        - name: Run apt-cache policy
+          ansible.builtin.command: "apt-cache policy {{ systemd_pkg }}"
+          check_mode: false
+          changed_when: false
+          register: systemd_apt_cache_policy_pkg
+
+        - name: Install from backports
+          ansible.builtin.apt:
+            pkg: "{{ systemd_pkg }}"
+            state: latest
+            default_release: "{{ ansible_distribution_release }}-backports"
+          when: ( "-backports" in systemd_pkg.stdout )
+
+      when: ansible_distribution_release is ansible.builtin.regex('^buster|bullseye$')
+
+    - name: Package present
+      ansible.builtin.apt:
+        pkg: "{{ systemd_pkg }}"
+        state: present
+
+  tags:
+    - systemd
+...
