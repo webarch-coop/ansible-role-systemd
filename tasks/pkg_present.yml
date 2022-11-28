@@ -11,6 +11,12 @@
           changed_when: false
           register: systemd_apt_cache_policy_pkg
 
+        - name: Debug apt-cache policy results
+          ansible.builtin.debug:
+            var: systemd_apt_cache_policy_pkg.stdout
+            verbosity: 2
+          when: systemd_apt_cache_policy_pkg.stdout is defined
+
         - name: Install from backports
           ansible.builtin.apt:
             pkg: "{{ systemd_pkg }}"
