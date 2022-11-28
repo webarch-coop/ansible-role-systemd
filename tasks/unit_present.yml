@@ -11,7 +11,34 @@
         var: systemd_unit
         verbosity: 2
 
+    - name: Systemd present from backports on Debian Buster and Bullseye
+      block:
+
+        - name: Run apt-cache policy systemd
+          ansible.builtin.command: apt-cache policy systemd
+          check_mode: false
+          changed_when: false
+          register: systemd_apt_cache_policy_systemd
+
+        - name: Install systemd from backports
+          ansible.builtin.apt:
+            pkg: "{{ systemd_unit.pkgs }}"
+            state: latest
+            default_release: "{{ ansible_distribution_release }}-backports"
+          when: ( "-backports" in systemd_apt_cache_policy_systemd.stdout )
+
+      when: ansible_distribution_release is ansible.builtin.regex('^buster|bullseye$')
+
     - name: Systemd unit packages present
+      ansible.builtin.apt:
+        pkg: "{{ systemd_unit.pkgs }}"
+        state: present
+      register: systemd_pgks_present
+      when:
+        - systemd_unit.pkgs is defined
+        - systemd_unit.pkgs | length > 0
+
+    - name: Systemd unit packages present from backports
       ansible.builtin.apt:
         pkg: "{{ systemd_unit.pkgs }}"
         state: present
