@@ -16,7 +16,7 @@
             pkg: "{{ systemd_pkg }}"
             state: latest
             default_release: "{{ ansible_distribution_release }}-backports"
-          when: ( "-backports" in systemd_pkg.stdout )
+          when: ( "-backports" in systemd_apt_cache_policy_pkg.stdout )
 
       when: ansible_distribution_release is ansible.builtin.regex('^buster|bullseye$')
 
