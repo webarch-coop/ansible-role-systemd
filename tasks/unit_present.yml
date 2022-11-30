@@ -47,8 +47,8 @@
     - name: Set the unit state and restart it when the unit file exists
       block:
 
-        - name: Flush handlers prior to setting the unit state
-          ansible.builtin.meta: flush_handlers
+        - name: Include flush handlers task prior to setting the unit state
+          ansible.builtin.include_tasks: flush_handlers.yml
 
         - name: Unit state set
           ansible.builtin.systemd:
