@@ -139,6 +139,11 @@
         ( not systemd_file_state.stat.exists | bool ) or
         ( systemd_file.state is defined and systemd_file.state == "templated" )
 
+    - name: Stat the systemd unit file
+      ansible.builtin.stat:
+        path: "{{ systemd_file.path }}"
+      register: systemd_file_state
+
     - name: Include flush handlers task
       ansible.builtin.include_tasks: flush_handlers.yml
       when: systemd_file_present.changed | bool

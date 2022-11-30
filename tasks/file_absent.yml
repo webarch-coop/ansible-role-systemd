@@ -30,6 +30,11 @@
         - systemd_file_absent is defined
         - systemd_file_absent.changed | bool
 
+    - name: Stat the systemd unit file
+      ansible.builtin.stat:
+        path: "{{ systemd_file.path }}"
+      register: systemd_file_state
+
   tags:
     - systemd
 ...
