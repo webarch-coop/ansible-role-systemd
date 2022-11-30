@@ -22,7 +22,8 @@
       loop: "{{ systemd_section.value | dict2items }}"
       loop_control:
         loop_var: systemd_variable_pair
-      notify: Reload systemd
+      notify:
+        - Reload systemd
       register: systemd_file_edited
 
     - name: Debug systemd_file_edited variable

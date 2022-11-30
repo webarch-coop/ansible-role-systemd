@@ -126,7 +126,8 @@
             owner: root
             group: root
           register: systemd_file_present
-          notify: Reload systemd
+          notify:
+            - Reload systemd
 
         - name: Set systemd_file_changed if the systemd unit file was changed
           ansible.builtin.set_fact:
