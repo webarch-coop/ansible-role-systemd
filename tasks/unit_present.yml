@@ -44,18 +44,23 @@
         ( systemd_file.state is not defined ) or
         ( systemd_file.state is regex('^edited|present|templated$') )
 
-    - name: Unit state set
-      ansible.builtin.systemd:
-        name: "{{ systemd_unit.name }}"
-        state: "{{ systemd_unit.unit_state | default('started') }}"
+    - name: Set the unit state and restart it when the unit file exists
+      block:
 
-    - name: Systemd unit restarted
-      ansible.builtin.systemd:
-        service: "{{ systemd_unit.name }}"
-        state: restarted
-      when:
-        - systemd_file_changed is defined
-        - systemd_file_changed | bool
+        - name: Unit state set
+          ansible.builtin.systemd:
+            name: "{{ systemd_unit.name }}"
+            state: "{{ systemd_unit.unit_state | default('started') }}"
+
+        - name: Systemd unit restarted
+          ansible.builtin.systemd:
+            service: "{{ systemd_unit.name }}"
+            state: restarted
+          when:
+            - systemd_file_changed is defined
+            - systemd_file_changed | bool
+
+      when: systemd_file_state.stat.exists | bool
 
   tags:
     - systemd
