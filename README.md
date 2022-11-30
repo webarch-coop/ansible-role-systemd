@@ -73,6 +73,35 @@ When files are updated or deleted backups are created based on the existing file
 
 See the [defaults/main.yml](defaults/main.yml) file for the default `systemd_units` YAML dictionary.
 
+## Usage example
+
+This role can be included in another role along these lines (this has been based on [this gist](https://gist.github.com/Luzifer/7c54c8b0b61da450d10258f0abd3c917):
+
+```yaml
+- name: Include systemd role
+  ansible.builtin.include_role:
+    name: systemd
+    tasks_from: unit_present.yml
+  vars:
+    systemd_unit:
+      name: docker-compose
+      files:
+        - path: /etc/systemd/service/docker-compose.service
+          conf:
+            Unit:
+              Description: Docker Compose container starter
+              After: docker.service network-online.target
+              Requires: docker.service network-online.target
+            Service:
+              WorkingDirectory: /opt/mailcow-dockerized
+              Type: oneshot
+              RemainAfterExit: "yes"
+              ExecStart: docker compose up -d
+              ExecStop: docker compose down
+            Install:
+              WantedBy: multi-user.target
+```
+
 ## Read existing systemd files as YAML using JC
 
 You can read existing systemd files as YAML on the command line using [JC](https://github.com/kellyjonbrazil/jc), for example:
