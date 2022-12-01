@@ -1,66 +1,5 @@
 ---
 argument_specs:
-  unit_present:
-    author: Chris Croome
-    description: Ansible role for configuring systemd services on Debian.
-    short_description: The systemd unit present entry point for the systemd role.
-    options:
-      systemd_unit:
-        type: dict
-        required: false
-        description: A single systemd unit.
-        options:
-          files:
-            type: list
-            required: false
-            description: A list of systemd unit files and their content.
-            elements: dict
-            options:
-              comment:
-                type: str
-                required: false
-                description: A comment to be included at the top of the systemd unit file.
-              conf:
-                type: dict
-                required: false
-                description: A dictionary of the values for the systemd unit file.
-              path:
-                type: str
-                required: true
-                description: The path of the systemd unit file.
-              state:
-                type: str
-                required: false
-                description: The state of the systemd unit file.
-                choices:
-                  - absent
-                  - edited
-                  - present
-                  - templated
-          name:
-            type: str
-            required: true
-            description: The name of the systemd service.
-          pkgs:
-            type: list
-            required: false
-            description: A list of packages that should be present.
-          state:
-            type: str
-            required: false
-            description: The state of the systemd unit.
-            choices:
-              - absent
-              - present
-          unit_state:
-            type: str
-            required: false
-            description: The state of the systemd service.
-            choices:
-              - reloaded
-              - restarted
-              - started
-              - stopped
   main:
     author: Chris Croome
     description: Ansible role for configuring systemd services on Debian.
@@ -135,4 +74,65 @@ argument_specs:
         type: str
         required: true
         description: The timezone for the clock to be set to.
+  unit_present:
+    author: Chris Croome
+    description: Ansible role for configuring systemd services on Debian.
+    short_description: The systemd unit present entry point for the systemd role.
+    options:
+      systemd_unit:
+        type: dict
+        required: false
+        description: A single systemd unit.
+        options:
+          files:
+            type: list
+            required: false
+            description: A list of systemd unit files and their content.
+            elements: dict
+            options:
+              comment:
+                type: str
+                required: false
+                description: A comment to be included at the top of the systemd unit file.
+              conf:
+                type: dict
+                required: false
+                description: A dictionary of the values for the systemd unit file.
+              path:
+                type: str
+                required: true
+                description: The path of the systemd unit file.
+              state:
+                type: str
+                required: false
+                description: The state of the systemd unit file.
+                choices:
+                  - absent
+                  - edited
+                  - present
+                  - templated
+          name:
+            type: str
+            required: true
+            description: The name of the systemd service.
+          pkgs:
+            type: list
+            required: false
+            description: A list of packages that should be present.
+          state:
+            type: str
+            required: false
+            description: The state of the systemd unit.
+            choices:
+              - absent
+              - present
+          unit_state:
+            type: str
+            required: false
+            description: The state of the systemd service.
+            choices:
+              - reloaded
+              - restarted
+              - started
+              - stopped
 ...

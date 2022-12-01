@@ -36,7 +36,7 @@
       loop: "{{ systemd_unit.files }}"
       loop_control:
         loop_var: systemd_file
-        label: "{{ systemd_file.path | basename }}"
+        label: "{{ systemd_file.path | ansible.builtin.basename }}"
 
   tags:
     - systemd

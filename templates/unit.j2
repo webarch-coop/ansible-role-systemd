@@ -6,6 +6,7 @@
 # END ANSIBLE MANAGED BLOCK
 {% endif %}
 
+{% if systemd_dictionary_depth == 2 %}
 {% for systemd_section in systemd_file.conf | dict2items %}
 [{{ systemd_section.key }}]
 {% for systemd_variable_pair in systemd_section.value | dict2items %}
@@ -13,5 +14,10 @@
 {% endfor %}
 
 {% endfor %}
+{% else %} 
+{% for systemd_variable_pair in systemd_file.conf | dict2items %}
+{{ systemd_variable_pair.key }}={{ systemd_variable_pair.value }}
+{% endfor %}
+{% endif %}
 
 # vim: ft=systemd:

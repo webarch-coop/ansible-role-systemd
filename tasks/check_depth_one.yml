@@ -1,0 +1,31 @@
+---
+- name: Check dictionary depth
+  block:
+
+    - name: Set systemd_dictionary_depth to zero and systemd_dictionary_depth_two to equal an empty list
+      ansible.builtin.set_fact:
+        systemd_dictionary_depth: 0
+        systemd_dictionary_depth_two: []
+
+    - name: Set fact when systemd_dictionary depth == 1
+      ansible.builtin.set_fact:
+        systemd_dictionary_depth: 1
+      when: systemd_dict_value | ansible.builtin.type_debug != "dict"
+      loop: "{{ systemd_dictionary | ansible.builtin.dict2items | community.general.json_query('[].value') }}"
+      loop_control:
+        loop_var: systemd_dict_value
+        label: "{{ systemd_dict_value }}"
+
+    - name: Debug systemd_dictionary_depth
+      ansible.builtin.debug:
+        var: systemd_dictionary_depth
+        verbosity: 2
+      when: systemd_dictionary_depth is defined
+
+    - name: Include tasks to check the depth of the dictionary when it is not 1
+      ansible.builtin.include_tasks: check_depth_two.yml
+      when: systemd_dictionary_depth != 1
+
+  tags:
+    - systemd
+...

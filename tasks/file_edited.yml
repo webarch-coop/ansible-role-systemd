@@ -2,45 +2,85 @@
 - name: Systemd unit file edited
   block:
 
-    - name: Vim modelines comment absent
-      ansible.builtin.lineinfile:
-        path: "{{ systemd_file.path }}"
-        line: "# vim: ft=systemd:"
-        state: absent
-      when: systemd_section.key not in systemd_file_sections
-
-    - name: Systemd unit file edited
-      community.general.ini_file:
-        path: "{{ systemd_file.path }}"
-        section: "{{ systemd_section.key }}"
-        option: "{{ systemd_variable_pair.key }}"
-        value: "{{ systemd_variable_pair.value }}"
-        no_extra_spaces: true
-        mode: "0644"
-        owner: root
-        group: root
-      loop: "{{ systemd_section.value | dict2items }}"
-      loop_control:
-        loop_var: systemd_variable_pair
-      notify:
-        - Reload systemd
-      register: systemd_file_edited
-
-    - name: Debug systemd_file_edited variable
+    - name: Debug systemd_section
       ansible.builtin.debug:
-        var: systemd_file_edited
+        var: systemd_section
         verbosity: 2
 
-    - name: Set systemd_file_changed if one or more variable in the systemd unit file was edited
-      ansible.builtin.set_fact:
-        systemd_file_changed: "{{ systemd_file_edited | community.general.json_query('results[].changed') | ansible.builtin.unique | community.general.json_query('[0]') }}"
+    - name: Debug the systemd_conf_depth variable
+      ansible.builtin.debug:
+        var: systemd_conf_depth
+        verbosity: 2
 
-    - name: Vim modelines comment present at the end of the file
-      ansible.builtin.lineinfile:
-        path: "{{ systemd_file.path }}"
-        line: "# vim: ft=systemd:"
-        state: present
-        insertafter: EOF
+    - name: Edit file with sections
+      block:
+
+        - name: Vim modelines comment absent
+          ansible.builtin.lineinfile:
+            path: "{{ systemd_file.path }}"
+            line: "# vim: ft=systemd:"
+            state: absent
+          when: systemd_section.key not in systemd_file_sections
+
+        - name: Systemd unit file edited
+          community.general.ini_file:
+            path: "{{ systemd_file.path }}"
+            section: "{{ systemd_section.key }}"
+            option: "{{ systemd_variable_pair.key }}"
+            value: "{{ systemd_variable_pair.value }}"
+            no_extra_spaces: true
+            mode: "0644"
+            owner: root
+            group: root
+          loop: "{{ systemd_section.value | ansible.builtin.dict2items }}"
+          loop_control:
+            loop_var: systemd_variable_pair
+          notify:
+            - Reload systemd
+          register: systemd_file_edited
+
+        - name: Debug systemd_file_edited variable
+          ansible.builtin.debug:
+            var: systemd_file_edited
+            verbosity: 2
+
+        - name: Set systemd_file_changed if one or more variable in the systemd unit file was edited
+          ansible.builtin.set_fact:
+            systemd_file_changed: "{{ systemd_file_edited | community.general.json_query('results[].changed') | ansible.builtin.unique | community.general.json_query('[0]') }}"
+
+        - name: Vim modelines comment present at the end of the file
+          ansible.builtin.lineinfile:
+            path: "{{ systemd_file.path }}"
+            line: "# vim: ft=systemd:"
+            state: present
+            insertafter: EOF
+
+      when: systemd_dictionary_depth == 2
+
+    - name: Edit file without sections
+      block:
+
+        - name: Systemd unit file edited
+          community.general.ini_file:
+            path: "{{ systemd_file.path }}"
+            option: "{{ systemd_variable_pair.key }}"
+            value: "{{ systemd_variable_pair.value }}"
+            no_extra_spaces: true
+            mode: "0644"
+            owner: root
+            group: root
+          loop: "{{ systemd_section.value | ansible.builtin.dict2items }}"
+          loop_control:
+            loop_var: systemd_variable_pair
+          notify:
+            - Reload systemd
+          register: systemd_file_edited
+
+        - name: Set systemd_file_changed if one or more variable in the systemd unit file was edited
+          ansible.builtin.set_fact:
+            systemd_file_changed: "{{ systemd_file_edited | community.general.json_query('results[].changed') | ansible.builtin.unique | community.general.json_query('[0]') }}"
+
+      when: systemd_dictionary_depth == 1
 
   tags:
     - systemd

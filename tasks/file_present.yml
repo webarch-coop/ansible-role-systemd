@@ -7,6 +7,28 @@
         var: systemd_file
         verbosity: 2
 
+    - name: Check the depth of the systemd file conf dictionary
+      block:
+
+        - name: Ensure that systemd_file.conf is a dictionary
+          ansible.builtin.assert:
+            that:
+              - systemd_file.conf | ansible.builtin.type_debug == "dict"
+            quiet: "{% if ansible_verbosity == 0 %}true{% else %}false{% endif %}"
+
+        - name: Include tasks to check the depth of the dictionary
+          ansible.builtin.include_tasks: check_depth_one.yml
+          vars:
+            systemd_dictionary: "{{ systemd_file.conf }}"
+
+        - name: Ensure that systemd_file.conf dictionary depth is 1 or 2
+          ansible.builtin.assert:
+            that:
+              - systemd_dictionary_depth is regex('^1|2$')
+            quiet: "{% if ansible_verbosity == 0 %}true{% else %}false{% endif %}"
+
+      when: systemd_file.conf is defined
+
     - name: Stat the systemd unit file
       ansible.builtin.stat:
         path: "{{ systemd_file.path }}"
@@ -31,21 +53,42 @@
 
         - name: Set a fact for the existing systemd unit file variables
           ansible.builtin.set_fact:
-            systemd_file_vars: "{{ systemd_file_b64encoded['content'] | b64decode | community.general.jc('ini') }}"
+            systemd_file_vars: "{{ systemd_file_b64encoded['content'] | ansible.builtin.b64decode | community.general.jc('ini') }}"
 
         - name: Debug the existing systemd unit file variables
           ansible.builtin.debug:
             var: systemd_file_vars
             verbosity: 2
 
-        - name: Set a fact for the existing systemd unit file sections
-          ansible.builtin.set_fact:
-            systemd_file_sections: "{{ systemd_file_vars.keys() }}"
-
-        - name: Debug the existing systemd unit file sections
+        - name: Debug the type of the file vars dictionary
           ansible.builtin.debug:
-            var: systemd_file_sections
+            msg: "{{ systemd_file_vars | ansible.builtin.dict2items | ansible.builtin.type_debug }}"
             verbosity: 2
+
+        - name: Include tasks to check the depth of the dictionary
+          ansible.builtin.include_tasks: check_depth_one.yml
+          vars:
+            systemd_dictionary: "{{ systemd_file_vars }}"
+
+        - name: Ensure that systemd_file.conf dictionary depth is 1 or 2
+          ansible.builtin.assert:
+            that:
+              - systemd_dictionary_depth is regex('^1|2$')
+            quiet: "{% if ansible_verbosity == 0 %}true{% else %}false{% endif %}"
+
+        - name: Conditionally set a variable with the list of sections
+          block:
+
+            - name: Set a fact for the existing systemd unit file sections
+              ansible.builtin.set_fact:
+                systemd_file_sections: "{{ systemd_file_vars.keys() }}"
+
+            - name: Debug the existing systemd unit file sections
+              ansible.builtin.debug:
+                var: systemd_file_sections
+                verbosity: 2
+
+          when: systemd_dictionary_depth == 2
 
         - name: Backup copy of the existing systemd unit file present
           ansible.builtin.copy:
@@ -95,11 +138,18 @@
                 owner: root
                 group: root
 
-            - name: Include the systemd unit file edited tasks
+            - name: Include the systemd unit file edited tasks for sections
               ansible.builtin.include_tasks: file_edited.yml
-              loop: "{{ systemd_file.conf | dict2items }}"
+              loop: "{{ systemd_file.conf | ansible.builtin.dict2items }}"
               loop_control:
                 loop_var: systemd_section
+              when: systemd_dictionary_depth == 2
+
+            - name: Include the systemd unit file edited tasks without sections
+              ansible.builtin.include_tasks: file_edited.yml
+              vars:
+                systemd_section: "{{ systemd_file.conf }}"
+              when: systemd_dictionary_depth == 1
 
           when: >-
             ( systemd_file.state is not defined ) or

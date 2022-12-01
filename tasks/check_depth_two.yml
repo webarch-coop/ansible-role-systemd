@@ -1,0 +1,43 @@
+---
+- name: Check dictionary depth two
+  block:
+
+    - name: Set fact when systemd_dictionary depth > 1
+      ansible.builtin.set_fact:
+        systemd_dictionary_depth: 2
+        systemd_dictionary_depth_two: "{{ systemd_dictionary_depth_two | default([]) + [systemd_dict_value | ansible.builtin.dict2items | community.general.json_query('[].value')] }}"
+      when:
+        - ( systemd_dictionary_depth is undefined ) or ( systemd_dictionary_depth != 1 )
+        - systemd_dict_value | ansible.builtin.type_debug == "dict"
+      loop: "{{ systemd_dictionary | ansible.builtin.dict2items | community.general.json_query('[].value') }}"
+      loop_control:
+        loop_var: systemd_dict_value
+        label: "{{ systemd_dict_value }}"
+
+    - name: Debug systemd_dictionary_depth
+      ansible.builtin.debug:
+        var: systemd_dictionary_depth
+        verbosity: 2
+      when: systemd_dictionary_depth is defined
+
+    - name: Debug systemd_dictionary_depth_two
+      ansible.builtin.debug:
+        var: systemd_dictionary_depth_two
+        verbosity: 2
+      when: systemd_dictionary_depth_two is defined
+
+    - name: Debug systemd_dictionary_depth_two type
+      ansible.builtin.debug:
+        msg: "{{ systemd_dictionary_depth_two | ansible.builtin.type_debug }}"
+        verbosity: 2
+      when: systemd_dictionary_depth_two is defined
+
+    - name: Debug systemd_dictionary_depth_two json_query
+      ansible.builtin.debug:
+        msg: "{{ systemd_dictionary_depth_two | community.general.json_query('[]') }}"
+        verbosity: 2
+      when: systemd_dictionary_depth_two is defined
+
+    - name: Include tasks to check the depth of the dictionary when it is 2
+      ansible.builtin.include_tasks: check_depth_three.yml
+...

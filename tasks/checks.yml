@@ -19,7 +19,7 @@
     - name: Debug list systemd unit files standard out
       ansible.builtin.debug:
         var: systemd_list_unit_files.stdout
-        verbosity: 2
+        verbosity: 3
 
     - name: Set a fact for the systemd unit files
       ansible.builtin.set_fact:

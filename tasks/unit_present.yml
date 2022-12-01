@@ -21,6 +21,7 @@
         - systemd_unit.pkgs is defined
         - systemd_unit.pkgs | length > 0
 
+    # Checks needed when this file is the role entry point
     - name: Include check tasks
       ansible.builtin.include_tasks: checks.yml
 
@@ -29,7 +30,7 @@
       loop: "{{ systemd_unit.files }}"
       loop_control:
         loop_var: systemd_file
-        label: "{{ systemd_file.path | basename }}"
+        label: "{{ systemd_file.path | ansible.builtin.basename }}"
       when:
         - systemd_file.state is defined
         - systemd_file.state == "absent"
@@ -39,7 +40,7 @@
       loop: "{{ systemd_unit.files }}"
       loop_control:
         loop_var: systemd_file
-        label: "{{ systemd_file.path | basename }}"
+        label: "{{ systemd_file.path | ansible.builtin.basename }}"
       when: >-
         ( systemd_file.state is not defined ) or
         ( systemd_file.state is regex('^edited|present|templated$') )

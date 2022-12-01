@@ -1,0 +1,26 @@
+---
+- name: Check dictionary depth
+  block:
+
+    - name: Debug systemd_dictionary_depth_two
+      ansible.builtin.debug:
+        var: systemd_dictionary_depth_two
+
+    - name: Set fact when systemd_file.conf depth > 2
+      ansible.builtin.set_fact:
+        systemd_dictionary_depth: 3
+      when: systemd_dict_value | ansible.builtin.type_debug == "dict"
+      loop: "{{ systemd_dictionary_depth_two | community.general.json_query('[]') }}"
+      loop_control:
+        loop_var: systemd_dict_value
+        label: "{{ systemd_dict_value }}"
+
+    - name: Debug systemd_dictionary_depth
+      ansible.builtin.debug:
+        var: systemd_dictionary_depth
+        verbosity: 2
+      when: systemd_dictionary_depth is defined
+
+  tags:
+    - systemd
+...
