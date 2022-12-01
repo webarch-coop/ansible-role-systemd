@@ -4,6 +4,8 @@
 
 An Ansible role for configuring systemd services on Debian, this role has been designed to be as generic as possible in order to enable to it be used to configure any systemd service, by default it configures `systemd-timesyncd`.
 
+`systemd` is a [System and Service Manager](https://systemd.io/) that _"runs as PID 1 and starts the rest of the system"_.
+
 On Debian Buster [backports](https://backports.debian.org/Instructions/) is required to get the [latest version of systemd](https://packages.debian.org/buster-backports/systemd), the [Webarchitects apt role](https://git.coop/webarch/apt) can be used to enable backports.
 
 ## Role variables
@@ -54,7 +56,7 @@ systemd_units:
 
 The only required variables is `name`, see the [meta/argument_specs.yml](meta/argument_specs.yml) for the variable types.
 
-For each service required `.deb` packages, the state of the service and the files to be created / amended and their content as YAML can be specified.
+For each service required `.deb` packages, the state of the service and the files to be created / amended and their content as YAML can be specified using the `pkgs` variable.
 
 Files are read using the [JC ini parser](https://kellyjonbrazil.github.io/jc/docs/parsers/ini) and only updated if the `conf` is to be changed.
 
@@ -68,6 +70,21 @@ Files can optionally have one of four optional states set:
 If the `state` is not set it defaults to `present`.
 
 The `edited` option can not remove variables and, unlike the `templated` option, it preserves existing comments.
+
+The `conf` dictionary defines the systemd `ini` file variables, as a dictionary. The depth of the dictionary defines the type of file generated, for example to generate a systemd environment file:
+
+```yaml
+conf:
+  FOO: bar
+```
+
+And to generate generate a systemd unit file:
+
+```yaml
+conf:
+  Unit:
+    Description: Docker Compose container starter
+```
 
 When files are updated or deleted backups are created based on the existing file name but prefixed with a leading `.` and suffixed with a timestamp in ISO8601 format and the file extension `.bak`.
 
@@ -86,6 +103,9 @@ This role can be included in another role along these lines (this has been based
     systemd_unit:
       name: docker-compose
       files:
+        - path: /etc/systemd/docker-compose.conf
+          conf:
+            DOCKER_COMPOSE_VERSION: native
         - path: /etc/systemd/service/docker-compose.service
           conf:
             Unit:
@@ -93,6 +113,9 @@ This role can be included in another role along these lines (this has been based
               After: docker.service network-online.target
               Requires: docker.service network-online.target
             Service:
+              User: mailcow
+              Group: mailcow
+              EnvironmentFile: /etc/systemd/system/sharedfutures.conf
               WorkingDirectory: /opt/mailcow-dockerized
               Type: oneshot
               RemainAfterExit: "yes"
