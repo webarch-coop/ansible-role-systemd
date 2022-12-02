@@ -38,7 +38,7 @@
         - systemd_units is defined
         - systemd_units | length > 0
 
-  when: systemd
+  when: systemd | bool
   tags:
     - systemd
 ...
