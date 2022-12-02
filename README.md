@@ -56,20 +56,14 @@ systemd_units:
 
 The only required variables is `name`, see the [meta/argument_specs.yml](meta/argument_specs.yml) for the variable types.
 
-For each service required `.deb` packages, the state of the service and the files to be created / amended and their content as YAML can be specified using the `pkgs` variable.
-
-Files are read using the [JC ini parser](https://kellyjonbrazil.github.io/jc/docs/parsers/ini) and only updated if the `conf` is to be changed.
-
-Files can optionally have one of four optional states set:
+The `files` variable is a list of files, which can optionally have one of four optional states set:
 
 * `absent` - the file will be deleted.
 * `edited` - the existing file will be edited using the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html).
 * `present` - if the file exists it will be edited using the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html), if not it will be created using the [templates/unit.j2](templates/unit.j2) template.
 * `templated` - the file will be created if it does not exist or updated if it already exists using the [templates/unit.j2](templates/unit.j2) template.
 
-If the `state` is not set it defaults to `present`.
-
-The `edited` option can not remove variables and, unlike the `templated` option, it preserves existing comments.
+If the `files` `state` is not set it defaults to `present`. The `edited` option can not remove variables and, unlike the `templated` option, it preserves existing comments.
 
 The `conf` dictionary defines the systemd `ini` file variables, as a dictionary. The depth of the dictionary defines the type of file generated, for example to generate a systemd environment file:
 
@@ -86,9 +80,15 @@ conf:
     Description: Docker Compose container starter
 ```
 
+The `comment` variable can be used for commented text at the top of the file.
+
 When files are updated or deleted backups are created based on the existing file name but prefixed with a leading `.` and suffixed with a timestamp in ISO8601 format and the file extension `.bak`.
 
-See the [defaults/main.yml](defaults/main.yml) file for the default `systemd_units` YAML dictionary.
+The `pkgs` variable is a list of `.deb` packages which will be installed when the `state` is present and removed when `absent`.
+
+The `unit_state` variable is used for the [Ansible systemd module state](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/systemd_module.html#parameter-state) so it can be one of `reloaded`, `restarted`, `started` or `stopped`.
+
+See the [meta/argument_spacs.yml](meta/argument_specs.yml) for the variable specification and [defaults/main.yml](defaults/main.yml) file for the default `systemd_units` YAML dictionary.
 
 ## Usage example
 
