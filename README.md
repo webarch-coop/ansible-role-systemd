@@ -114,7 +114,7 @@ The `unit_state` variable is used for the [Ansible systemd module state](https:/
 
 ## Usage example
 
-This role can be included in another role along these lines (this has been based on [this gist](https://gist.github.com/Luzifer/7c54c8b0b61da450d10258f0abd3c917):
+This role can be included in another role along these lines (this has been based on [this gist](https://gist.github.com/Luzifer/7c54c8b0b61da450d10258f0abd3c917)):
 
 ```yaml
 - name: Include systemd role
