@@ -67,7 +67,7 @@
 
         - name: Debug systemd_section type
           ansible.builtin.debug:
-            msg: "{{ systemd_section | type_debug }]"
+            msg: "{{ systemd_section | type_debug }}"
             verbosity: 2
 
         - name: Systemd unit file edited
