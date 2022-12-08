@@ -143,12 +143,16 @@
               loop: "{{ systemd_file.conf | ansible.builtin.dict2items }}"
               loop_control:
                 loop_var: systemd_section
+              vars:
+                systemd_dictionary_depth: 2
               when: systemd_dictionary_depth == 2
 
             - name: Include the systemd unit file edited tasks without sections
               ansible.builtin.include_tasks: file_edited.yml
               vars:
                 systemd_section: "{{ systemd_file.conf }}"
+              vars:
+                systemd_dictionary_depth: 1
               when: systemd_dictionary_depth == 1
 
           when: >-
