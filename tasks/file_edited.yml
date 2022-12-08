@@ -63,17 +63,17 @@
         - name: Debug systemd_section
           ansible.builtin.debug:
             var: systemd_section
-            verbosity: 2
+            verbosity: 3
 
         - name: Debug systemd_section type
           ansible.builtin.debug:
             msg: "{{ systemd_section | type_debug }}"
-            verbosity: 2
+            verbosity: 3
 
         - name: Debug systemd_section dict2items
           ansible.builtin.debug:
             msg: "{{ systemd_section | dict2items }}"
-            verbosity: 2
+            verbosity: 3
 
         - name: Systemd unit file edited
           community.general.ini_file:
