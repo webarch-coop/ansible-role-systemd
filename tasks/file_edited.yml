@@ -80,6 +80,7 @@
             path: "{{ systemd_file.path }}"
             option: "{{ systemd_variable_pair.key }}"
             value: "{{ systemd_variable_pair.value }}"
+            section: null
             no_extra_spaces: true
             mode: "0644"
             owner: root
