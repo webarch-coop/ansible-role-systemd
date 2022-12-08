@@ -151,7 +151,6 @@
               ansible.builtin.include_tasks: file_edited.yml
               vars:
                 systemd_section: "{{ systemd_file.conf }}"
-              vars:
                 systemd_dictionary_depth: 1
               when: systemd_dictionary_depth == 1
 
