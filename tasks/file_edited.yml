@@ -74,7 +74,7 @@
             mode: "0644"
             owner: root
             group: root
-          loop: "{{ systemd_section.value | ansible.builtin.dict2items }}"
+          loop: "{{ systemd_section }}"
           loop_control:
             loop_var: systemd_variable_pair
           notify:
