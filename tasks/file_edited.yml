@@ -7,9 +7,9 @@
         var: systemd_section
         verbosity: 2
 
-    - name: Debug the systemd_conf_depth variable
+    - name: Debug the systemd_dictionary_depth variable
       ansible.builtin.debug:
-        var: systemd_conf_depth
+        var: systemd_dictionary_depth
         verbosity: 2
 
     - name: Edit file with sections
