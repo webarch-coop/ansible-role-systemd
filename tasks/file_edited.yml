@@ -70,6 +70,11 @@
             msg: "{{ systemd_section | type_debug }}"
             verbosity: 2
 
+        - name: Debug systemd_section dict2items
+          ansible.builtin.debug:
+            msg: "{{ systemd_section | dict2items }}"
+            verbosity: 2
+
         - name: Systemd unit file edited
           community.general.ini_file:
             path: "{{ systemd_file.path }}"
