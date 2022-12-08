@@ -72,7 +72,7 @@
 
         - name: Debug systemd_section dict2items
           ansible.builtin.debug:
-            msg: "{{ systemd_section | dict2items }}"
+            msg: "{{ systemd_section | ansible.builtin.dict2items }}"
             verbosity: 3
 
         - name: Systemd unit file edited
@@ -85,7 +85,7 @@
             mode: "0644"
             owner: root
             group: root
-          loop: "{{ systemd_section | dict2items }}"
+          loop: "{{ systemd_section | ansible.builtin.dict2items }}"
           loop_control:
             loop_var: systemd_variable_pair
           notify:
