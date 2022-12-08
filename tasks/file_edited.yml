@@ -60,6 +60,11 @@
     - name: Edit file without sections
       block:
 
+        - name: Debug systemd_section.value
+          ansible.builtin.debug:
+            var: systemd_section.value
+            verbosity: 2
+
         - name: Systemd unit file edited
           community.general.ini_file:
             path: "{{ systemd_file.path }}"
