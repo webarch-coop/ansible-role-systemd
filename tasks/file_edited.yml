@@ -84,7 +84,7 @@
             mode: "0644"
             owner: root
             group: root
-          loop: "{{ systemd_section }}"
+          loop: "{{ systemd_section | dict2items }}"
           loop_control:
             loop_var: systemd_variable_pair
           notify:
