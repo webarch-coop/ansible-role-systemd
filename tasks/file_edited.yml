@@ -60,9 +60,9 @@
     - name: Edit file without sections
       block:
 
-        - name: Debug systemd_section.value
+        - name: Debug systemd_section
           ansible.builtin.debug:
-            var: systemd_section.value
+            var: systemd_section
             verbosity: 2
 
         - name: Systemd unit file edited
