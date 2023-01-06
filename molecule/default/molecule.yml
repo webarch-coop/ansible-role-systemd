@@ -10,8 +10,6 @@
 ---
 dependency:
   name: galaxy
-driver:
-  name: docker
 platforms:
   - name: instance
     image: registry.git.coop/webarch/containers/images/ansible:0.16.0
