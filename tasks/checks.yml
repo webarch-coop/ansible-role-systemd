@@ -1,3 +1,12 @@
+# Copyright 2022-2023 Chris Croome
+#
+# This file is part of the Webarchitects systemd Ansible role.
+#
+# The Webarchitects systemd Ansible role is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+#
+# The Webarchitects Ansible role is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with the Webarchitects systemd Ansible role. If not, see <https://www.gnu.org/licenses/>.
 ---
 - name: Systemd checks
   block:
@@ -7,6 +16,40 @@
         that:
           - ansible_version.full is version('2.13.0', '>=')
         quiet: "{% if ansible_verbosity == 0 %}true{% else %}false{% endif %}"
+
+    - name: Find broken symlinks
+      ansible.builtin.command: find /etc/systemd -xtype l
+      check_mode: false
+      changed_when: false
+      register: systemd_list_broken_symlinks
+
+    - name: Set a fact for the list of broken symlinks
+      ansible.builtin.set_fact:
+        systemd_broken_symlinks: "{{ systemd_list_broken_symlinks.stdout_lines }}"
+      when: systemd_list_broken_symlinks.stdout_lines[0] is defined
+
+    - name: List broken symlinks
+      ansible.builtin.debug:
+        var: systemd_broken_symlinks
+        verbosity: 2
+      when: systemd_broken_symlinks is defined
+
+    - name: Find /dev/null symlinks
+      ansible.builtin.command: find /etc/systemd -lname /dev/null
+      check_mode: false
+      changed_when: false
+      register: systemd_list_devnull_symlinks
+
+    - name: Set a fact for the list of /dev/null symlinks
+      ansible.builtin.set_fact:
+        systemd_devnull_symlinks: "{{ systemd_list_devnull_symlinks.stdout_lines }}"
+      when: systemd_list_devnull_symlinks.stdout_lines[0] is defined
+
+    - name: List /dev/null symlinks
+      ansible.builtin.debug:
+        var: systemd_devnull_symlinks
+        verbosity: 2
+      when: systemd_devnull_symlinks is defined
 
     # TODO Find files that are not symlinks https://git.coop/webarch/systemd/-/issues/2
 

@@ -1,3 +1,12 @@
+# Copyright 2022-2023 Chris Croome
+#
+# This file is part of the Webarchitects systemd Ansible role.
+#
+# The Webarchitects systemd Ansible role is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+#
+# The Webarchitects Ansible role is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with the Webarchitects systemd Ansible role. If not, see <https://www.gnu.org/licenses/>.
 ---
 - name: Configure specified systemd services
   block:
@@ -33,6 +42,28 @@
         - name: Include timesyncd tasks
           ansible.builtin.include_tasks: timesyncd.yml
           when: ( "systemd-timesyncd" in systemd_unit_names )
+
+        - name: Delete broken symlinks
+          ansible.builtin.file:
+            path: "{{ systemd_broken_symlink }}"
+            state: absent
+          loop: "{{ systemd_broken_symlinks }}"
+          loop_control:
+            loop_var: systemd_broken_symlink
+          when:
+            - systemd_delete_broken_symlinks | bool
+            - systemd_broken_symlinks is defined
+
+        - name: Delete /dev/null symlinks
+          ansible.builtin.file:
+            path: "{{ systemd_devnull_symlink }}"
+            state: absent
+          loop: "{{ systemd_devnull_symlinks }}"
+          loop_control:
+            loop_var: systemd_devnull_symlink
+          when:
+            - systemd_delete_devnull_symlinks | bool
+            - systemd_devnull_symlinks is defined
 
       when:
         - systemd_units is defined

@@ -18,6 +18,14 @@ Set the `systemd` variable to `false` to prevent any tasks in this role being ru
 
 The `systemd` variable defaults to `true`.
 
+### systemd_delete_broken_symlinks
+
+Delete broken symlinks found in the `/etc/systemd` directory, `systemd_delete_broken_symlinks` defaults to `false`.
+
+### systemd_delete_devnull_symlinks
+
+Delete symlinks that point to `/dev/null` in the `/etc/systemd` directory, `systemd_delete_devnull_symlinks` defaults to `false`.
+
 ### systemd_timesyncd_reboot
 
 When the `systemd_timesyncd_reboot` variable is set to `true` servers which have incorrect clocks will be rebooted by this role in order to correct their clocks.
@@ -168,6 +176,8 @@ The primary URL of this repo is [`https://git.coop/webarch/systemd`](https://git
 
 If you use this role please use a tagged release, see [the release notes](https://git.coop/webarch/systemd/-/releases).
 
-## License
+## Copyright
+
+Copyright 2019-2023 Chris Croome, &lt;[chris@webarchitects.co.uk](mailto:chris@webarchitects.co.uk)&gt;.
 
 This role is released under [the same terms as Ansible itself](https://github.com/ansible/ansible/blob/devel/COPYING), the [GNU GPLv3](LICENSE).
