@@ -1,0 +1,26 @@
+# Copyright 2022-2023 Chris Croome
+#
+# This file is part of the Webarchitects systemd Ansible role.
+#
+# The Webarchitects systemd Ansible role is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+#
+# The Webarchitects Ansible role is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with the Webarchitects systemd Ansible role. If not, see <https://www.gnu.org/licenses/>.
+---
+# https://wiki.debian.org/SystemdNetworkd
+- name: Systemd networkd tasks
+  block:
+
+    - name: Check if /etc/network/interfaces is present
+      ansible.builtin.stat:
+        path: /etc/network/interfaces
+      register: systemd_etc_network_interfaces
+
+    - name: Move /etc/network/interfaces to /etc/network/interfaces.save
+      ansible.builtin.command: mv /etc/network/interfaces /etc/network/interfaces.save
+      when: systemd_etc_network_interfaces.stat.exists | bool
+
+  tags:
+    - systemd
+...

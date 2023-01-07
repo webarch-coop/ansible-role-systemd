@@ -43,6 +43,10 @@
           ansible.builtin.include_tasks: timesyncd.yml
           when: ( "systemd-timesyncd" in systemd_unit_names )
 
+        - name: Include networkd tasks
+          ansible.builtin.include_tasks: networkd.yml
+          when: ( "systemd-networkd" in systemd_unit_names )
+
         - name: Delete broken symlinks
           ansible.builtin.file:
             path: "{{ systemd_broken_symlink }}"
