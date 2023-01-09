@@ -11,6 +11,15 @@
 - name: Check dictionary depth two
   block:
 
+    - name: Debug depth test two type
+      ansible.builtin.debug: 
+        msg: "systemd_dict_value is type {{ systemd_dict_value | type_debug }}"
+        verbosity: 2
+      loop: "{{ systemd_dictionary | ansible.builtin.dict2items | community.general.json_query('[].value') }}"
+      loop_control:
+        loop_var: systemd_dict_value
+        label: "{{ systemd_dict_value }}"
+
     - name: Set fact when systemd_dictionary depth > 1
       ansible.builtin.set_fact:
         systemd_dictionary_depth: 2

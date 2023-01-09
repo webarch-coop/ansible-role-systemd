@@ -47,6 +47,10 @@
           ansible.builtin.include_tasks: networkd.yml
           when: ( "systemd-networkd" in systemd_unit_names )
 
+        - name: Include resolved tasks
+          ansible.builtin.include_tasks: resolved.yml
+          when: ( "systemd-resolved" in systemd_unit_names )
+
         - name: Delete broken symlinks
           ansible.builtin.file:
             path: "{{ systemd_broken_symlink }}"

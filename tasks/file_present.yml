@@ -62,7 +62,7 @@
 
         - name: Set a fact for the existing systemd unit file variables
           ansible.builtin.set_fact:
-            systemd_file_vars: "{{ systemd_file_b64encoded['content'] | ansible.builtin.b64decode | community.general.jc('ini') }}"
+            systemd_file_vars: "{{ systemd_file_b64encoded['content'] | ansible.builtin.b64decode | community.general.jc('ini_dup') }}"
 
         - name: Debug the existing systemd unit file variables
           ansible.builtin.debug:
