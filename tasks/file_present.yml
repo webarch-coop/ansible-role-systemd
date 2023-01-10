@@ -56,7 +56,7 @@
         - systemd_file.state is defined
         - not systemd_file_state.stat.exists | bool
 
-    - name: Systemd unit file existing and not depth three tasks
+    - name: Systemd unit file existing and not depth three edit tasks
       block:
 
         - name: Slurp the systemd unit file
@@ -122,64 +122,58 @@
             remote_src: true
           when: systemd_file.conf != systemd_file_vars
 
-        - name: Systemd unit file edited
+        - name: Comment block present
           block:
 
-            - name: Comment block present
-              block:
-
-                - name: Ansible managed comment absent from the top of the file
-                  ansible.builtin.lineinfile:
-                    path: "{{ systemd_file.path }}"
-                    line: "# {{ systemd_ansible_managed }}"
-                    state: absent
-                    mode: "0644"
-                    owner: root
-                    group: root
-
-                - name: Comment present at the top of the systemd unit file
-                  ansible.builtin.blockinfile:
-                    path: "{{ systemd_file.path }}"
-                    block: "{{ systemd_file.comment | ansible.builtin.comment }}"
-                    insertbefore: BOF
-                    mode: "0644"
-                    owner: root
-                    group: root
-
-              when:
-                - systemd_file.comment is defined
-                - systemd_file.comment | length > 0
-
-            - name: Ansible managed comment present at the top of the file
+            - name: Ansible managed comment absent from the top of the file
               ansible.builtin.lineinfile:
                 path: "{{ systemd_file.path }}"
                 line: "# {{ systemd_ansible_managed }}"
-                state: present
+                state: absent
+                mode: "0644"
+                owner: root
+                group: root
+
+            - name: Comment present at the top of the systemd unit file
+              ansible.builtin.blockinfile:
+                path: "{{ systemd_file.path }}"
+                block: "{{ systemd_file.comment | ansible.builtin.comment }}"
                 insertbefore: BOF
                 mode: "0644"
                 owner: root
                 group: root
 
-            - name: Include the systemd unit file edited tasks for sections
-              ansible.builtin.include_tasks: file_edited.yml
-              loop: "{{ systemd_file.conf | ansible.builtin.dict2items }}"
-              loop_control:
-                loop_var: systemd_section
-              when: systemd_conf_depth == 2
+          when:
+            - systemd_file.comment is defined
+            - systemd_file.comment | length > 0
 
-            - name: Include the systemd unit file edited tasks without sections
-              ansible.builtin.include_tasks: file_edited.yml
-              vars:
-                systemd_section: "{{ systemd_file.conf }}"
-              when: systemd_conf_depth == 1
+        - name: Ansible managed comment present at the top of the file
+          ansible.builtin.lineinfile:
+            path: "{{ systemd_file.path }}"
+            line: "# {{ systemd_ansible_managed }}"
+            state: present
+            insertbefore: BOF
+            mode: "0644"
+            owner: root
+            group: root
 
-          when: >-
-            ( systemd_file.state is not defined ) or
-            ( systemd_file.state is regex('^edited|present$') )
+        - name: Include the systemd unit file edited tasks for sections
+          ansible.builtin.include_tasks: file_edited.yml
+          loop: "{{ systemd_file.conf | ansible.builtin.dict2items }}"
+          loop_control:
+            loop_var: systemd_section
+          when: systemd_conf_depth == 2
+
+        - name: Include the systemd unit file edited tasks without sections
+          ansible.builtin.include_tasks: file_edited.yml
+          vars:
+            systemd_section: "{{ systemd_file.conf }}"
+          when: systemd_conf_depth == 1
 
       when:
         - systemd_conf_depth is regex('^1|2$')
         - systemd_file_state.stat.exists | bool
+        - ( systemd_file.state is not defined ) or ( systemd_file.state is regex('^edited|present$') )
 
     - name: Systemd unit file not existing or templated or depth three tasks
       block:
