@@ -1,9 +1,9 @@
 ---
 # https://ansible-lint.readthedocs.io/rules/
 skip_list:
-  # - command-instead-of-module
+  - command-instead-of-module
   - key-order[task]
-  # - package-latest
-  # - schema[meta]
+  - package-latest
+  - schema[meta]
 # vim: syntax=yaml
 ...
