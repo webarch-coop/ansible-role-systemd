@@ -61,6 +61,35 @@ systemd_units:
     state: present
     unit_state: started
     verify: systemd-timesyncd.service
+  - name: systemd-networkd
+    files:
+      - path: /etc/systemd/network/eth0.network
+        state: templated
+        conf:
+          Match:
+            Name: eth0
+            Type: ether
+          Network:
+            Address:
+              - 192.168.0.2/24
+              - 192.168.0.3/24
+            Gateway: 192.168.0.1
+    verify: networking.service
+```
+
+Note that lists like:
+
+```yaml
+Address:
+  - 192.168.0.2/24
+  - 192.168.0.3/24 
+```
+
+Are converted into duplicates:
+
+```ini
+Address=81.95.52.56/24
+Address=81.95.52.57/24
 ```
 
 #### name
@@ -103,8 +132,8 @@ When files are updated or deleted backups are created based on the existing file
 The `files` can optionally have one of four optional states set:
 
 * `absent` - the file will be deleted.
-* `edited` - the existing file will be edited using the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html).
-* `present` - if the file exists it will be edited using the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html), if not it will be created using the [templates/unit.j2](templates/unit.j2) template.
+* `edited` - the existing file will be edited using the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html), as long as there are no duplicates, if there are the file will be templated.
+* `present` - if the file exists it will be edited using the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html), as long as there are no duplicates, if there are duplicates or it doesn't exist it will be created using the [templates/unit.j2](templates/unit.j2) template.
 * `templated` - the file will be created if it does not exist or updated if it already exists using the [templates/unit.j2](templates/unit.j2) template.
 
 If the `files` `state` is not set it defaults to `present`. The `edited` option can not remove variables and, unlike the `templated` option, it preserves existing comments.
@@ -128,6 +157,12 @@ The `unit_state` variable is used for the [Ansible systemd module state](https:/
 #### verify
 
 A service name to be passed to `systemd-analyze verify`.
+
+A list of services that can be verified can be generated using:
+
+```bash
+systemctl list-unit-files | jc --systemctl-luf | jp "[?state == 'enabled'].unit_file"
+```
 
 ## Usage example
 
@@ -164,9 +199,9 @@ This role can be included in another role along these lines (this has been based
               WantedBy: multi-user.target
 ```
 
-## Read existing systemd files as YAML using JC
+## Read existing systemd files as YAML using jc
 
-You can read existing systemd files as YAML on the command line using [JC](https://github.com/kellyjonbrazil/jc), for example:
+You can read existing systemd files as YAML on the command line using [jc](https://github.com/kellyjonbrazil/jc), for example:
 
 ```bash
 cat /etc/systemd/timesyncd.conf | jc --ini -py
@@ -174,6 +209,8 @@ cat /etc/systemd/timesyncd.conf | jc --ini -py
 Time:
   NTP: 0.pool.ntp.org 1.pool.ntp.org 3.pool.ntp.org 2.pool.ntp.org
 ```
+
+Note that the [jc --ini parser](https://kellyjonbrazil.github.io/jc/docs/parsers/ini) doesn't support duplicate keys.
 
 ## Dependencies
 
