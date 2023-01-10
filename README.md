@@ -81,7 +81,7 @@ The `systemd_units` list variables:
 
 #### name
 
-The `name` of the unit, this variables is required.
+The `name` of the unit, this variable is required.
 
 #### files
 
