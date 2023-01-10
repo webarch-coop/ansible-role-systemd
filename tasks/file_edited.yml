@@ -16,9 +16,9 @@
         var: systemd_section
         verbosity: 2
 
-    - name: Debug the systemd_dictionary_depth variable
+    - name: Debug the systemd_conf_depth variable
       ansible.builtin.debug:
-        var: systemd_dictionary_depth
+        var: systemd_conf_depth
         verbosity: 2
 
     - name: Edit file with sections
@@ -62,7 +62,7 @@
             state: present
             insertafter: EOF
 
-      when: systemd_dictionary_depth == 2
+      when: systemd_conf_depth == 2
 
     - name: Edit file without sections
       block:
@@ -101,7 +101,7 @@
           ansible.builtin.set_fact:
             systemd_file_changed: "{{ systemd_file_edited | community.general.json_query('results[].changed') | ansible.builtin.unique | community.general.json_query('[0]') }}"
 
-      when: systemd_dictionary_depth == 1
+      when: systemd_conf_depth == 1
 
   tags:
     - systemd
