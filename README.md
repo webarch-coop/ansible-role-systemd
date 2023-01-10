@@ -60,6 +60,7 @@ systemd_units:
       - systemd-timesyncd
     state: present
     unit_state: started
+    verify: systemd-timesyncd.service
 ```
 
 #### name
@@ -114,11 +115,19 @@ The `pkgs` variable is a list of `.deb` packages which will be installed when th
 
 #### state
 
-The `systemd_units` list elemenst can have a `state` of `absent` or `present`.
+The `systemd_units` list elements can have a `state` of `absent` or `present`.
+
+#### unit_enabled
+
+A boolean, `unit_enabled` determins if the untit is enabled or not.
 
 #### unit_state
 
 The `unit_state` variable is used for the [Ansible systemd module state](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/systemd_module.html#parameter-state) so it can be one of `reloaded`, `restarted`, `started` or `stopped`.
+
+#### verify
+
+A service name to be passed to `systemd-analyze verify`.
 
 ## Usage example
 

@@ -1,0 +1,50 @@
+---
+- name: Check the depth of a dictionary
+  block:
+
+    - name: Set systemd_dictionary_depth to zero
+      ansible.builtin.set_fact:
+        systemd_dictionary_depth: 0
+
+    - name: Dictionary depth four
+      ansible.builtin.set_fact:
+        systemd_dictionary_depth: 4
+      when:
+        - systemd_dictionary | json_query('*.*.*[][][][]') | type_debug == "list"
+        - systemd_dictionary | json_query('*.*.*[][][][]') != []
+
+    - name: Dictionary depth three
+      ansible.builtin.set_fact:
+        systemd_dictionary_depth: 3
+      when:
+        - systemd_dictionary_depth != 4
+        - systemd_dictionary | json_query('*.*[][*][]') | type_debug == "list"
+        - systemd_dictionary | json_query('*.*[][*][]') != []
+
+    - name: Dictionary depth two
+      ansible.builtin.set_fact:
+        systemd_dictionary_depth: 2
+      when:
+        - systemd_dictionary_depth != 4
+        - systemd_dictionary_depth != 3
+        - systemd_dictionary | json_query('*.*[]') | type_debug == "list"
+        - systemd_dictionary | json_query('*.*[]') != []
+
+    - name: Dictionary depth one
+      ansible.builtin.set_fact:
+        systemd_dictionary_depth: 1
+      when:
+        - systemd_dictionary_depth != 4
+        - systemd_dictionary_depth != 3
+        - systemd_dictionary_depth != 2
+        - systemd_dictionary | json_query('*') | type_debug == "list"
+        - systemd_dictionary | json_query('*') != []
+
+    - name: "The following dictionary has a depth of {{ systemd_dictionary_depth }}"
+      ansible.builtin.debug:
+        var: systemd_dictionary
+        verbosity: 1
+
+  tags:
+    - systemd
+...

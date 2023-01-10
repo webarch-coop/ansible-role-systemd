@@ -74,6 +74,10 @@ argument_specs:
             choices:
               - absent
               - present
+          unit_enabled:
+            type: bool
+            required: false
+            description: Enable the systemd unit.
           unit_state:
             type: str
             required: false
@@ -83,6 +87,10 @@ argument_specs:
               - restarted
               - started
               - stopped
+          verify:
+            type: str
+            required: false
+            description: The name of the service to verify using systemd-analyze.
       systemd_timesyncd_reboot:
         type: bool
         required: false

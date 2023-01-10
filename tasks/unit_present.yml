@@ -33,6 +33,9 @@
     # Checks needed when this file is the role entry point
     - name: Include check tasks
       ansible.builtin.include_tasks: checks.yml
+      when: >-
+        ( systemd_unit_files_existing is not defined ) or
+        ( systemd_unit_files_enabled is not defined )
 
     - name: Include the systemd unit file absent tasks
       ansible.builtin.include_tasks: file_absent.yml
@@ -57,21 +60,36 @@
     - name: Set the unit state and restart it when the unit file exists
       block:
 
-        - name: Include flush handlers task prior to setting the unit state
-          ansible.builtin.include_tasks: flush_handlers.yml
+        - name: Verify the service
+          ansible.builtin.command: "systemd-analyze verify {{ systemd_unit.verify }}"
+          check_mode: false
+          changed_when: false
+          when: systemd_unit.verify is defined
 
-        - name: Unit state set  # noqa args[module]
+        - name: Systemd daemon-reload
+          ansible.builtin.systemd:
+            daemon_reload: true
+          when:
+            - systemd_file_changed is defined
+            - systemd_file_changed | bool
+
+        - name: Unit enabled and state set  # noqa args[module]
           ansible.builtin.systemd:
             name: "{{ systemd_unit.name }}"
-            state: "{{ systemd_unit.unit_state | default('started') }}"
+            enabled: "{% if systemd_unit.unit_enabled is defined %}{{ systemd_unit.unit_enabled }}{% else %}true{% endif %}"
+            state: "{% if systemd_unit.unit_state is defined %}{{ systemd_unit.unit_state }}{% else %}started{% endif %}"
 
         - name: Systemd unit restarted
           ansible.builtin.systemd:
             service: "{{ systemd_unit.name }}"
             state: restarted
-          when:
-            - systemd_file_changed is defined
-            - systemd_file_changed | bool
+          when: >-
+            ( ( systemd_unit.unit_state is not defined ) or
+            ( systemd_unit.unit_state != "stopped" ) or
+            ( systemd_unit.unit_state != "reloaded" ) or
+            ( systemd_unit.unit_state != "restarted" ) ) and
+            ( ( systemd_file_changed is defined ) and
+            ( systemd_file_changed | bool ) )
 
       when: systemd_file_state.stat.exists | bool
 

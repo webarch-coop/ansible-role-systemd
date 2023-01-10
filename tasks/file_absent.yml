@@ -21,25 +21,22 @@
         path: "{{ systemd_file.path }}"
       register: systemd_file_state
 
-    - name: Systemd unit file absent, backup present
-      ansible.builtin.command: "mv {{ systemd_file.path }} {{ systemd_file_backup }}"
-      register: systemd_file_absent
-      notify:
-        - Reload systemd
+    - name: Systemd unit stopped
+      ansible.builtin.systemd:
+        service: "{{ systemd_unit.name }}"
+        state: restarted
       when: systemd_file_absent.stat.exists | bool
 
-    - name: Include check and flush handler tasks when files have changed
-      block:
+    - name: Systemd unit file absent, backup present
+      ansible.builtin.command: "mv {{ systemd_file.path }} {{ systemd_file_backup }}"
+      changed_when: true
+      register: systemd_file_absent
+      when: systemd_file_absent.stat.exists | bool
 
-        - name: Include flush handlers task
-          ansible.builtin.include_tasks: flush_handlers.yml
-
-        - name: Include check tasks
-          ansible.builtin.include_tasks: checks.yml
-
-      when:
-        - systemd_file_absent is defined
-        - systemd_file_absent.changed | bool
+    - name: Systemd daemon-reload
+      ansible.builtin.systemd:
+        daemon_reload: true
+      when: systemd_file_absent.changed | true
 
     - name: Stat the systemd unit file
       ansible.builtin.stat:

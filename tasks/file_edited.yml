@@ -44,8 +44,6 @@
           loop: "{{ systemd_section.value | ansible.builtin.dict2items }}"
           loop_control:
             loop_var: systemd_variable_pair
-          notify:
-            - Reload systemd
           register: systemd_file_edited
 
         - name: Debug systemd_file_edited variable
@@ -97,8 +95,6 @@
           loop: "{{ systemd_section | ansible.builtin.dict2items }}"
           loop_control:
             loop_var: systemd_variable_pair
-          notify:
-            - Reload systemd
           register: systemd_file_edited
 
         - name: Set systemd_file_changed if one or more variable in the systemd unit file was edited

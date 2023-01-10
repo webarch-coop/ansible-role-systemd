@@ -26,14 +26,18 @@
             quiet: "{% if ansible_verbosity == 0 %}true{% else %}false{% endif %}"
 
         - name: Include tasks to check the depth of the dictionary
-          ansible.builtin.include_tasks: check_depth_one.yml
+          ansible.builtin.include_tasks: check_depth.yml
           vars:
             systemd_dictionary: "{{ systemd_file.conf }}"
 
-        - name: Ensure that systemd_file.conf dictionary depth is 1 or 2
+        - name: Set a fact for the depth of the dictionary
+          ansible.builtin.set_fact:
+            systemd_conf_depth: "{{ systemd_dictionary_depth }}"
+
+        - name: Ensure that systemd_file.conf dictionary depth is 1, 2 or 3
           ansible.builtin.assert:
             that:
-              - systemd_dictionary_depth is regex('^1|2$')
+              - systemd_conf_depth is regex('^1|2|3$')
             quiet: "{% if ansible_verbosity == 0 %}true{% else %}false{% endif %}"
 
       when: systemd_file.conf is defined
@@ -52,7 +56,7 @@
         - systemd_file.state is defined
         - not systemd_file_state.stat.exists | bool
 
-    - name: Systemd unit file existing tasks
+    - name: Systemd unit file existing and not depth three tasks
       block:
 
         - name: Slurp the systemd unit file
@@ -62,7 +66,7 @@
 
         - name: Set a fact for the existing systemd unit file variables
           ansible.builtin.set_fact:
-            systemd_file_vars: "{{ systemd_file_b64encoded['content'] | ansible.builtin.b64decode | community.general.jc('ini_dup') }}"
+            systemd_file_vars: "{{ systemd_file_b64encoded['content'] | ansible.builtin.b64decode | community.general.jc('ini') }}"
 
         - name: Debug the existing systemd unit file variables
           ansible.builtin.debug:
@@ -75,14 +79,19 @@
             verbosity: 2
 
         - name: Include tasks to check the depth of the dictionary
-          ansible.builtin.include_tasks: check_depth_one.yml
+          ansible.builtin.include_tasks: check_depth.yml
           vars:
             systemd_dictionary: "{{ systemd_file_vars }}"
 
-        - name: Ensure that systemd_file.conf dictionary depth is 1 or 2
+        - name: Set a fact for the depth of the dictionary
+          ansible.builtin.set_fact:
+            systemd_file_depth: "{{ systemd_dictionary_depth }}"
+
+        - name: Ensure that existing dictionary depth is 1 or 2 and that it matches the proposed depth
           ansible.builtin.assert:
             that:
-              - systemd_dictionary_depth is regex('^1|2$')
+              - systemd_file_depth is regex('^1|2$')
+              - systemd_file_depth == systemd_conf_depth
             quiet: "{% if ansible_verbosity == 0 %}true{% else %}false{% endif %}"
 
         - name: Conditionally set a variable with the list of sections
@@ -97,7 +106,7 @@
                 var: systemd_file_sections
                 verbosity: 2
 
-          when: systemd_dictionary_depth == 2
+          when: systemd_file_depth == 2
 
         - name: Backup copy of the existing systemd unit file present
           ansible.builtin.copy:
@@ -152,21 +161,23 @@
               loop: "{{ systemd_file.conf | ansible.builtin.dict2items }}"
               loop_control:
                 loop_var: systemd_section
-              when: systemd_dictionary_depth == 2
+              when: systemd_conf_depth == 2
 
             - name: Include the systemd unit file edited tasks without sections
               ansible.builtin.include_tasks: file_edited.yml
               vars:
                 systemd_section: "{{ systemd_file.conf }}"
-              when: systemd_dictionary_depth == 1
+              when: systemd_conf_depth == 1
 
           when: >-
             ( systemd_file.state is not defined ) or
             ( systemd_file.state is regex('^edited|present$') )
 
-      when: systemd_file_state.stat.exists | bool
+      when:
+        - systemd_conf_depth is regex('^1|2$')
+        - systemd_file_state.stat.exists | bool
 
-    - name: Systemd unit file not existing or templated tasks
+    - name: Systemd unit file not existing or templated or depth three tasks
       block:
 
         - name: Systemd unit file directory present
@@ -185,8 +196,6 @@
             owner: root
             group: root
           register: systemd_file_present
-          notify:
-            - Reload systemd
 
         - name: Set systemd_file_changed if the systemd unit file was changed
           ansible.builtin.set_fact:
@@ -197,16 +206,13 @@
 
       when: >-
         ( not systemd_file_state.stat.exists | bool ) or
-        ( systemd_file.state is defined and systemd_file.state == "templated" )
+        ( systemd_file.state is defined and systemd_file.state == "templated" ) or
+        ( systemd_conf_depth == 3 )
 
     - name: Stat the systemd unit file
       ansible.builtin.stat:
         path: "{{ systemd_file.path }}"
       register: systemd_file_state
-
-    - name: Include flush handlers task
-      ansible.builtin.include_tasks: flush_handlers.yml
-      when: systemd_file_present.changed | bool
 
   tags:
     - systemd
