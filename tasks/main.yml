@@ -52,27 +52,11 @@
         #   ansible.builtin.include_tasks: resolved.yml
         #   when: ( "systemd-resolved" in systemd_unit_names )
 
-        - name: Delete broken symlinks
-          ansible.builtin.file:
-            path: "{{ systemd_broken_symlink }}"
-            state: absent
-          loop: "{{ systemd_broken_symlinks }}"
-          loop_control:
-            loop_var: systemd_broken_symlink
-          when:
-            - systemd_delete_broken_symlinks | bool
-            - systemd_broken_symlinks is defined
-
-        - name: Delete /dev/null symlinks
-          ansible.builtin.file:
-            path: "{{ systemd_devnull_symlink }}"
-            state: absent
-          loop: "{{ systemd_devnull_symlinks }}"
-          loop_control:
-            loop_var: systemd_devnull_symlink
-          when:
-            - systemd_delete_devnull_symlinks | bool
-            - systemd_devnull_symlinks is defined
+        - name: Include remove broken symlinks and delete /dev/null links tasks
+          ansible.builtin.include_tasks: fix_files.yml
+          when: >-
+            ( ( systemd_delete_broken_symlinks | bool ) and ( systemd_broken_symlinks is defined ) ) or
+            ( ( systemd_delete_devnull_symlinks | bool ) and ( systemd_devnull_symlinks is defined ) )
 
       when:
         - systemd_units is defined

@@ -1,0 +1,68 @@
+---
+- name: Remove broken symlinks and delete /dev/null links
+  block:
+
+    - name: Set systemd_file_changed to false
+      ansible.builtin.set_fact:
+        systemd_file_changed: false
+
+    - name: Delete broken symlinks
+      block:
+
+        - name: Delete broken symlinks
+          ansible.builtin.file:
+            path: "{{ systemd_broken_symlink }}"
+            state: absent
+          loop: "{{ systemd_broken_symlinks }}"
+          loop_control:
+            loop_var: systemd_broken_symlink
+          register: systemd_broken_symlinks_absent
+
+        - name: Debug systemd_broken_symlinks_absent
+          ansible.builtin.debug:
+            var: systemd_broken_symlinks_absent
+            verbosity: 2
+
+        - name: Set systemd_file_changed if one or more variable in the systemd unit file was edited
+          ansible.builtin.set_fact:
+            systemd_file_changed: "{{ systemd_broken_symlinks_absent | community.general.json_query('results[].changed') | ansible.builtin.unique | community.general.json_query('[0]') }}"
+
+      when:
+        - systemd_delete_broken_symlinks | bool
+        - systemd_broken_symlinks is defined
+
+    - name: Delete /dev/null symlinks
+      block:
+
+        - name: Delete /dev/null symlinks
+          ansible.builtin.file:
+            path: "{{ systemd_devnull_symlink }}"
+            state: absent
+          loop: "{{ systemd_devnull_symlinks }}"
+          loop_control:
+            loop_var: systemd_devnull_symlink
+          register: systemd_devnull_symlinks_absent
+
+        - name: Debug systemd_devnull_symlinks_absent
+          ansible.builtin.debug:
+            var: systemd_devnull_symlinks_absent
+            verbosity: 2
+
+        - name: Set systemd_file_changed if one or more variable in the systemd unit file was edited
+          ansible.builtin.set_fact:
+            systemd_file_changed: "{{ systemd_devnull_symlinks_absent | community.general.json_query('results[].changed') | ansible.builtin.unique | community.general.json_query('[0]') }}"
+
+      when:
+        - systemd_delete_devnull_symlinks | bool
+        - systemd_devnull_symlinks is defined
+
+    - name: Systemd daemon-reload
+      ansible.builtin.systemd:
+        daemon_reload: true
+      when:
+        - systemd_file_changed is defined
+        - systemd_file_changed | bool
+
+  tags:
+    - systemd
+...

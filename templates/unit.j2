@@ -14,9 +14,11 @@
 {% if systemd_variable_pair.value | type_debug == "list" %}
 {% for systemd_variable_item in systemd_variable_pair.value %}
 {{ systemd_variable_pair.key }}={% if systemd_variable_item | type_debug == "bool" %}{{ systemd_variable_item | lower }}{% else %}{{ systemd_variable_item }}{% endif %}
+
 {% endfor %}
 {% else %}
 {{ systemd_variable_pair.key }}={% if systemd_variable_pair.value | type_debug == "bool" %}{{ systemd_variable_pair.value | lower }}{% else %}{{ systemd_variable_pair.value }}{% endif %}
+
 {% endif %}
 {% endfor %}
 {% endfor %}
@@ -25,9 +27,11 @@
 {% if systemd_variable_pair.value | type_debug == "list" %}
 {% for systemd_variable_item in systemd_variable_pair.value %}
 {{ systemd_variable_pair.key }}={% if systemd_variable_item | type_debug == "bool" %}{{ systemd_variable_item | lower }}{% else %}{{ systemd_variable_item }}{% endif %}
+
 {% endfor %}
 {% else %}
-{{ systemd_variable_pair.key }}={% if systemd_variable_pair.value | | type_debug == "bool" %}{{ systemd_variable_pair.value | lower }}{% else %}{{ systemd_variable_pair.value }}{% endif %}
+{{ systemd_variable_pair.key }}={% if systemd_variable_pair.value | type_debug == "bool" %}{{ systemd_variable_pair.value | lower }}{% else %}{{ systemd_variable_pair.value }}{% endif %}
+
 {% endif %}
 {% endfor %}
 {% endif %}
