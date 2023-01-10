@@ -77,24 +77,11 @@ systemd_units:
     verify: networking.service
 ```
 
-Note that lists like:
-
-```yaml
-Address:
-  - 192.168.0.2/24
-  - 192.168.0.3/24 
-```
-
-Are converted into duplicates:
-
-```ini
-Address=81.95.52.56/24
-Address=81.95.52.57/24
-```
+The `systemd_units` list variables:
 
 #### name
 
-The only required variables is `name`, see the [meta/argument_specs.yml](meta/argument_specs.yml) for the variable types.
+The `name` of the unit, this variables is required.
 
 #### files
 
@@ -102,7 +89,7 @@ The `files` variable is a list of files, which can use the following variables:
 
 ##### path
 
-The `path` variable is the path to the file to configure.
+The `path` variable is the path to the file to configure, this variables is required.
 
 ##### comment
 
@@ -110,19 +97,37 @@ The `comment` variable can be used for commented text at the top of the file.
 
 ##### conf
 
-The `conf` dictionary defines the systemd `ini` file variables, as a dictionary. The depth of the dictionary defines the type of file generated, for example to generate a systemd environment file:
+The `conf` dictionary defines the systemd `ini` file variables, as a dictionary. The depth of the dictionary defines the type of file generated, for example to generate a systemd environment file (`conf` depth one):
 
 ```yaml
 conf:
   FOO: bar
 ```
 
-And to generate generate a systemd unit file:
+And to generate generate a systemd unit file (`conf` depth two):
 
 ```yaml
 conf:
   Unit:
     Description: Docker Compose container starter
+```
+
+And when duplicate entries are allowed a YAML list is used (`conf` depth three):
+
+```yaml
+conf:
+  Network:
+    Address:
+      - 192.168.0.2/24
+      - 192.168.0.3/24 
+```
+
+The list items are are converted into duplicated keys:
+
+```ini
+[Network]
+Address=192.168.0.2/24
+Address=192.168.0.3/24
 ```
 
 When files are updated or deleted backups are created based on the existing file name but prefixed with a leading `.` and suffixed with a timestamp in ISO8601 format and the file extension `.bak`.
