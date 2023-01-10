@@ -87,12 +87,15 @@
           ansible.builtin.set_fact:
             systemd_file_depth: "{{ systemd_dictionary_depth }}"
 
-        - name: Ensure that existing dictionary depth is 1 or 2 and that it matches the proposed depth
+        - name: Ensure that existing dictionary depth is 1 or 2
           ansible.builtin.assert:
             that:
               - systemd_file_depth is regex('^1|2$')
-              - systemd_file_depth == systemd_conf_depth
             quiet: "{% if ansible_verbosity == 0 %}true{% else %}false{% endif %}"
+
+        - name: "Warn that the variable depth is to be changed for {{ systemd_file.path }}"
+          ansbile.builtin.debug:
+            msg: "The existing variable depth is {{ systemd_file_depth }} and the proposed variable depth is {{ systemd_conf_depth }}" 
 
         - name: Conditionally set a variable with the list of sections
           block:
