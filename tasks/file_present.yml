@@ -94,7 +94,7 @@
             quiet: "{% if ansible_verbosity == 0 %}true{% else %}false{% endif %}"
 
         - name: "Warn that the variable depth is to be changed for {{ systemd_file.path }}"
-          ansbile.builtin.debug:
+          ansible.builtin.debug:
             msg: "The existing variable depth is {{ systemd_file_depth }} and the proposed variable depth is {{ systemd_conf_depth }}"
 
         - name: Conditionally set a variable with the list of sections
