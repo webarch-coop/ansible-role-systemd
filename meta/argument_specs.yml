@@ -73,19 +73,7 @@ argument_specs:
             description: The state of the systemd unit.
             choices:
               - absent
-              - present
-          unit_enabled:
-            type: bool
-            required: false
-            description: Enable the systemd unit.
-          unit_state:
-            type: str
-            required: false
-            description: The state of the systemd service.
-            choices:
-              - reloaded
-              - restarted
-              - started
+              - enabled
               - stopped
           verify:
             type: str

@@ -40,7 +40,7 @@ This variable is only used if there is a item in the `systemd_units` list with t
 
 ### systemd_units
 
-`systemd_units` is a list of systemd units to configure, for example:
+The `systemd_units` array is a list of systemd units to configure, for example:
 
 ```yaml
 systemd_units:
@@ -58,13 +58,13 @@ systemd_units:
         state: present
     pkgs:
       - systemd-timesyncd
-    state: present
-    unit_state: started
+    state: enabled
     verify: systemd-timesyncd.service
   - name: systemd-networkd
     files:
       - path: /etc/systemd/network/eth0.network
         state: templated
+        comment: Additional IP address added to the eth0 interface.
         conf:
           Match:
             Name: eth0
@@ -77,13 +77,13 @@ systemd_units:
     verify: networking.service
 ```
 
-The `systemd_units` list variables:
+The `systemd_units` list variables follow:
 
 #### name
 
-The `name` of the systemd unit to configure.
+The `name` for the `systemd_units` list item is the `name` of the systemd unit to configure.
 
-The `name` is used as the `name` for the [Ansible systemd module](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/systemd_module.html):
+It is used as the `name` for the [Ansible systemd module](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/systemd_module.html):
 
 > This parameter takes the name of exactly one unit to work with.
 >
@@ -101,19 +101,19 @@ See also the [systemd unit configuration documentation](https://manpages.debian.
 
 #### files
 
-The `files` variable is a list of files, that will be configured, items in the list can use the following variables:
+The `files` variable for the `systemd_units` list item is an array of files to be configured for the unit, items in the `files` list can use the following variables:
 
 ##### path
 
-The `path` variable is the full filesystem path to the file to configure, this variables is required.
+The `path` for the item in the `files` list is used for the full filesystem path to the file to configure, this variables is required.
 
 ##### comment
 
-The `comment` variable can be used for adding commented text to the top of the file.
+The `comment` for the item in the `files` list can be used for adding commented text to the top of the file.
 
 ##### conf
 
-The `conf` dictionary defines the systemd file variables, as a YAML dictionary.
+The `conf` dictionary for the item in the `files` list defines the systemd file contents in the form of a YAML dictionary.
 
 The depth of the dictionary defines the type of file that will be configured, for example to generate a systemd environment file (`conf` depth one):
 
@@ -162,39 +162,35 @@ When files are updated or deleted backups are created based on the existing file
 
 ##### state
 
-The `files` can optionally have one of four optional states set:
+The `state` of the item in the `files` list can optionally be set to one of four states when the `systemd_units` item is `enabled` or `stopped`, if the `systemd_units` item is set to `absent` all the items in the `files` list will be deleted, if the `state` of the item in the `files` list is not set then it defaults to `present`, the the four states are:
 
 * `absent` - the file will be deleted.
-* `edited` - the existing file will be edited using the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html), as long as there are no duplicates, if there are the file will be templated.
-* `present` - if the file exists it will be edited using the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html), as long as there are no duplicates, if there are duplicates or it doesn't exist it will be created using the [templates/unit.j2](templates/unit.j2) template.
+* `edited` - if the file exists it will be edited using the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html), as long as there are no duplicates, if there are duplicates or the file doesn't exist it cannot be edited.  The `edited` option cannot remove variables however unlike the `templated` option, it preserves existing comments.
+* `present` - if the file exists it will be edited using the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html), as long as there are no duplicates, if there are duplicates or it doesn't exist it will be created using the [templates/unit.j2](templates/unit.j2) template, `present` is the default state.
 * `templated` - the file will be created if it does not exist or updated if it already exists using the [templates/unit.j2](templates/unit.j2) template.
 
-If the `files` `state` is not set it defaults to `present`. The `edited` option cannot remove variables and, unlike the `templated` option, it preserves existing comments.
+Don't confuse the `state` of the items in the `files` list  with the `state` of the `systemd_unit`. 
 
 #### pkgs
 
-The `systemd_units` list items `pkgs` variable is a list of `.deb` packages which will be installed when the `state` is present and removed when `absent`.
+The optional `pkgs` list of `.deb` packages for the `systemd_units` list item will be installed when the `state` is present and removed when `absent`.
 
 #### state
 
-The `systemd_units` list items can have a `state` of `absent` or `present`.
+The `systemd_units` list item `state` can be optionally set to one of three states, if it is not set it defaults to `enabled`:
 
-#### unit_enabled
-
-The `systemd_units` list items, `unit_enabled` boolean is used for the [Ansible systemd module](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/systemd_module.html) `enabled` parameter.
-
-#### unit_state
-
-The `unit_state` variable is used for the [Ansible systemd module state](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/systemd_module.html#parameter-state) so it can be one of `reloaded`, `restarted`, `started` or `stopped`.
+* `absent`, will result in the systemd unit being uninstalled, this means that the service will be stopped, `.deb` packages listed in the `pkgs` list will be removed and any files listed in the `files` array will be deleted.
+* `enabled`, will result in the systemd unit being being installed, `enabled` and `started`. If any unit files are changed when the role is run it will be  `restarted`.
+* `stopped`, wil result in the systemd unit being installed, but it will be `stopped` and not `enabled`. 
 
 #### verify
 
-A service name to be passed to `systemd-analyze verify`.
+A optional systemd service name to be passed to `systemd-analyze verify`, the file extension is required.
 
 A list of services that can be verified can be generated using:
 
 ```bash
-systemctl list-unit-files | jc --systemctl-luf | jp "[?state == 'enabled'].unit_file"
+systemctl list-unit-files | jc --systemctl-luf -py
 ```
 
 ## Usage example
@@ -209,6 +205,7 @@ This role can be included in another role along these lines (this has been based
   vars:
     systemd_unit:
       name: docker-compose
+      state: enabled
       files:
         - path: /etc/systemd/docker-compose.conf
           conf:

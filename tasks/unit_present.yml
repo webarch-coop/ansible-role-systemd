@@ -73,21 +73,31 @@
             - systemd_file_changed is defined
             - systemd_file_changed | bool
 
-        - name: Unit enabled and state set  # noqa args[module]
+        - name: Unit not enabled and stopped
           ansible.builtin.systemd:
             name: "{{ systemd_unit.name }}"
-            enabled: "{% if systemd_unit.unit_enabled is defined %}{{ systemd_unit.unit_enabled }}{% else %}true{% endif %}"
-            state: "{% if systemd_unit.unit_state is defined %}{{ systemd_unit.unit_state }}{% else %}started{% endif %}"
+            enabled: false
+            state: stopped
+          when:
+            - systemd_unit.state is defined
+            - systemd_unit.state == "stopped"
+
+        - name: Unit enabled and started
+          ansible.builtin.systemd:
+            name: "{{ systemd_unit.name }}"
+            enabled: true
+            state: started
+          when: >-
+            ( systemd_unit.state is not defined ) or
+            ( systemd_unit.state == "enabled" )
 
         - name: Systemd unit restarted
           ansible.builtin.systemd:
             service: "{{ systemd_unit.name }}"
             state: restarted
           when: >-
-            ( ( systemd_unit.unit_state is not defined ) or
-            ( systemd_unit.unit_state != "stopped" ) or
-            ( systemd_unit.unit_state != "reloaded" ) or
-            ( systemd_unit.unit_state != "restarted" ) ) and
+            ( ( systemd_unit.state is not defined ) or
+            ( systemd_unit.state != "stopped" ) ) and
             ( ( systemd_file_changed is defined ) and
             ( systemd_file_changed | bool ) )
 

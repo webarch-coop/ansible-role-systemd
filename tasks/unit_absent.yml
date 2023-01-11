@@ -16,14 +16,17 @@
         var: systemd_unit
         verbosity: 2
 
-    - name: Systend unit stopped
+    - name: Systemd unit stopped and disabled
       ansible.builtin.systemd:
         name: "{{ systemd_unit.name }}"
+        enabled: false
         state: stopped
       register: systemd_unit_stopped
-      when: systemd_unit_file_name in systemd_unit_files_enabled
-      vars:
-        systemd_unit_file_name: "{{ systemd_unit.name }}.service"
+
+    - name: Systemd daemon-reload
+      ansible.builtin.systemd:
+        daemon_reload: true
+      when: systemd_unit_stopped.changed
 
     - name: Systemd packages absent
       ansible.builtin.apt:
@@ -34,18 +37,15 @@
         - systemd_unit.pkgs is defined
         - systemd_unit.pkgs | length > 0
 
-    - name: Include check tasks
-      ansible.builtin.include_tasks: checks.yml
-      when: >-
-        ( systemd_unit_stopped.changed | bool ) or
-        ( systemd_unit_absent.changed | bool )
-
     - name: Systemd unit files absent
       ansible.builtin.include_tasks: file_absent.yml
       loop: "{{ systemd_unit.files }}"
       loop_control:
         loop_var: systemd_file
         label: "{{ systemd_file.path | ansible.builtin.basename }}"
+      when:
+        - systemd_unit.files is defined
+        - systemd_unit.files | length > 0
 
   tags:
     - systemd

@@ -37,7 +37,8 @@
             label: "{{ systemd_unit.name }}"
           when: >-
             ( systemd_unit.state is not defined ) or
-            ( systemd_unit.state == "present" )
+            ( systemd_unit.state == "enabled" ) or
+            ( systemd_unit.state == "stopped" )
 
         - name: Include timesyncd tasks
           ansible.builtin.include_tasks: timesyncd.yml
