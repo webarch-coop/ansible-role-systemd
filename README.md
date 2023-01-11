@@ -81,23 +81,46 @@ The `systemd_units` list variables:
 
 #### name
 
-The `name` of the unit, this variable is required.
+The `name` of the systemd unit to configure.
+
+The `name` is used as the `name` for the [Ansible systemd module](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/systemd_module.html):
+
+> Name of the unit. This parameter takes the name of exactly one unit to work with.
+>
+> When no extension is given, it is implied to a `.service` as systemd.
+>
+> When using in a chroot environment you always need to specify the name of the unit with the extension. For example, `crond.service`.
+
+See the [systemd unit configuration documentation](https://manpages.debian.org/systemd/systemd.unit.5.en.html).
+
+You can generate a YAML list of all the unit names:
+
+```bash
+systemctl list-unit-files | \
+jc --systemctl-luf | \
+jp [].unit_file | \
+yq -P | \
+grep -e '[.]service$' | \
+sed 's/[.]service$//'
+```
 
 #### files
 
-The `files` variable is a list of files, which can use the following variables:
+The `files` variable is a list of files, that will be configured, the list uses the following variables:
 
 ##### path
 
-The `path` variable is the path to the file to configure, this variables is required.
+The `path` variable is the full filesystem path to the file to configure, this variables is required.
 
 ##### comment
 
-The `comment` variable can be used for commented text at the top of the file.
+The `comment` variable can be used for adding commented text to the top of the file.
 
 ##### conf
 
-The `conf` dictionary defines the systemd `ini` file variables, as a dictionary. The depth of the dictionary defines the type of file generated, for example to generate a systemd environment file (`conf` depth one):
+The `conf` dictionary defines the systemd file variables, as a YAML dictionary.
+
+The depth of the dictionary defines the type of file generated, for example to generate a systemd environment file (`conf` depth one):
 
 ```yaml
 conf:
@@ -129,6 +152,12 @@ The list items are are converted into duplicated keys:
 Address=192.168.0.2/24
 Address=192.168.0.3/24
 ```
+
+Note that the documentation for the [general syntax of systemd configuration files](https://manpages.debian.org/systemd/systemd.syntax.7.en.html) includes:
+
+> Boolean arguments used in configuration files can be written in various formats. For positive settings the strings `1`, `yes`, `true` and `on` are equivalent. For negative settings, the strings `0`, `no`, `false` and `off` are equivalent.
+
+If you want a value that is used as a boolean in a systemd unit file to be treated as a string you need to quote it, for example `"yes2`, if you don't quote it then Ansible will consider numbers to be integers in the case of `1` or `0` and unquoted `true` and `false` will be booleans, the unit template, [templates/unit.j2](templates/unit.j2) is set to lower case booleans to avoid them becoming `True` and `False`.
 
 When files are updated or deleted backups are created based on the existing file name but prefixed with a leading `.` and suffixed with a timestamp in ISO8601 format and the file extension `.bak`.
 
@@ -194,7 +223,7 @@ This role can be included in another role along these lines (this has been based
             Service:
               User: mailcow
               Group: mailcow
-              EnvironmentFile: /etc/systemd/system/sharedfutures.conf
+              EnvironmentFile: /etc/systemd/docker-compose.conf
               WorkingDirectory: /opt/mailcow-dockerized
               Type: oneshot
               RemainAfterExit: "yes"
@@ -204,18 +233,30 @@ This role can be included in another role along these lines (this has been based
               WantedBy: multi-user.target
 ```
 
-## Read existing systemd files as YAML using jc
+## Notes
 
 You can read existing systemd files as YAML on the command line using [jc](https://github.com/kellyjonbrazil/jc), for example:
 
 ```bash
 cat /etc/systemd/timesyncd.conf | jc --ini -py
+```
+```yaml
 ---
 Time:
   NTP: 0.pool.ntp.org 1.pool.ntp.org 3.pool.ntp.org 2.pool.ntp.org
 ```
 
-Note that the [jc --ini parser](https://kellyjonbrazil.github.io/jc/docs/parsers/ini) doesn't support duplicate keys.
+Note that the [jc --ini parser](https://kellyjonbrazil.github.io/jc/docs/parsers/ini) doesn't support duplicate keys, however the `--ini-dup` parset that is due to be released in version `1.22.5` does, however it returms all values as a list, for example:
+
+```bash
+cat /etc/systemd/timesyncd.conf | jc --ini-dup -py
+```
+```yaml
+---
+Time:
+  NTP:
+  - 0.pool.ntp.org 1.pool.ntp.org 2.pool.ntp.org 3.pool.ntp.org
+```
 
 ## Dependencies
 
