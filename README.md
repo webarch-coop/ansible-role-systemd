@@ -4,9 +4,9 @@
 
 `systemd` is a [System and Service Manager](https://systemd.io/) that _"runs as PID 1 and starts the rest of the system"_.
 
-This repo contains an Ansible role for configuring systemd services on Debian, this role has been designed to be as generic as possible in order to enable to it be used to configure any systemd service, by default it configures `systemd-timesyncd`.
+This repo contains an Ansible role for configuring [systemd on Debian](https://manpages.debian.org/systemd/systemd.1.en.html), this role has been designed to be as generic as possible in order to enable to it be used to configure any systemd service, by default it configures `systemd-timesyncd`.
 
-On Debian Buster [backports](https://backports.debian.org/Instructions/) is required to get the [latest version of systemd](https://packages.debian.org/buster-backports/systemd), the [Webarchitects apt role](https://git.coop/webarch/apt) can be used to enable backports.
+On Debian Buster [backports](https://backports.debian.org/Instructions/) is required to get the [latest version of systemd](https://packages.debian.org/buster-backports/systemd), the [Webarchitects apt Ansible role](https://git.coop/webarch/apt) can be used to enable backports.
 
 ## Role variables
 
@@ -20,23 +20,23 @@ The `systemd` variable defaults to `true`.
 
 ### systemd_delete_broken_symlinks
 
-Delete broken symlinks found in the `/etc/systemd` directory, `systemd_delete_broken_symlinks` defaults to `false`.
+The `systemd_delete_broken_symlinks` variable is a boolean, when `true` is results in this role deleting broken symlinks found in the `/etc/systemd` directory, it defaults to `false`.
 
 ### systemd_delete_devnull_symlinks
 
-Delete symlinks that point to `/dev/null` in the `/etc/systemd` directory, `systemd_delete_devnull_symlinks` defaults to `false`.
+The `systemd_delete_devnull_symlinks` variable is a boolean, when `true` is results in this role deleting symlinks that point to `/dev/null` in the `/etc/systemd` directory, it defaults to `false`.
 
 ### systemd_timesyncd_reboot
 
-When the `systemd_timesyncd_reboot` variable is set to `true` servers which have incorrect clocks will be rebooted by this role in order to correct their clocks.
+The `systemd_timesyncd_reboot` variable is a boolean, when `true` servers which have incorrect clocks will be rebooted by this role in an attempt to correct their clocks, it defaults to `false`.
 
-The `systemd_timesyncd_reboot` variable defaults to `false`.
+This variable is only used if there is a item in the `systemd_units` list with the `name` `systemd-timesyncd`.
 
 ### systemd_tz
 
-The time zone to be used (the hardware clock is set to UTC), for example `Europe/London`.
+The `systemd_tz` variable is a string for the time zone to be used when configuring `systemd-timesyncd`, (the hardware clock is set to UTC), it defaults to `Etc/UTC`, which is fine for a server however for a desktop or laptop you will want to use a value like `Europe/London`.
 
-The `systemd_tz` variable defaults to `Etc/UTC`.
+This variable is only used if there is a item in the `systemd_units` list with the `name` `systemd-timesyncd`.
 
 ### systemd_units
 
@@ -85,23 +85,18 @@ The `name` of the systemd unit to configure.
 
 The `name` is used as the `name` for the [Ansible systemd module](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/systemd_module.html):
 
-> Name of the unit. This parameter takes the name of exactly one unit to work with.
+> This parameter takes the name of exactly one unit to work with.
 >
 > When no extension is given, it is implied to a `.service` as systemd.
 >
 > When using in a chroot environment you always need to specify the name of the unit with the extension. For example, `crond.service`.
 
-See the [systemd unit configuration documentation](https://manpages.debian.org/systemd/systemd.unit.5.en.html).
+See also the [systemd unit configuration documentation](https://manpages.debian.org/systemd/systemd.unit.5.en.html).
 
 You can generate a YAML list of all the unit names:
 
 ```bash
-systemctl list-unit-files | \
-jc --systemctl-luf | \
-jp [].unit_file | \
-yq -P | \
-grep -e '[.]service$' | \
-sed 's/[.]service$//'
+systemctl list-unit-files | jc --systemctl-luf | jp [].unit_file | yq -P 
 ```
 
 #### files
