@@ -91,17 +91,17 @@ The `name` is used as the `name` for the [Ansible systemd module](https://docs.a
 >
 > When using in a chroot environment you always need to specify the name of the unit with the extension. For example, `crond.service`.
 
-See also the [systemd unit configuration documentation](https://manpages.debian.org/systemd/systemd.unit.5.en.html).
-
 You can generate a YAML list of all the unit names:
 
 ```bash
 systemctl list-unit-files | jc --systemctl-luf | jp [].unit_file | yq -P 
 ```
 
+See also the [systemd unit configuration documentation](https://manpages.debian.org/systemd/systemd.unit.5.en.html).
+
 #### files
 
-The `files` variable is a list of files, that will be configured, the list uses the following variables:
+The `files` variable is a list of files, that will be configured, items in the list can use the following variables:
 
 ##### path
 
@@ -115,14 +115,16 @@ The `comment` variable can be used for adding commented text to the top of the f
 
 The `conf` dictionary defines the systemd file variables, as a YAML dictionary.
 
-The depth of the dictionary defines the type of file generated, for example to generate a systemd environment file (`conf` depth one):
+The depth of the dictionary defines the type of file that will be configured, for example to generate a systemd environment file (`conf` depth one):
 
 ```yaml
 conf:
   FOO: bar
 ```
 
-And to generate generate a systemd unit file (`conf` depth two):
+See the [systemd environment configuration documentation](https://manpages.debian.org/systemd/systemd.exec.5.en.html).
+
+To generate generate a systemd unit file without any duplicated entries (`conf` depth two):
 
 ```yaml
 conf:
@@ -130,7 +132,7 @@ conf:
     Description: Docker Compose container starter
 ```
 
-And when duplicate entries are allowed a YAML list is used (`conf` depth three):
+When duplicate entries are allowed a YAML list is used (`conf` depth three):
 
 ```yaml
 conf:
@@ -154,6 +156,8 @@ Note that the documentation for the [general syntax of systemd configuration fil
 
 If you want a value that is used as a boolean in a systemd unit file to be treated as a string you need to quote it, for example `"yes2`, if you don't quote it then Ansible will consider numbers to be integers in the case of `1` or `0` and unquoted `true` and `false` will be booleans, the unit template, [templates/unit.j2](templates/unit.j2) is set to lower case booleans to avoid them becoming `True` and `False`.
 
+Also note that duplicated sections are allowed by systemd however this role doesn't support duplicated sections in the same file.
+
 When files are updated or deleted backups are created based on the existing file name but prefixed with a leading `.` and suffixed with a timestamp in ISO8601 format and the file extension `.bak`.
 
 ##### state
@@ -165,19 +169,19 @@ The `files` can optionally have one of four optional states set:
 * `present` - if the file exists it will be edited using the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html), as long as there are no duplicates, if there are duplicates or it doesn't exist it will be created using the [templates/unit.j2](templates/unit.j2) template.
 * `templated` - the file will be created if it does not exist or updated if it already exists using the [templates/unit.j2](templates/unit.j2) template.
 
-If the `files` `state` is not set it defaults to `present`. The `edited` option can not remove variables and, unlike the `templated` option, it preserves existing comments.
+If the `files` `state` is not set it defaults to `present`. The `edited` option cannot remove variables and, unlike the `templated` option, it preserves existing comments.
 
 #### pkgs
 
-The `pkgs` variable is a list of `.deb` packages which will be installed when the `state` is present and removed when `absent`.
+The `systemd_units` list items `pkgs` variable is a list of `.deb` packages which will be installed when the `state` is present and removed when `absent`.
 
 #### state
 
-The `systemd_units` list elements can have a `state` of `absent` or `present`.
+The `systemd_units` list items can have a `state` of `absent` or `present`.
 
 #### unit_enabled
 
-A boolean, `unit_enabled` determins if the untit is enabled or not.
+The `systemd_units` list items, `unit_enabled` boolean is used for the [Ansible systemd module](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/systemd_module.html) `enabled` parameter.
 
 #### unit_state
 
