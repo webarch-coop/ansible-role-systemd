@@ -138,14 +138,10 @@ argument_specs:
             description: The state of the systemd unit.
             choices:
               - absent
-              - present
-          unit_state:
+              - enabled
+              - stopped
+          verify:
             type: str
             required: false
-            description: The state of the systemd service.
-            choices:
-              - reloaded
-              - restarted
-              - started
-              - stopped
+            description: The name of the service to verify using systemd-analyze.
 ...
