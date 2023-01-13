@@ -56,23 +56,9 @@
             ( systemd_unit.state == "enabled" ) or
             ( systemd_unit.state == "stopped" )
 
-        - name: timesyncd
-          block:
-
-            - name: Debug timesyncd status
-              ansible.builtin.debug:
-                msg:
-                  - "{{ systemd_units | community.general.json_query(systemd_unit_timesyncd_state_query) }}"
-                  - "{{ systemd_units | community.general.json_query(systemd_unit_timesyncd_state_query) | length }}"
-                verbosity: 1
-
-            - name: Include timesyncd tasks
-              ansible.builtin.include_tasks: timesyncd.yml
-
-          when: >-
-            ( "systemd-timesyncd" in systemd_unit_names ) and
-            ( ( systemd_units | community.general.json_query(systemd_unit_timesyncd_state_query) | length == 0 ) or
-            ( systemd_units | community.general.json_query(systemd_unit_timesyncd_state_query) == "enabled" ) )
+        - name: Include timesyncd tasks
+          ansible.builtin.include_tasks: timesyncd.yml
+          when: ( "systemd-timesyncd" in systemd_unit_names )
 
         - name: Include networkd tasks
           ansible.builtin.include_tasks: networkd.yml

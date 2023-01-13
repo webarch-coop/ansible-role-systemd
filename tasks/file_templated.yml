@@ -19,7 +19,7 @@
         owner: root
         group: root
         remote_src: true
-      when: systemd_file_stat.stat.exists | bool
+      when: systemd_file_state.stat.exists | bool
 
     - name: Systemd unit file directory present
       ansible.builtin.file:
