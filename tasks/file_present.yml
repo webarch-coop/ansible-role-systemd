@@ -95,7 +95,7 @@
 
         - name: Template the file as the variable depth is to be changed
           ansible.builtin.include_tasks: file_templated.yml
-          when: systemd_conf_depth =! systemd_file_depth
+          when: systemd_conf_depth != systemd_file_depth
 
         - name: Include the systemd unit file edited tasks
           ansible.builtin.include_tasks: file_edited.yml
