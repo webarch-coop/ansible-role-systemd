@@ -34,10 +34,10 @@
           ansible.builtin.set_fact:
             systemd_conf_depth: "{{ systemd_dictionary_depth }}"
 
-        - name: Ensure that systemd_file.conf dictionary depth is 1, 2 or 3
+        - name: Ensure that systemd_file.conf dictionary depth is 0, 1, 2 or 3
           ansible.builtin.assert:
             that:
-              - systemd_conf_depth is regex('^1|2|3$')
+              - systemd_conf_depth is regex('^0|1|2|3$')
             quiet: "{% if ansible_verbosity == 0 %}true{% else %}false{% endif %}"
 
       when: systemd_file.conf is defined
@@ -93,82 +93,13 @@
               - systemd_file_depth is regex('^1|2$')
             quiet: "{% if ansible_verbosity == 0 %}true{% else %}false{% endif %}"
 
-        - name: Fail as the variable depth is to be changed
-          ansible.builtin.fail:
-            msg: "The {{ systemd_file.path }} file needs to be templated not edited as the variable depth is to be changed"
-          when: systemd_file_depth != systemd_conf_depth
+        - name: Template the file as the variable depth is to be changed
+          ansible.builtin.include_tasks: file_templated.yml
+          when: systemd_conf_depth =! systemd_file_depth
 
-        - name: Conditionally set a variable with the list of sections
-          block:
-
-            - name: Set a fact for the existing systemd unit file sections
-              ansible.builtin.set_fact:
-                systemd_file_sections: "{{ systemd_file_vars.keys() }}"
-
-            - name: Debug the existing systemd unit file sections
-              ansible.builtin.debug:
-                var: systemd_file_sections
-                verbosity: 2
-
-          when: systemd_conf_depth == 2
-
-        - name: Backup copy of the existing systemd unit file present
-          ansible.builtin.copy:
-            src: "{{ systemd_file.path }}"
-            dest: "{{ systemd_file_backup }}"
-            mode: "0644"
-            owner: root
-            group: root
-            remote_src: true
-          when: systemd_file.conf != systemd_file_vars
-
-        - name: Comment block present
-          block:
-
-            - name: Ansible managed comment absent from the top of the file
-              ansible.builtin.lineinfile:
-                path: "{{ systemd_file.path }}"
-                line: "# {{ systemd_ansible_managed }}"
-                state: absent
-                mode: "0644"
-                owner: root
-                group: root
-
-            - name: Comment present at the top of the systemd unit file
-              ansible.builtin.blockinfile:
-                path: "{{ systemd_file.path }}"
-                block: "{{ systemd_file.comment | ansible.builtin.comment }}"
-                insertbefore: BOF
-                mode: "0644"
-                owner: root
-                group: root
-
-          when:
-            - systemd_file.comment is defined
-            - systemd_file.comment | length > 0
-
-        - name: Ansible managed comment present at the top of the file
-          ansible.builtin.lineinfile:
-            path: "{{ systemd_file.path }}"
-            line: "# {{ systemd_ansible_managed }}"
-            state: present
-            insertbefore: BOF
-            mode: "0644"
-            owner: root
-            group: root
-
-        - name: Include the systemd unit file edited tasks for sections
+        - name: Include the systemd unit file edited tasks
           ansible.builtin.include_tasks: file_edited.yml
-          loop: "{{ systemd_file.conf | ansible.builtin.dict2items }}"
-          loop_control:
-            loop_var: systemd_section
-          when: systemd_conf_depth == 2
-
-        - name: Include the systemd unit file edited tasks without sections
-          ansible.builtin.include_tasks: file_edited.yml
-          vars:
-            systemd_section: "{{ systemd_file.conf }}"
-          when: systemd_conf_depth == 1
+          when: systemd_conf_depth == systemd_file_depth
 
       when:
         - systemd_conf_depth is regex('^1|2$')
@@ -176,32 +107,7 @@
         - ( systemd_file.state is not defined ) or ( systemd_file.state is regex('^edited|present$') )
 
     - name: Systemd unit file not existing or templated or depth three tasks
-      block:
-
-        - name: Systemd unit file directory present
-          ansible.builtin.file:
-            path: "{{ systemd_file.path | ansible.builtin.dirname }}"
-            state: directory
-            mode: 0755
-            owner: root
-            group: root
-
-        - name: Systemd unit file templated
-          ansible.builtin.template:
-            src: unit.j2
-            dest: "{{ systemd_file.path }}"
-            mode: 0644
-            owner: root
-            group: root
-          register: systemd_file_present
-
-        - name: Set systemd_file_changed if the systemd unit file was changed
-          ansible.builtin.set_fact:
-            systemd_file_changed: true
-          when:
-            - systemd_file_present is defined
-            - systemd_file_present.changed | bool
-
+      ansible.builtin.include_tasks: file_templated.yml
       when: >-
         ( not systemd_file_state.stat.exists | bool ) or
         ( systemd_file.state is defined and systemd_file.state == "templated" ) or

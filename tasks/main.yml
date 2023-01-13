@@ -20,8 +20,24 @@
         - name: Include check tasks
           ansible.builtin.include_tasks: checks.yml
 
+        - name: Include remove broken symlinks and delete /dev/null links tasks
+          ansible.builtin.include_tasks: fix_files.yml
+          when: >-
+            ( ( systemd_delete_broken_symlinks | bool ) and ( systemd_broken_symlinks is defined ) ) or
+            ( ( systemd_delete_devnull_symlinks | bool ) and ( systemd_devnull_symlinks is defined ) )
+
+        - name: Debug systemd unit config
+          ansible.builtin.debug:
+            var: systemd_unit
+            verbosity: 1
+          loop: "{{ systemd_units }}"
+          loop_control:
+            loop_var: systemd_unit
+            label: "{{ systemd_unit.name }}"
+
         - name: Include the systemd unit absent tasks
           ansible.builtin.include_tasks: unit_absent.yml
+          loop: "{{ systemd_units }}"
           loop_control:
             loop_var: systemd_unit
             label: "{{ systemd_unit.name }}"
@@ -40,9 +56,23 @@
             ( systemd_unit.state == "enabled" ) or
             ( systemd_unit.state == "stopped" )
 
-        - name: Include timesyncd tasks
-          ansible.builtin.include_tasks: timesyncd.yml
-          when: ( "systemd-timesyncd" in systemd_unit_names )
+        - name: timesyncd
+          block:
+
+            - name: Debug timesyncd status
+              ansible.builtin.debug:
+                msg:
+                  - "{{ systemd_units | community.general.json_query(systemd_unit_timesyncd_state_query) }}"
+                  - "{{ systemd_units | community.general.json_query(systemd_unit_timesyncd_state_query) | length }}"
+                verbosity: 1
+
+            - name: Include timesyncd tasks
+              ansible.builtin.include_tasks: timesyncd.yml
+
+          when: >-
+            ( "systemd-timesyncd" in systemd_unit_names ) and
+            ( ( systemd_units | community.general.json_query(systemd_unit_timesyncd_state_query) | length == 0 ) or
+            ( systemd_units | community.general.json_query(systemd_unit_timesyncd_state_query) == "enabled" ) )
 
         - name: Include networkd tasks
           ansible.builtin.include_tasks: networkd.yml
@@ -52,12 +82,6 @@
         # - name: Include resolved tasks
         #   ansible.builtin.include_tasks: resolved.yml
         #   when: ( "systemd-resolved" in systemd_unit_names )
-
-        - name: Include remove broken symlinks and delete /dev/null links tasks
-          ansible.builtin.include_tasks: fix_files.yml
-          when: >-
-            ( ( systemd_delete_broken_symlinks | bool ) and ( systemd_broken_symlinks is defined ) ) or
-            ( ( systemd_delete_devnull_symlinks | bool ) and ( systemd_devnull_symlinks is defined ) )
 
       when:
         - systemd_units is defined

@@ -1,0 +1,50 @@
+# Copyright 2022-2023 Chris Croome
+#
+# This file is part of the Webarchitects systemd Ansible role.
+#
+# The Webarchitects systemd Ansible role is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+#
+# The Webarchitects Ansible role is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with the Webarchitects systemd Ansible role. If not, see <https://www.gnu.org/licenses/>.
+---
+- name: Edit file without sections
+  block:
+
+    - name: Debug systemd_section
+      ansible.builtin.debug:
+        var: systemd_section
+        verbosity: 3
+
+    - name: Debug systemd_section type
+      ansible.builtin.debug:
+        msg: "{{ systemd_section | type_debug }}"
+        verbosity: 3
+
+    - name: Debug systemd_section dict2items
+      ansible.builtin.debug:
+        msg: "{{ systemd_section | ansible.builtin.dict2items }}"
+        verbosity: 3
+
+    - name: Systemd unit file edited
+      community.general.ini_file:
+        path: "{{ systemd_file.path }}"
+        option: "{{ systemd_variable_pair.key }}"
+        value: "{{ systemd_variable_pair.value }}"
+        section: null
+        no_extra_spaces: true
+        mode: "0644"
+        owner: root
+        group: root
+      loop: "{{ systemd_section | ansible.builtin.dict2items }}"
+      loop_control:
+        loop_var: systemd_variable_pair
+      register: systemd_file_edited
+
+    - name: Set systemd_file_changed if one or more variable in the systemd unit file was edited
+      ansible.builtin.set_fact:
+        systemd_file_changed: "{{ systemd_file_edited | community.general.json_query('results[].changed') | ansible.builtin.unique | community.general.json_query('[0]') }}"
+
+  tags:
+    - systemd
+...

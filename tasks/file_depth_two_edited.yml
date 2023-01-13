@@ -1,0 +1,54 @@
+# Copyright 2022-2023 Chris Croome
+#
+# This file is part of the Webarchitects systemd Ansible role.
+#
+# The Webarchitects systemd Ansible role is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+#
+# The Webarchitects Ansible role is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with the Webarchitects systemd Ansible role. If not, see <https://www.gnu.org/licenses/>.
+---
+- name: Edit file with sections
+  block:
+
+    - name: Vim modelines comment absent
+      ansible.builtin.lineinfile:
+        path: "{{ systemd_file.path }}"
+        line: "# vim: ft=systemd:"
+        state: absent
+      when: systemd_section.key not in systemd_file_sections
+
+    - name: Systemd unit file edited
+      community.general.ini_file:
+        path: "{{ systemd_file.path }}"
+        section: "{{ systemd_section.key }}"
+        option: "{{ systemd_variable_pair.key }}"
+        value: "{{ systemd_variable_pair.value }}"
+        no_extra_spaces: true
+        mode: "0644"
+        owner: root
+        group: root
+      loop: "{{ systemd_section.value | ansible.builtin.dict2items }}"
+      loop_control:
+        loop_var: systemd_variable_pair
+      register: systemd_file_edited
+
+    - name: Debug systemd_file_edited variable
+      ansible.builtin.debug:
+        var: systemd_file_edited
+        verbosity: 2
+
+    - name: Set systemd_file_changed if one or more variable in the systemd unit file was edited
+      ansible.builtin.set_fact:
+        systemd_file_changed: "{{ systemd_file_edited | community.general.json_query('results[].changed') | ansible.builtin.unique | community.general.json_query('[0]') }}"
+
+    - name: Vim modelines comment present at the end of the file
+      ansible.builtin.lineinfile:
+        path: "{{ systemd_file.path }}"
+        line: "# vim: ft=systemd:"
+        state: present
+        insertafter: EOF
+
+  tags:
+    - systemd
+...

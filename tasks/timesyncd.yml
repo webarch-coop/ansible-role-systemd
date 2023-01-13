@@ -56,12 +56,12 @@
     - name: Debug the timedatectl status
       ansible.builtin.debug:
         var: systemd_timedatectl_status
-        verbosity: 2
+        verbosity: 1
 
     - name: Debug the timedatectl tz
       ansible.builtin.debug:
         var: systemd_timedatectl_tz
-        verbosity: 2
+        verbosity: 1
 
     - name: Set the timezone
       community.general.timezone:

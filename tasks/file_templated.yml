@@ -1,0 +1,50 @@
+# Copyright 2022-2023 Chris Croome
+#
+# This file is part of the Webarchitects systemd Ansible role.
+#
+# The Webarchitects systemd Ansible role is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+#
+# The Webarchitects Ansible role is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with the Webarchitects systemd Ansible role. If not, see <https://www.gnu.org/licenses/>.
+---
+- name: Systemd file templated
+  block:
+
+    - name: Systemd unit file backup present
+      ansible.builtin.copy:
+        src: "{{ systemd_file.path }}"
+        dest: "{{ systemd_file_backup }}"
+        mode: "0644"
+        owner: root
+        group: root
+        remote_src: true
+      when: systemd_file_stat.stat.exists | bool
+
+    - name: Systemd unit file directory present
+      ansible.builtin.file:
+        path: "{{ systemd_file.path | ansible.builtin.dirname }}"
+        state: directory
+        mode: 0755
+        owner: root
+        group: root
+
+    - name: Systemd unit file templated
+      ansible.builtin.template:
+        src: unit.j2
+        dest: "{{ systemd_file.path }}"
+        mode: 0644
+        owner: root
+        group: root
+      register: systemd_file_present
+
+    - name: Set systemd_file_changed if the systemd unit file was changed
+      ansible.builtin.set_fact:
+        systemd_file_changed: true
+      when:
+        - systemd_file_present is defined
+        - systemd_file_present.changed | bool
+
+  tags:
+    - systemd
+...

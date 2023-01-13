@@ -31,8 +31,9 @@
     - name: List broken symlinks
       ansible.builtin.debug:
         var: systemd_broken_symlinks
-        verbosity: 2
-      when: systemd_broken_symlinks is defined
+      when:
+        - systemd_broken_symlinks is defined
+        - systemd_broken_symlinks != []
 
     - name: Find /dev/null symlinks
       ansible.builtin.command: find /etc/systemd -lname /dev/null
@@ -48,8 +49,9 @@
     - name: List /dev/null symlinks
       ansible.builtin.debug:
         var: systemd_devnull_symlinks
-        verbosity: 2
-      when: systemd_devnull_symlinks is defined
+      when:
+        - systemd_devnull_symlinks is defined
+        - systemd_devnull_symlinks != []
 
     # TODO Find files that are not symlinks https://git.coop/webarch/systemd/-/issues/2
 

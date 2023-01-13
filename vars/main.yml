@@ -15,5 +15,6 @@ systemd_file_backup: "{{ systemd_file.path | ansible.builtin.dirname }}/.{{ syst
 systemd_file_changed: false
 systemd_unit_files_enabled_query: "[?state == 'enabled'].unit_file"
 systemd_unit_names: "{{ systemd_units | community.general.json_query('[*].name') }}"
+systemd_unit_timesyncd_state_query: "[?name=='systemd-timesyncd'].state|[0]"
 systemd_units_restarted: []
 ...
