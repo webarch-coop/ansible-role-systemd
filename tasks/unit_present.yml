@@ -60,11 +60,33 @@
     - name: Set the unit state and restart it when the unit file exists
       block:
 
-        - name: Verify the service
+        - name: Verify the service when systemd_unit.verify is defined
           ansible.builtin.command: "systemd-analyze verify {{ systemd_unit.verify }}"
           check_mode: false
           changed_when: false
           when: systemd_unit.verify is defined
+
+        - name: Verify the service when systemd_unit.verify is not defined
+          block:
+
+            - name: Include the checks
+              ansible.builtin.include_tasks: checks.yml
+
+            - name: Verify the service when it is in the list of existing unit files after appending .service
+              ansible.builtin.command: "systemd-analyze verify {{ systemd_unit.name }}.service"
+              check_mode: false
+              changed_when: false
+              when:
+                - systemd_unit.name is not regex('[.]service$')
+                - systemd_unit_verify in systemd_unit_files_enabled
+
+            - name: Verify the service when it is in the list of existing unit files
+              ansible.builtin.command: "systemd-analyze verify {{ systemd_unit.name }}"
+              check_mode: false
+              changed_when: false
+              when: systemd_unit.name in systemd_unit_files_enabled
+
+          when: systemd_unit.verify is not defined
 
         - name: Systemd daemon-reload
           ansible.builtin.systemd:

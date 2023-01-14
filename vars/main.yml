@@ -17,4 +17,5 @@ systemd_unit_files_enabled_query: "[?state == 'enabled'].unit_file"
 systemd_unit_names: "{{ systemd_units | community.general.json_query('[*].name') }}"
 systemd_unit_timesyncd_state_query: "[?name=='systemd-timesyncd'].state|[0]"
 systemd_units_restarted: []
+systemd_unit_verify: "{{ systemd_unit.name }}.service"
 ...

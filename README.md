@@ -115,11 +115,30 @@ The `comment` for the item in the `files` list can be used for adding commented 
 
 The `conf` dictionary for the item in the `files` list defines the systemd file contents in the form of a YAML dictionary.
 
-The depth of the dictionary defines the type of file that will be configured, for example to generate a systemd environment file (`conf` depth one):
+The depth of the dictionary defines the type of file that will be configured, fir example to enerate a systemd environment file (`conf` depth zero):
+
+```yaml
+conf:
+  Time:
+```
+
+The dictionary is converted into a file containing an empty section:
+
+```ini
+[Time]
+```
+
+To generate a systemd environment file (`conf` depth one):
 
 ```yaml
 conf:
   FOO: bar
+```
+
+The dictionary is converted into a environmental variables file:
+
+```ini
+FOO=bar
 ```
 
 See the [systemd environment configuration documentation](https://manpages.debian.org/systemd/systemd.exec.5.en.html).
@@ -130,6 +149,13 @@ To generate generate a systemd unit file without any duplicated entries (`conf` 
 conf:
   Unit:
     Description: Docker Compose container starter
+```
+
+The dictionary is converted into a file:
+
+```ini
+[Unit]
+Description=Docker Compose container starter
 ```
 
 When duplicate entries are allowed a YAML list is used (`conf` depth three):
@@ -192,6 +218,8 @@ A list of services that can be verified can be generated using:
 ```bash
 systemctl list-unit-files | jc --systemctl-luf -py
 ```
+
+If `verify` is not defined and there is an existing service that has a name that matches the `name`, or the `name` with `.service` appended then tis service will be verified.
 
 ## Usage example
 

@@ -19,7 +19,14 @@
         owner: root
         group: root
         remote_src: true
+      changed_when: false
+      register: systemd_file_backup_present
       when: systemd_file_state.stat.exists | bool
+
+    - name: Debug systemd_file_backup_present
+      ansible.builtin.debug:
+        var: systemd_file_backup_present
+        verbosity: 3
 
     - name: Systemd unit file directory present
       ansible.builtin.file:
@@ -37,6 +44,20 @@
         owner: root
         group: root
       register: systemd_file_present
+
+    - name: Debug systemd_file_present
+      ansible.builtin.debug:
+        var: systemd_file_present
+        verbosity: 3
+
+    - name: Delete the backup when the file hasn't changed
+      ansible.builtin.file:
+        path: "{{ systemd_file_backup_present.dest }}"
+        state: absent
+      changed_when: false
+      when:
+        - systemd_file_present is defined
+        - not systemd_file_present.changed | bool
 
     - name: Set systemd_file_changed if the systemd unit file was changed
       ansible.builtin.set_fact:

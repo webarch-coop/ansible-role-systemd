@@ -13,13 +13,13 @@ systemd_delete_broken_symlinks: false
 systemd_delete_devnull_symlinks: false
 systemd_timesyncd_reboot: false
 systemd_tz: Etc/UTC
-systemd_units:
-  - name: systemd-timesyncd
-    files:
-      - path: /etc/systemd/timesyncd.conf.d/timesyncd.conf
-        conf:
-          Time:
-            NTP: 0.pool.ntp.org 1.pool.ntp.org 2.pool.ntp.org 3.pool.ntp.org
-    pkgs:
-      - systemd-timesyncd
+# systemd_units:
+#   - name: systemd-timesyncd
+#     files:
+#       - path: /etc/systemd/timesyncd.conf.d/timesyncd.conf
+#         conf:
+#           Time:
+#             NTP: 0.pool.ntp.org 1.pool.ntp.org 2.pool.ntp.org 3.pool.ntp.org
+#     pkgs:
+#       - systemd-timesyncd
 ...
