@@ -4,7 +4,7 @@
 
 `systemd` is a [System and Service Manager](https://systemd.io/) that _"runs as PID 1 and starts the rest of the system"_.
 
-This repo contains an Ansible role for configuring [systemd on Debian](https://manpages.debian.org/systemd/systemd.1.en.html), this role has been designed to be as generic as possible in order to enable to it be used to configure any systemd service, by default it configures `systemd-timesyncd`.
+This repo contains an Ansible role for configuring [systemd on Debian](https://manpages.debian.org/systemd/systemd.1.en.html), this role has been designed to be as generic as possible in order to enable to it be used to configure any systemd service.
 
 On Debian Buster [backports](https://backports.debian.org/Instructions/) is required to get the [latest version of systemd](https://packages.debian.org/buster-backports/systemd), the [Webarchitects apt Ansible role](https://git.coop/webarch/apt) can be used to enable backports.
 
@@ -180,7 +180,7 @@ Note that the documentation for the [general syntax of systemd configuration fil
 
 > Boolean arguments used in configuration files can be written in various formats. For positive settings the strings `1`, `yes`, `true` and `on` are equivalent. For negative settings, the strings `0`, `no`, `false` and `off` are equivalent.
 
-If you want a value that is used as a boolean in a systemd unit file to be treated as a string you need to quote it, for example `"yes2`, if you don't quote it then Ansible will consider numbers to be integers in the case of `1` or `0` and unquoted `true` and `false` will be booleans, the unit template, [templates/unit.j2](templates/unit.j2) is set to lower case booleans to avoid them becoming `True` and `False`.
+If you want a value that is used as a boolean in a systemd unit file to be treated as a string you need to quote it, for example `"yes"`, if you don't quote it then Ansible will consider numbers to be integers in the case of `1` or `0` and unquoted `true` and `false` will be booleans, the unit template, [templates/unit.j2](templates/unit.j2) is set to lower case booleans to avoid them becoming `True` and `False`.
 
 Also note that duplicated sections are allowed by systemd however this role doesn't support duplicated sections in the same file.
 
