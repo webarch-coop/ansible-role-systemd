@@ -6,7 +6,7 @@
 
 This repo contains an Ansible role for configuring [systemd on Debian](https://manpages.debian.org/systemd/systemd.1.en.html), this role has been designed to be as generic as possible in order to enable to it be used to configure any systemd service.
 
-On Debian Buster [backports](https://backports.debian.org/Instructions/) is required to get the [latest version of systemd](https://packages.debian.org/buster-backports/systemd), the [Webarchitects apt Ansible role](https://git.coop/webarch/apt) can be used to enable backports.
+On Debian [Buster](https://packages.debian.org/buster-backports/systemd) and [Bullseye](https://packages.debian.org/bullseye-backports/systemd) when the [backports repo](https://backports.debian.org/Instructions/) is enabled this role will install systemd from backports, the [Webarchitects apt Ansible role](https://git.coop/webarch/apt) can be used to enable backports.
 
 ## Role variables
 
