@@ -231,30 +231,30 @@ This role can be included in another role along these lines (this has been based
     name: systemd
     tasks_from: unit_present.yml
   vars:
-    systemd_unit:
-      name: docker-compose
-      state: enabled
-      files:
-        - path: /etc/systemd/docker-compose.conf
-          conf:
-            DOCKER_COMPOSE_VERSION: native
-        - path: /etc/systemd/service/docker-compose.service
-          conf:
-            Unit:
-              Description: Docker Compose container starter
-              After: docker.service network-online.target
-              Requires: docker.service network-online.target
-            Service:
-              User: mailcow
-              Group: mailcow
-              EnvironmentFile: /etc/systemd/docker-compose.conf
-              WorkingDirectory: /opt/mailcow-dockerized
-              Type: oneshot
-              RemainAfterExit: "yes"
-              ExecStart: docker compose up -d
-              ExecStop: docker compose down
-            Install:
-              WantedBy: multi-user.target
+    systemd_units:
+      - name: docker-compose
+        state: enabled
+        files:
+          - path: /etc/systemd/docker-compose.conf
+            conf:
+              DOCKER_COMPOSE_VERSION: native
+          - path: /etc/systemd/service/docker-compose.service
+            conf:
+              Unit:
+                Description: Docker Compose container starter
+                After: docker.service network-online.target
+                Requires: docker.service network-online.target
+              Service:
+                User: mailcow
+                Group: mailcow
+                EnvironmentFile: /etc/systemd/docker-compose.conf
+                WorkingDirectory: /opt/mailcow-dockerized
+                Type: oneshot
+                RemainAfterExit: "yes"
+                ExecStart: docker compose up -d
+                ExecStop: docker compose down
+              Install:
+                WantedBy: multi-user.target
 ```
 
 ## Notes
