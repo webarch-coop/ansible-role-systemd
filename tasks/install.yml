@@ -30,9 +30,11 @@
 
       when: ansible_distribution_release is ansible.builtin.regex('^buster|bullseye$')
 
-    - name: Systemd present
+    # man-db is required by systemd-analyze verify
+    - name: Systemd and man-db present
       ansible.builtin.apt:
         pkg:
+          - man-db
           - systemd
         state: present
 

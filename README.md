@@ -46,7 +46,7 @@ The `systemd_units` array is a list of systemd units to configure, for example:
 systemd_units:
   - name: systemd-timesyncd
     files:
-      - path: /etc/systemd/timesyncd.conf
+      - path: /etc/systemd/timesyncd.conf.d/timesyncd.conf
         comment: |
           Entries in this file show the compile time defaults.
           You can change settings by editing this file.
