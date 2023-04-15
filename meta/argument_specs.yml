@@ -94,7 +94,7 @@ argument_specs:
     options:
       systemd_unit:
         type: dict
-        required: false
+        required: true
         description: A single systemd unit.
         options:
           files:

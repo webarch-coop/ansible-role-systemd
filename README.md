@@ -165,7 +165,7 @@ conf:
   Network:
     Address:
       - 192.168.0.2/24
-      - 192.168.0.3/24 
+      - 192.168.0.3/24
 ```
 
 The list items are are converted into duplicated keys:
@@ -230,8 +230,12 @@ This role can be included in another role along these lines (this has been based
   ansible.builtin.include_role:
     name: systemd
     tasks_from: unit_present.yml
+  loop: "{{ docker_systemd_units }}"
+  loop_control:
+    loop_var: systemd_unit
+    label: "{{ systemd_unit.name }}"
   vars:
-    systemd_units:
+    docker_systemd_units:
       - name: docker-compose
         state: enabled
         files:
