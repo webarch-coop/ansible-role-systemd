@@ -78,7 +78,7 @@
               ansible.builtin.include_tasks: checks.yml
 
             - name: Verify the service when it is in the list of existing unit files after appending .service
-              ansible.builtin.command: "systemd-analyze verify {{ systemd_unit.name }}.service"
+              ansible.builtin.command: "systemd-analyze verify {{ systemd_unit.name }}.service --man=false"
               check_mode: false
               changed_when: false
               when:
