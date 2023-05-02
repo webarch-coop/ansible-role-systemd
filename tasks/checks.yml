@@ -68,7 +68,7 @@
 
     - name: Set a fact for the systemd unit files
       ansible.builtin.set_fact:
-        systemd_unit_files_existing: "{{ systemd_list_unit_files.stdout | community.general.jc('systemctl_luf') }}"
+        systemd_unit_files_existing: "{{ systemd_list_unit_files.stdout | string | community.general.jc('systemctl_luf') }}"
 
     - name: Debug existing systemd unit files
       ansible.builtin.debug:

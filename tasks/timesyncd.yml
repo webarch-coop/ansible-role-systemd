@@ -50,8 +50,8 @@
 
     - name: Set a variable for the timedatectl status dictionary
       ansible.builtin.set_fact:
-        systemd_timedatectl_status: "{{ systemd_timedatectl_status_command.stdout | community.general.jc('timedatectl') }}"
-        systemd_timedatectl_tz: "{{ (systemd_timedatectl_status_command.stdout | community.general.jc('timedatectl') | community.general.json_query('time_zone') | ansible.builtin.split(' '))[0] }}"
+        systemd_timedatectl_status: "{{ systemd_timedatectl_status_command.stdout | string | community.general.jc('timedatectl') }}"
+        systemd_timedatectl_tz: "{{ (systemd_timedatectl_status_command.stdout | string | community.general.jc('timedatectl') | community.general.json_query('time_zone') | ansible.builtin.split(' '))[0] }}"
 
     - name: Debug the timedatectl status
       ansible.builtin.debug:
@@ -88,7 +88,7 @@
 
         - name: Set a variable for the timedatectl status dictionary
           ansible.builtin.set_fact:
-            systemd_timedatectl_status: "{{ systemd_timedatectl_status_command.stdout | community.general.jc('timedatectl') }}"
+            systemd_timedatectl_status: "{{ systemd_timedatectl_status_command.stdout | string | community.general.jc('timedatectl') }}"
 
         - name: Debug the timedatectl status
           ansible.builtin.debug:
@@ -119,7 +119,7 @@
 
             - name: Set a variable for the timedatectl status dictionary
               ansible.builtin.set_fact:
-                systemd_timedatectl_status: "{{ systemd_timedatectl_status_command.stdout | community.general.jc('timedatectl') }}"
+                systemd_timedatectl_status: "{{ systemd_timedatectl_status_command.stdout | string | community.general.jc('timedatectl') }}"
 
             - name: Debug the timedatectl status
               ansible.builtin.debug:

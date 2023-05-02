@@ -19,6 +19,7 @@
 
     - name: Move /etc/network/interfaces to /etc/network/interfaces.save
       ansible.builtin.command: mv /etc/network/interfaces /etc/network/interfaces.save
+      changed_when: true
       when: systemd_etc_network_interfaces.stat.exists | bool
 
   tags:

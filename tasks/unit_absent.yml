@@ -23,7 +23,7 @@
         state: stopped
       register: systemd_unit_stopped
 
-    - name: Systemd daemon-reload
+    - name: Systemd daemon-reload  # noqa: no-handler
       ansible.builtin.systemd:
         daemon_reload: true
       when: systemd_unit_stopped.changed
