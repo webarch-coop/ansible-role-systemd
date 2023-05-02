@@ -4,6 +4,5 @@ skip_list:
   - command-instead-of-module
   - key-order[task]
   - package-latest
-  - schema[meta]
 # vim: syntax=yaml
 ...
