@@ -27,6 +27,10 @@
             msg: "The server needs to be rebooted since checking the timedatectl status failed in a way that indicates that systemd isn't running properly."
           when: ( "Failed to connect to bus" in systemd_timedatectl_status_command.stderr )
 
+        - name: Fail as the server needs to be manually rebooted because systemd_timesyncd_reboot is false
+          ansible.builtin.fail:
+          when: not systemd_timesyncd_reboot | bool
+
         - name: Pause for 30 seconds to allow time to manually cancel the reboot that is about to happen
           ansible.builtin.pause:
             seconds: 30
