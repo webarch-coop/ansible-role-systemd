@@ -14,7 +14,8 @@
     - name: Vim modelines comment absent
       ansible.builtin.lineinfile:
         path: "{{ systemd_file.path }}"
-        line: "# vim: ft=systemd:"
+        line: "# vim: syntax=systemd"
+        regex: '^# vim: '
         state: absent
       when: systemd_section.key not in systemd_file_sections
 
@@ -45,7 +46,8 @@
     - name: Vim modelines comment present at the end of the file
       ansible.builtin.lineinfile:
         path: "{{ systemd_file.path }}"
-        line: "# vim: ft=systemd:"
+        line: "# vim: syntax=systemd"
+        regex: '^# vim: '
         state: present
         insertafter: EOF
 
