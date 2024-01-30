@@ -1,4 +1,4 @@
-# {{ systemd_ansible_managed }}
+# {# j2lint: disable=single-statement-per-line #}{{ systemd_ansible_managed }}
 {% if systemd_file.comment is defined %}
 
 # BEGIN ANSIBLE MANAGED BLOCK
@@ -7,39 +7,39 @@
 
 {% endif %}
 {% if systemd_conf_depth is regex('^2|3$') %}
-{% for systemd_section in systemd_file.conf | dict2items %}
+{%     for systemd_section in systemd_file.conf | dict2items %}
 
 [{{ systemd_section.key }}]
-{% for systemd_variable_pair in systemd_section.value | dict2items %}
-{% if systemd_variable_pair.value | type_debug == "list" %}
-{% for systemd_variable_item in systemd_variable_pair.value %}
+{%         for systemd_variable_pair in systemd_section.value | dict2items %}
+{%             if systemd_variable_pair.value | type_debug == "list" %}
+{%                 for systemd_variable_item in systemd_variable_pair.value %}
 {{ systemd_variable_pair.key }}={% if systemd_variable_item | type_debug == "bool" %}{{ systemd_variable_item | lower }}{% else %}{{ systemd_variable_item }}{% endif %}
 
-{% endfor %}
-{% else %}
+{%                 endfor %}
+{%             else %}
 {{ systemd_variable_pair.key }}={% if systemd_variable_pair.value | type_debug == "bool" %}{{ systemd_variable_pair.value | lower }}{% else %}{{ systemd_variable_pair.value }}{% endif %}
 
-{% endif %}
-{% endfor %}
-{% endfor %}
-{% elif systemd_conf_depth == 1 %} 
-{% for systemd_variable_pair in systemd_file.conf | dict2items %}
-{% if systemd_variable_pair.value | type_debug == "list" %}
-{% for systemd_variable_item in systemd_variable_pair.value %}
+{%             endif %}
+{%         endfor %}
+{%     endfor %}
+{% elif systemd_conf_depth == 1 %}
+{%     for systemd_variable_pair in systemd_file.conf | dict2items %}
+{%         if systemd_variable_pair.value | type_debug == "list" %}
+{%             for systemd_variable_item in systemd_variable_pair.value %}
 {{ systemd_variable_pair.key }}={% if systemd_variable_item | type_debug == "bool" %}{{ systemd_variable_item | lower }}{% else %}{{ systemd_variable_item }}{% endif %}
 
-{% endfor %}
-{% else %}
+{%             endfor %}
+{%         else %}
 {{ systemd_variable_pair.key }}={% if systemd_variable_pair.value | type_debug == "bool" %}{{ systemd_variable_pair.value | lower }}{% else %}{{ systemd_variable_pair.value }}{% endif %}
 
-{% endif %}
-{% endfor %}
+{%         endif %}
+{%     endfor %}
 {% elif systemd_conf_depth == 0 %}
-{% for systemd_section in systemd_file.conf | dict2items %}
+{%     for systemd_section in systemd_file.conf | dict2items %}
 
 [{{ systemd_section.key }}]
 
-{% endfor %}
+{%     endfor %}
 {% endif %}
 
 # vim: syntax=systemd

@@ -94,7 +94,7 @@ It is used as the `name` for the [Ansible systemd module](https://docs.ansible.c
 You can generate a YAML list of all the unit names:
 
 ```bash
-systemctl list-unit-files | jc --systemctl-luf | jp [].unit_file | yq -P 
+systemctl list-unit-files | jc --systemctl-luf | jp [].unit_file | yq -P
 ```
 
 See also the [systemd unit configuration documentation](https://manpages.debian.org/systemd/systemd.unit.5.en.html).
@@ -186,7 +186,7 @@ Also note that duplicated sections are allowed by systemd however this role does
 
 When files are updated or deleted backups are created based on the existing file name but prefixed with a leading `.` and suffixed with a timestamp in ISO8601 format and the file extension `.bak`.
 
-##### state
+##### files state
 
 The `state` of the item in the `files` list can optionally be set to one of four states when the `systemd_units` item is `enabled` or `stopped`, if the `systemd_units` item is set to `absent` all the items in the `files` list will be deleted, if the `state` of the item in the `files` list is not set then it defaults to `present`, the the four states are:
 
@@ -195,19 +195,19 @@ The `state` of the item in the `files` list can optionally be set to one of four
 * `present` - if the file exists it will be edited using the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html), as long as there are no duplicates, if there are duplicates or it doesn't exist it will be created using the [templates/unit.j2](templates/unit.j2) template, `present` is the default state.
 * `templated` - the file will be created if it does not exist or updated if it already exists using the [templates/unit.j2](templates/unit.j2) template.
 
-Don't confuse the `state` of the items in the `files` list  with the `state` of the `systemd_unit`. 
+Don't confuse the `state` of the items in the `files` list  with the `state` of the `systemd_unit`.
 
 #### pkgs
 
 The optional `pkgs` list of `.deb` packages for the `systemd_units` list item will be installed when the `state` is present and removed when `absent`.
 
-#### state
+#### systemd_units state
 
 The `systemd_units` list item `state` can be optionally set to one of three states, if it is not set it defaults to `enabled`:
 
 * `absent`, will result in the systemd unit being uninstalled, this means that the service will be stopped, `.deb` packages listed in the `pkgs` list will be removed and any files listed in the `files` array will be deleted.
 * `enabled`, will result in the systemd unit being being installed, `enabled` and `started`. If any unit files are changed when the role is run the systemd unit will be  `restarted`.
-* `stopped`, will result in the systemd unit being installed, but it will be `stopped` and not `enabled`. 
+* `stopped`, will result in the systemd unit being installed, but it will be `stopped` and not `enabled`.
 
 #### verify
 
@@ -268,6 +268,7 @@ You can read existing systemd files as YAML on the command line using [jc](https
 ```bash
 cat /etc/systemd/timesyncd.conf | jc --ini -py
 ```
+
 ```yaml
 ---
 Time:
@@ -279,7 +280,9 @@ Note that the [jc --ini parser](https://kellyjonbrazil.github.io/jc/docs/parsers
 ```bash
 cat /etc/systemd/timesyncd.conf | jc --ini-dup -py
 ```
+
 ```yaml
+
 ---
 Time:
   NTP:
@@ -298,6 +301,6 @@ If you use this role please use a tagged release, see [the release notes](https:
 
 ## Copyright
 
-Copyright 2019-2023 Chris Croome, &lt;[chris@webarchitects.co.uk](mailto:chris@webarchitects.co.uk)&gt;.
+Copyright 2022-2024 Chris Croome, &lt;[chris@webarchitects.co.uk](mailto:chris@webarchitects.co.uk)&gt;.
 
 This role is released under [the same terms as Ansible itself](https://github.com/ansible/ansible/blob/devel/COPYING), the [GNU GPLv3](LICENSE).
