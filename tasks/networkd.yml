@@ -17,6 +17,16 @@
         path: /etc/network/interfaces
       register: systemd_etc_network_interfaces
 
+    - name: Read the /etc/network/interfaces file
+      community.general.interfaces_file:
+      register: systemd_etc_network_interfaces_file
+      when: systemd_etc_network_interfaces.stat.exists | bool
+
+    - name: Debug systemd_etc_network_interfaces_file
+      ansible.builtin.debug:
+        var: systemd_etc_network_interfaces_file
+      when: systemd_etc_network_interfaces_file is defined
+
     - name: Move /etc/network/interfaces to /etc/network/interfaces.save
       ansible.builtin.command: mv /etc/network/interfaces /etc/network/interfaces.save
       changed_when: true
