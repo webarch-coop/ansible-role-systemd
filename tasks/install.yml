@@ -11,7 +11,7 @@
 - name: Systemd installed
   block:
 
-    - name: Systemd present from backports on Debian Buster and Bullseye
+    - name: Systemd present from backports on Debian Buster, Bullseye and Bookworm
       block:
 
         - name: Run apt-cache policy systemd
@@ -28,7 +28,7 @@
             default_release: "{{ ansible_distribution_release }}-backports"
           when: ( "-backports" in systemd_apt_cache_policy_systemd.stdout )
 
-      when: ansible_distribution_release is ansible.builtin.regex('^buster|bullseye$')
+      when: ansible_distribution_release is ansible.builtin.regex('^buster|bullseye|bookworm$')
 
     # man-db is required by systemd-analyze verify
     - name: Systemd and man-db present
