@@ -11,6 +11,10 @@
 # https://jpmens.net/2020/09/29/using-ansible-managed/
 # https://github.com/ansible/ansible/issues/53627#issuecomment-471562410
 systemd_ansible_managed: "{{ lookup('ansible.builtin.template', './templates/ansible_managed.j2') | trim }}"
+systemd_backport_distros:
+  - bullseye
+  - bookworm
+systemd_backport_regex: "^{{ systemd_backport_distros | join('|') }}$"
 systemd_file_backup: "{{ systemd_file.path | ansible.builtin.dirname }}/.{{ systemd_file.path | ansible.builtin.basename }}.{{ ansible_date_time.iso8601_basic_short }}.bak"
 systemd_file_changed: false
 systemd_unit_files_enabled_query: "[?state == 'enabled'].unit_file"

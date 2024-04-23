@@ -33,7 +33,7 @@
             default_release: "{{ ansible_distribution_release }}-backports"
           when: ( "-backports" in systemd_apt_cache_policy_pkg.stdout )
 
-      when: ansible_distribution_release is ansible.builtin.regex('^buster|bullseye$')
+      when: ansible_distribution_release is ansible.builtin.regex(systemd_backport_regex)
 
     - name: Package present
       ansible.builtin.apt:
