@@ -1,4 +1,6 @@
 ---
+# Note that the method for checking for sections used by the PHP role might be better
+# https://git.coop/webarch/php/-/blob/5ef63c2f784ee96243dda7ba0f359ae1205812af/tasks/file_edited.yml#L37
 - name: Check the depth of a dictionary
   block:
 
