@@ -136,9 +136,14 @@
             ( ( systemd_file_changed is defined ) and
             ( systemd_file_changed | bool ) )
 
-        - name: Gather service facts
+        - name: Check that the service is running
           ansible.builtin.service_facts:
+          vars:
+            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
           register: systemd_service_facts
+          until: systemd_service_facts | community.general.json_query(systemd_service_jpq) == "running"
+          retries: 20
+          delay: 3
 
         - name: Debug the service status
           ansible.builtin.debug:
@@ -162,9 +167,14 @@
           changed_when: true
           when: (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state != "running"
 
-        - name: Gather service facts
+        - name: Check that the service is running
           ansible.builtin.service_facts:
+          vars:
+            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
           register: systemd_service_facts
+          until: systemd_service_facts | community.general.json_query(systemd_service_jpq) == "running"
+          retries: 20
+          delay: 3
 
         - name: Debug the service status
           ansible.builtin.debug:
