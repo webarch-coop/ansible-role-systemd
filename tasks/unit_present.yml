@@ -147,6 +147,14 @@
           vars:
             systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
 
+        - name: Systemd daemon-reload when the service is not running
+          ansible.builtin.systemd_service:
+            daemon_reload: true
+          vars:
+            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
+          changed_when: true
+          when: (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state != "running"
+
         - name: Start the service using the command module if it is not running
           ansible.builtin.command: "service {{ systemd_unit.name }} start"
           vars:
