@@ -142,6 +142,29 @@
             ( ( systemd_file_changed is defined ) and
             ( systemd_file_changed | bool ) )
 
+        - name: Gather service facts
+          ansible.builtin.service_facts:
+          register: systemd_service_facts
+
+        - name: Debug the service status
+          ansible.builtin.debug:
+            msg: "{{ systemd_service_facts | community.general.json_query(systemd_service_jpq) }}"
+            verbosity: 3
+          vars:
+            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
+
+        - name: Check that the service is enabled and running
+          ansible.builtin.assert:
+            that:
+              - (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status == "enabled"
+              - (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state == "running"
+            quiet: true
+          vars:
+            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
+          when: >-
+            ( ( systemd_unit.state is not defined ) or
+            ( systemd_unit.state == "enabled" ) )
+
       when: systemd_file_state.stat.exists | bool
 
   tags:
