@@ -95,54 +95,39 @@
           when: systemd_unit.verify is not defined
 
         - name: Systemd daemon-reload
-          ansible.builtin.systemd:
+          ansible.builtin.systemd_service:
             daemon_reload: true
           when:
             - systemd_file_changed is defined
             - systemd_file_changed | bool
 
-        - name: Gather service facts
-          ansible.builtin.service_facts:
-          register: systemd_service_facts
-
         - name: Unit not enabled and stopped
-          ansible.builtin.systemd:
+          ansible.builtin.systemd_service:
             name: "{{ systemd_unit.name }}"
             enabled: false
             state: stopped
-          vars:
-            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
           when:
             - systemd_unit.state is defined
             - systemd_unit.state == "stopped"
-            - >-
-              ( (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status == "enabled" ) or
-              ( (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state == "running" )
 
         - name: Systemd unit enabled
-          ansible.builtin.systemd:
+          ansible.builtin.systemd_service:
             name: "{{ systemd_unit.name }}"
             enabled: true
-          vars:
-            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
           when: >-
-            ( ( systemd_unit.state is not defined ) or
-            ( systemd_unit.state == "enabled" ) ) and
-            ( (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status != "enabled" )
+            ( systemd_unit.state is not defined ) or
+            ( systemd_unit.state == "enabled" )
 
         - name: Systemd unit started
-          ansible.builtin.systemd:
+          ansible.builtin.systemd_service:
             name: "{{ systemd_unit.name }}"
             state: started
-          vars:
-            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
           when: >-
-            ( ( systemd_unit.state is not defined ) or
-            ( systemd_unit.state == "enabled" ) ) and
-            ( (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state != "running" )
+            ( systemd_unit.state is not defined ) or
+            ( systemd_unit.state == "enabled" )
 
         - name: Systemd unit restarted
-          ansible.builtin.systemd:
+          ansible.builtin.systemd_service:
             service: "{{ systemd_unit.name }}"
             state: restarted
           when: >-
@@ -162,12 +147,29 @@
           vars:
             systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
 
+        - name: Start the service using the command module if it is not running
+          ansible.builtin.command: "service {{ systemd_unit.name }} start"
+          vars:
+            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
+          changed_when: true
+          when: (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state != "running"
+
         - name: Check that the service is enabled and running
           ansible.builtin.assert:
             that:
               - (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status == "enabled"
               - (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state == "running"
             quiet: true
+            fail_msg: >-
+              The {{ systemd_unit.name }}.service
+              {% if (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status != "enabled" %}
+              status is {{ (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status }}
+              when it should be enabled
+              {% endif %}
+              {% if (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state != "running" %}
+              state is {{ (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state }}
+              when is should be running
+              {% endif %}
           vars:
             systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
           when: >-

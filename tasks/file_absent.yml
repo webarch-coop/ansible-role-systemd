@@ -22,7 +22,7 @@
       register: systemd_file_state
 
     - name: Systemd unit stopped
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         service: "{{ systemd_unit.name }}"
         state: restarted
       when: systemd_file_state.stat.exists | bool
@@ -34,7 +34,7 @@
       when: systemd_file_state.stat.exists | bool
 
     - name: Systemd daemon-reload
-      ansible.builtin.systemd:
+      ansible.builtin.systemd_service:
         daemon_reload: true
       when:
         - systemd_file_absent is defined
