@@ -119,17 +119,26 @@
               ( (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status == "enabled" ) or
               ( (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state == "running" )
 
-        - name: Unit enabled and started
+        - name: Systemd unit enabled
           ansible.builtin.systemd:
             name: "{{ systemd_unit.name }}"
             enabled: true
+          vars:
+            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
+          when: >-
+            ( ( systemd_unit.state is not defined ) or
+            ( systemd_unit.state == "enabled" ) ) and
+            ( ( (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status != "enabled" )
+
+        - name: Systemd unit started
+          ansible.builtin.systemd:
+            name: "{{ systemd_unit.name }}"
             state: started
           vars:
             systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
           when: >-
             ( ( systemd_unit.state is not defined ) or
             ( systemd_unit.state == "enabled" ) ) and
-            ( ( (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status != "enabled" ) or
             ( (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state != "running" ) )
 
         - name: Systemd unit restarted
