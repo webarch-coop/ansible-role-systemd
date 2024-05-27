@@ -101,23 +101,36 @@
             - systemd_file_changed is defined
             - systemd_file_changed | bool
 
+        - name: Gather service facts
+          ansible.builtin.service_facts:
+          register: systemd_service_facts
+
         - name: Unit not enabled and stopped
           ansible.builtin.systemd:
             name: "{{ systemd_unit.name }}"
             enabled: false
             state: stopped
+          vars:
+            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
           when:
             - systemd_unit.state is defined
             - systemd_unit.state == "stopped"
+            - >-
+              ( systemd_service_facts | community.general.json_query(systemd_service_jpq)).status == "enabled" ) or
+              ( systemd_service_facts | community.general.json_query(systemd_service_jpq)).state == "running" )
 
         - name: Unit enabled and started
           ansible.builtin.systemd:
             name: "{{ systemd_unit.name }}"
             enabled: true
             state: started
+          vars:
+            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
           when: >-
-            ( systemd_unit.state is not defined ) or
-            ( systemd_unit.state != "enabled" )
+            ( ( systemd_unit.state is not defined ) or
+            ( systemd_unit.state == "enabled" ) ) and
+            ( ( systemd_service_facts | community.general.json_query(systemd_service_jpq)).status != "enabled" ) or
+            ( systemd_service_facts | community.general.json_query(systemd_service_jpq)).state != "running" ) )
 
         - name: Systemd unit restarted
           ansible.builtin.systemd:
