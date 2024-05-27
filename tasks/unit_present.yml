@@ -154,6 +154,17 @@
           changed_when: true
           when: (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state != "running"
 
+        - name: Gather service facts
+          ansible.builtin.service_facts:
+          register: systemd_service_facts
+
+        - name: Debug the service status
+          ansible.builtin.debug:
+            msg: "{{ systemd_service_facts | community.general.json_query(systemd_service_jpq) }}"
+            verbosity: 3
+          vars:
+            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
+
         - name: Check that the service is enabled and running
           ansible.builtin.assert:
             that:
@@ -162,14 +173,12 @@
             quiet: true
             fail_msg: >-
               The {{ systemd_unit.name }}.service
-              {% if (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status != "enabled" %}
-              status is {{ (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status }}
+              {% if (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status != "enabled" %}status
+              is {{ (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status }}
               when it should be enabled
-              {% endif %}
-              {% if (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state != "running" %}
-              state is {{ (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state }}
-              when is should be running
-              {% endif %}
+              {% endif %}{% if (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state != "running" %}state
+              is {{ (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state }} when
+              it should be running{% endif %}
           vars:
             systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
           when: >-
