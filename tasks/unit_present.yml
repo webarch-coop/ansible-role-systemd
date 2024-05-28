@@ -26,7 +26,7 @@
           - systemd_unit is defined
         quiet: "{% if ansible_verbosity == 0 %}true{% else %}false{% endif %}"
 
-    - name: Include the package install tasks when defined
+    - name: "Include the package install tasks when defined for {{ systemd_unit.name }}"
       ansible.builtin.include_tasks: pkg_present.yml
       loop: "{{ systemd_unit.pkgs }}"
       loop_control:
@@ -37,13 +37,13 @@
         - systemd_unit.pkgs | length > 0
 
     # Checks needed when this file is the role entry point
-    - name: Include check tasks
+    - name: "Include check tasks for {{ systemd_unit.name }}"
       ansible.builtin.include_tasks: checks.yml
       when: >-
         ( systemd_unit_files_existing is not defined ) or
         ( systemd_unit_files_enabled is not defined )
 
-    - name: Include the systemd unit file absent tasks
+    - name: "Include the systemd unit file absent tasks for {{ systemd_unit.name }}"
       ansible.builtin.include_tasks: file_absent.yml
       loop: "{{ systemd_unit.files }}"
       loop_control:
@@ -53,7 +53,7 @@
         - systemd_file.state is defined
         - systemd_file.state == "absent"
 
-    - name: Include the systemd unit file edited, present or templated tasks
+    - name: "Include the systemd unit file edited, present or templated tasks for {{ systemd_unit.name }}"
       ansible.builtin.include_tasks: file_present.yml
       loop: "{{ systemd_unit.files }}"
       loop_control:
@@ -66,7 +66,7 @@
     - name: Set the unit state and restart it when the unit file exists
       block:
 
-        - name: Verify the service when systemd_unit.verify is defined
+        - name: "Verify the service when systemd_unit.verify is defined for {{ systemd_unit.name }}"
           ansible.builtin.command: "systemd-analyze verify {{ systemd_unit.verify }}"
           check_mode: false
           changed_when: false
@@ -75,10 +75,10 @@
         - name: Verify the service when systemd_unit.verify is not defined
           block:
 
-            - name: Include the checks
+            - name: "Include the checks for {{ systemd_unit.name }}"
               ansible.builtin.include_tasks: checks.yml
 
-            - name: Verify the service when it is in the list of existing unit files after appending .service
+            - name: "Verify the service when it is in the list of existing unit files after appending .service for {{ systemd_unit.name }}"
               ansible.builtin.command: "systemd-analyze verify {{ systemd_unit.name }}.service --man=false"
               check_mode: false
               changed_when: false
@@ -86,7 +86,7 @@
                 - systemd_unit.name is not regex('[.]service$')
                 - systemd_unit_verify in systemd_unit_files_enabled
 
-            - name: Verify the service when it is in the list of existing unit files
+            - name: "Verify the service when it is in the list of existing unit files for {{ systemd_unit.name }}"
               ansible.builtin.command: "systemd-analyze verify {{ systemd_unit.name }}"
               check_mode: false
               changed_when: false
@@ -101,7 +101,7 @@
             - systemd_file_changed is defined
             - systemd_file_changed | bool
 
-        - name: Unit not enabled and stopped
+        - name: "Systemd {{ systemd_unit.name }} unit not enabled and stopped"
           ansible.builtin.systemd_service:
             name: "{{ systemd_unit.name }}"
             enabled: false
@@ -110,7 +110,7 @@
             - systemd_unit.state is defined
             - systemd_unit.state == "stopped"
 
-        - name: Systemd unit enabled
+        - name: "Systemd unit {{ systemd_unit.name }} enabled"
           ansible.builtin.systemd_service:
             name: "{{ systemd_unit.name }}"
             enabled: true
@@ -118,15 +118,13 @@
             ( systemd_unit.state is not defined ) or
             ( systemd_unit.state == "enabled" )
 
-        - name: Systemd unit started
-          ansible.builtin.systemd_service:
-            name: "{{ systemd_unit.name }}"
-            state: started
+        - name: "Systemd {{ systemd_unit.name }} unit started tasks included"
+          ansible.builtin.include_tasks: unit_started.yml
           when: >-
             ( systemd_unit.state is not defined ) or
             ( systemd_unit.state == "enabled" )
 
-        - name: Systemd unit restarted
+        - name: "Systemd {{ systemd_unit.name }} unit restarted"
           ansible.builtin.systemd_service:
             service: "{{ systemd_unit.name }}"
             state: restarted
@@ -135,73 +133,6 @@
             ( systemd_unit.state != "stopped" ) ) and
             ( ( systemd_file_changed is defined ) and
             ( systemd_file_changed | bool ) )
-
-        - name: Check that the service is running
-          ansible.builtin.service_facts:
-          vars:
-            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
-          register: systemd_service_facts
-          until: systemd_service_facts | community.general.json_query(systemd_service_jpq) == "running"
-          retries: 20
-          delay: 3
-
-        - name: Debug the service status
-          ansible.builtin.debug:
-            msg: "{{ systemd_service_facts | community.general.json_query(systemd_service_jpq) }}"
-            verbosity: 3
-          vars:
-            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
-
-        - name: Systemd daemon-reload when the service is not running
-          ansible.builtin.systemd_service:
-            daemon_reload: true
-          vars:
-            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
-          changed_when: true
-          when: (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state != "running"
-
-        - name: Start the service using the command module if it is not running
-          ansible.builtin.command: "service {{ systemd_unit.name }} start"
-          vars:
-            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
-          changed_when: true
-          when: (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state != "running"
-
-        - name: Check that the service is running
-          ansible.builtin.service_facts:
-          vars:
-            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
-          register: systemd_service_facts
-          until: systemd_service_facts | community.general.json_query(systemd_service_jpq) == "running"
-          retries: 20
-          delay: 3
-
-        - name: Debug the service status
-          ansible.builtin.debug:
-            msg: "{{ systemd_service_facts | community.general.json_query(systemd_service_jpq) }}"
-            verbosity: 3
-          vars:
-            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
-
-        - name: Check that the service is enabled and running
-          ansible.builtin.assert:
-            that:
-              - (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status == "enabled"
-              - (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state == "running"
-            quiet: true
-            fail_msg: >-
-              The {{ systemd_unit.name }}.service
-              {% if (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status != "enabled" %}status
-              is {{ (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status }}
-              when it should be enabled
-              {% endif %}{% if (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state != "running" %}state
-              is {{ (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state }} when
-              it should be running{% endif %}
-          vars:
-            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
-          when: >-
-            ( ( systemd_unit.state is not defined ) or
-            ( systemd_unit.state == "enabled" ) )
 
       when: systemd_file_state.stat.exists | bool
 

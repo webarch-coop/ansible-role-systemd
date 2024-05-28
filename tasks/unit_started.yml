@@ -1,0 +1,62 @@
+# Copyright 2022-2024 Chris Croome
+#
+# This file is part of the Webarchitects systemd Ansible role.
+#
+# The Webarchitects systemd Ansible role is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+#
+# The Webarchitects Ansible role is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with the Webarchitects systemd Ansible role. If not, see <https://www.gnu.org/licenses/>.
+---
+- name: Start systemd unit
+  block:
+
+    - name: "Systemd unit {{ systemd_unit.name }} started"
+      ansible.builtin.systemd_service:
+        name: "{{ systemd_unit.name }}"
+        state: started
+      register: systemd_service_started
+      until:
+        - systemd_service_started.status.SubState is defined
+        - systemd_service_started.status.SubState == "running"
+        - systemd_service_started.status.Result is defined
+        - systemd_service_started.status.Result == "success"
+      retries: 20
+      delay: 3
+
+    - name: "Debug the results from starting the {{ systemd_unit.name }} systemd service"
+      ansible.builtin.debug:
+        var: systemd_service_started
+        verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}1{% else %}2{% endif %}"
+
+    - name: "Systemd daemon-reload for {{ systemd_unit.name }}"
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+      when:
+        - systemd_service_started.status.NeedDaemonReload is defined
+        - systemd_service_started.status.NeedDaemonReload == "yes"
+
+    - name: Check the state of services
+      ansible.builtin.service_facts:
+      register: systemd_service_facts
+
+    - name: Check that the service is enabled and running
+      ansible.builtin.assert:
+        that:
+          - (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status == "enabled"
+          - (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state == "running"
+        quiet: true
+        fail_msg: >-
+          The {{ systemd_unit.name }}.service
+          {% if (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status != "enabled" %}status
+          is {{ (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status }}
+          when it should be enabled
+          {% endif %}{% if (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state != "running" %}state
+          is {{ (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state }} when
+          it should be running{% endif %}
+      vars:
+        systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
+
+  tags:
+    - systemd
+...

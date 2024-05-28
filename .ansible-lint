@@ -3,6 +3,7 @@
 skip_list:
   - command-instead-of-module
   - key-order[task]
+  - name[template]
   - package-latest
 # vim: syntax=yaml
 ...
