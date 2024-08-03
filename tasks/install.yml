@@ -11,6 +11,13 @@
 - name: Systemd installed
   block:
 
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 60
+      check_mode: false
+      changed_when: false
+
     - name: Systemd present from backports on Debian Buster, Bullseye and Bookworm
       block:
 
