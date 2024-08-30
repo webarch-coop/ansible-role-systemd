@@ -313,7 +313,7 @@ ID_NET_NAME_SLOT=enX0
 Remove `/etc/systemd/network/99-default.link` and rebuild `initd`:
 
 ```bash
-mv /etc/systemd/network/99-default.link /etc/systemd/network/.99-default.link.bak
+mv /etc/systemd/network/99-default.link /etc/systemd/network/.99-default.link.bak && \
 update-initramfs -u
 ```
 
