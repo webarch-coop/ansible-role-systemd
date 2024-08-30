@@ -289,6 +289,57 @@ Time:
   - 0.pool.ntp.org 1.pool.ntp.org 2.pool.ntp.org 3.pool.ntp.org
 ```
 
+### Network interface names
+
+For upgrading older Debian servers see the ["Predictable Names" Migration HOWTO](https://wiki.debian.org/NetworkInterfaceNames#migration).
+
+Check the existing name:
+
+```bash
+ls /sys/class/net/ | grep -v ^lo$
+eth0
+```
+
+For each result ask `udevadm` what `NET_ID`s it knows:
+
+```bash
+udevadm test-builtin net_id /sys/class/net/eth0 2>/dev/null
+ID_NET_NAMING_SCHEME=v253
+ID_NET_NAME_MAC=enx00163ee9dd05
+ID_OUI_FROM_DATABASE=Xensource, Inc.
+ID_NET_NAME_SLOT=enX0
+```
+
+Remove `/etc/systemd/network/99-default.link` and rebuild `initd`:
+
+```bash
+mv /etc/systemd/network/99-default.link /etc/systemd/network/.99-default.link.bak
+update-initramfs -u
+```
+
+Run this role with a config like this:
+
+```yaml
+systemd_units:
+  - name: systemd-networkd
+    files:
+      - path: /etc/systemd/network/enX0.link
+        conf:
+          Match:
+            MACAddress: "00:16:3e:e9:dd:05"
+          Link:
+            Name: enX0
+      - path: /etc/systemd/network/enX0.network
+        conf:
+          Match:
+            Name: enX0
+            Type: ether
+          Network:
+            Address:
+              - 81.95.52.71/25
+            Gateway: 81.95.52.3
+```
+
 ## Dependencies
 
 This role requires Ansible `2.13` or newer, [JC](https://pypi.org/project/jc/) and [JMESPath](https://pypi.org/project/jmespath/) to be installed using `pip3` on the Ansible controller.
