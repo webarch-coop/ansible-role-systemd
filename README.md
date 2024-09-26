@@ -263,6 +263,41 @@ This role can be included in another role along these lines (this has been based
 
 ## Notes
 
+You manually create overide files using the CLI and then transfer them into Ansible, for example the `nftables` package provides `/lib/systemd/system/nftables.service` and lines in this file can be overidden by opening a editor:
+
+```bash
+systemctl edit nftables.service
+```
+
+Uncomment the lines you want to change, for example:
+
+```conf
+# ExecStart=/usr/sbin/nft -f /etc/nftables.conf
+# ExecReload=/usr/sbin/nft -f /etc/nftables.conf
+ExecStart=
+ExecStart=/usr/sbin/nft -j -f /etc/nftables.json
+ExecReload=
+ExecReload=/usr/sbin/nft -j -f /etc/nftables.json
+```
+
+And when you exit the editor a `/etc/systemd/system/nftables.service.d/override.conf` should be created and this can be replicated using Ansible with:
+
+```yaml
+systemd_units:
+  - name: nftables
+    files:
+      - path: /etc/systemd/system/nftables.service.d/override.conf
+        conf:
+          Service:
+            ExecStart:
+              - ""
+              - /usr/sbin/nft -j -f /etc/nftables.json
+            ExecReload:
+              - ""
+              - /usr/sbin/nft -j -f /etc/nftables.json
+        state: present
+```
+
 You can read existing systemd files as YAML on the command line using [jc](https://github.com/kellyjonbrazil/jc), for example:
 
 ```bash
