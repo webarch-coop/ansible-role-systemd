@@ -142,8 +142,8 @@
         - name: Reboot and pause for 15 seconds
           block:
 
-            - name: Rebooting {{ ansible_hostname }}"
-              ansible..builtin.debug:
+            - name: "Rebooting {{ ansible_hostname }}"
+              ansible.builtin.debug:
                 msg: "The server is about to be rebooted as {{ systemd_unit.name }} is changed"
 
             - name: Rebooting as {{ systemd_unit.name }} is changed"
