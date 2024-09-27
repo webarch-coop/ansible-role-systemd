@@ -149,6 +149,8 @@
             - name: Rebooting as {{ systemd_unit.name }} is changed"
               ansible.builtin.reboot:
                 reboot_command: reboot -h now
+              tags:
+                - molecule-notest
 
             - name: Pause for 15 seconds to allow the services on the server to all start
               ansible.builtin.pause:
