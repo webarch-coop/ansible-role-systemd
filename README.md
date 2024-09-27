@@ -203,10 +203,11 @@ The optional `pkgs` list of `.deb` packages for the `systemd_units` list item wi
 
 #### systemd_units state
 
-The `systemd_units` list item `state` can be optionally set to one of three states, if it is not set it defaults to `enabled`:
+The `systemd_units` list item `state` can be optionally set to one of four states, if it is not set it defaults to `enabled`:
 
 * `absent`, will result in the systemd unit being uninstalled, this means that the service will be stopped, `.deb` packages listed in the `pkgs` list will be removed and any files listed in the `files` array will be deleted.
 * `enabled`, will result in the systemd unit being being installed, `enabled` and `started`. If any unit files are changed when the role is run the systemd unit will be  `restarted`.
+* `reboot`, will result in the unit being `enabled` and server being rebooted if the unit file is changed.
 * `stopped`, will result in the systemd unit being installed, but it will be `stopped` and not `enabled`.
 
 #### verify

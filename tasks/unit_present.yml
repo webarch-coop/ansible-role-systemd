@@ -116,7 +116,12 @@
             enabled: true
           when: >-
             ( systemd_unit.state is not defined ) or
-            ( systemd_unit.state == "enabled" )
+            ( systemd_unit.state == "enabled" ) or
+            ( systemd_unit.state == "reboot" )
+
+        - name: Debug systemd_unit.state
+          ansible.builtin.debug:
+            var: systemd_unit.state
 
         - name: "Systemd {{ systemd_unit.name }} unit started tasks included"
           ansible.builtin.include_tasks: unit_started.yml
@@ -130,9 +135,30 @@
             state: restarted
           when: >-
             ( ( systemd_unit.state is not defined ) or
-            ( systemd_unit.state != "stopped" ) ) and
+            ( systemd_unit.state == "enabled" ) ) and
             ( ( systemd_file_changed is defined ) and
             ( systemd_file_changed | bool ) )
+
+        - name: Reboot and pause for 15 seconds
+          block:
+
+            - name: Rebooting {{ ansible_hostname }}"
+              ansible..builtin.debug:
+                msg: "The server is about to be rebooted as {{ systemd_unit.name }} is changed"
+
+            - name: Rebooting as {{ systemd_unit.name }} is changed"
+              ansible.builtin.reboot:
+                reboot_command: reboot -h now
+
+            - name: Pause for 15 seconds to allow the services on the server to all start
+              ansible.builtin.pause:
+                seconds: 15
+
+          when:
+            - systemd_file_changed is defined
+            - systemd_file_changed | bool
+            - systemd_unit.state is defined
+            - systemd_unit.state == "reboot"
 
       when: systemd_file_state.stat.exists | bool
 
