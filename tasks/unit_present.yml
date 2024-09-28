@@ -139,10 +139,10 @@
             ( ( systemd_file_changed is defined ) and
             ( systemd_file_changed | bool ) )
 
-        - name: Reboot and pause for 15 seconds
+        - name: Reboot and pause for 10 seconds
           block:
 
-            - name: "Rebooting {{ ansible_hostname }}"
+            - name: "Rebooting {{ inventory_hostname }}"
               ansible.builtin.debug:
                 msg: "The server is about to be rebooted as {{ systemd_unit.name }} is changed"
 
@@ -152,9 +152,9 @@
               tags:
                 - molecule-notest
 
-            - name: Pause for 15 seconds to allow the services on the server to all start
+            - name: Pause for 10 seconds to allow the services on the server to all start
               ansible.builtin.pause:
-                seconds: 15
+                seconds: 10
 
           when:
             - systemd_file_changed is defined
