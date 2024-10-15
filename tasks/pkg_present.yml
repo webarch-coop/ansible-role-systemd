@@ -30,10 +30,10 @@
           ansible.builtin.apt:
             pkg: "{{ systemd_pkg }}"
             state: latest
-            default_release: "{{ ansible_distribution_release }}-backports"
+            default_release: "{{ ansible_facts.distribution_release }}-backports"
           when: ( "-backports" in systemd_apt_cache_policy_pkg.stdout )
 
-      when: ansible_distribution_release is ansible.builtin.regex(systemd_backport_regex)
+      when: ansible_facts.distribution_release is ansible.builtin.regex(systemd_backport_regex)
 
     - name: Package present
       ansible.builtin.apt:

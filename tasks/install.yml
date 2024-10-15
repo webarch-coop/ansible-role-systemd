@@ -32,10 +32,10 @@
             pkg:
               - systemd
             state: latest
-            default_release: "{{ ansible_distribution_release }}-backports"
+            default_release: "{{ ansible_facts.distribution_release }}-backports"
           when: ( "-backports" in systemd_apt_cache_policy_systemd.stdout )
 
-      when: ansible_distribution_release is ansible.builtin.regex(systemd_backport_regex)
+      when: ansible_facts.distribution_release is ansible.builtin.regex(systemd_backport_regex)
 
     # man-db is required by systemd-analyze verify
     - name: Systemd and man-db present

@@ -15,7 +15,7 @@ systemd_backport_distros:
   - bullseye
   - bookworm
 systemd_backport_regex: "^{{ systemd_backport_distros | join('|') }}$"
-systemd_file_backup: "{{ systemd_file.path | ansible.builtin.dirname }}/.{{ systemd_file.path | ansible.builtin.basename }}.{{ ansible_date_time.iso8601_basic_short }}.bak"
+systemd_file_backup: "{{ systemd_file.path | ansible.builtin.dirname }}/.{{ systemd_file.path | ansible.builtin.basename }}.{{ ansible_facts.date_time.iso8601_basic_short }}.bak"
 systemd_file_changed: false
 systemd_unit_files_enabled_query: "[?state == 'enabled'].unit_file"
 systemd_unit_names: "{{ systemd_units | community.general.json_query('[*].name') }}"
