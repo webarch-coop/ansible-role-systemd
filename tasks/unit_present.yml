@@ -122,6 +122,7 @@
         - name: Debug systemd_unit.state
           ansible.builtin.debug:
             var: systemd_unit.state
+          when: systemd_unit.state is defined
 
         - name: "Systemd {{ systemd_unit.name }} unit started tasks included"
           ansible.builtin.include_tasks: unit_started.yml
