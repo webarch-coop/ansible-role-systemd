@@ -42,28 +42,28 @@ stages:
   - noble
   - trixie
 bookworm:
-  image: registry.git.coop/webarch/containers/images/bookworm:20250213
+  image: registry.git.coop/webarch/containers/images/bookworm:20250821
   stage: bookworm
   script:
     - pre-commit install
     - pre-commit run --all-files
     - molecule test --all
 jammy:
-  image: registry.git.coop/webarch/containers/images/jammy:20250213
+  image: registry.git.coop/webarch/containers/images/jammy:20250821
   stage: jammy
   script:
     - pre-commit install
     - pre-commit run --all-files
     - molecule test --all
 noble:
-  image: registry.git.coop/webarch/containers/images/noble:20250213
+  image: registry.git.coop/webarch/containers/images/noble:20250821
   stage: noble
   script:
     - pre-commit install
     - pre-commit run --all-files
     - molecule test --all
 trixie:
-  image: registry.git.coop/webarch/containers/images/trixie:20250213
+  image: registry.git.coop/webarch/containers/images/trixie:20250821
   stage: trixie
   script:
     - pre-commit install
