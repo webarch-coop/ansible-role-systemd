@@ -55,7 +55,7 @@
 
     # TODO Find files that are not symlinks https://git.coop/webarch/systemd/-/issues/2
 
-    - name: List systemd unit files
+    - name: List systemd unit files  # noqa command-instead-of-module
       ansible.builtin.command: systemctl list-unit-files
       check_mode: false
       changed_when: false

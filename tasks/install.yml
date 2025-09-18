@@ -33,7 +33,7 @@
           changed_when: false
           register: systemd_apt_cache_policy_systemd
 
-        - name: Install systemd from backports
+        - name: Install systemd from backports  # noqa package-latest
           ansible.builtin.apt:
             pkg:
               - systemd

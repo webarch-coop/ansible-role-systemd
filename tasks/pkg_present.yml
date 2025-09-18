@@ -26,7 +26,7 @@
             verbosity: 2
           when: systemd_apt_cache_policy_pkg.stdout_lines is defined
 
-        - name: Install from backports
+        - name: Install from backports  # noqa package-latest
           ansible.builtin.apt:
             pkg: "{{ systemd_pkg }}"
             state: latest
