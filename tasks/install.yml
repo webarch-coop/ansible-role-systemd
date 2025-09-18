@@ -11,6 +11,12 @@
 - name: Systemd installed
   block:
 
+    - name: Collect ansible_facts.distribution_release facts
+      ansible.builtin.setup:
+        gather_subset:
+          - distribution_release
+      when: ansible_facts.distribution_release is not defined
+
     - name: Update apt cache
       ansible.builtin.apt:
         update_cache: true
