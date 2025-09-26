@@ -8,6 +8,8 @@
 #
 # You should have received a copy of the GNU General Public License along with the Webarchitects systemd Ansible role. If not, see <https://www.gnu.org/licenses/>.
 ---
+ansible_managed: Ansible managed
+
 # https://jpmens.net/2020/09/29/using-ansible-managed/
 # https://github.com/ansible/ansible/issues/53627#issuecomment-471562410
 systemd_ansible_managed: "{{ lookup('ansible.builtin.template', './templates/ansible_managed.j2') | trim }}"

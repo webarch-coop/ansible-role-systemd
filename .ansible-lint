@@ -14,6 +14,6 @@ skip_list:
   - key-order[task]
   - name[template]
   - package-latest
-var_naming_pattern: "^[systemd|molecule]_?[0-9a-z_]*$"
+var_naming_pattern: "^[ansible|systemd|molecule]_?[0-9a-z_]*$"
 # vim: syntax=yaml
 ...
