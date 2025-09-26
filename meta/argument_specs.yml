@@ -35,10 +35,6 @@ argument_specs:
         type: bool
         required: true
         description: Delete broken symlinks found in the /etc/systemd directory.
-      systemd_delete_devnull_symlinks:
-        type: bool
-        required: true
-        description: Delete symlinks that point to /dev/null in the /etc/systemd directory.
       systemd_units:
         type: list
         required: false
@@ -70,6 +66,7 @@ argument_specs:
                 choices:
                   - absent
                   - edited
+                  - masked
                   - present
                   - templated
           name:

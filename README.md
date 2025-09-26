@@ -22,10 +22,6 @@ The `systemd` variable defaults to `true`.
 
 The `systemd_delete_broken_symlinks` variable is a boolean, when `true` is results in this role deleting broken symlinks found in the `/etc/systemd` directory, it defaults to `false`.
 
-### systemd_delete_devnull_symlinks
-
-The `systemd_delete_devnull_symlinks` variable is a boolean, when `true` is results in this role deleting symlinks that point to `/dev/null` in the `/etc/systemd` directory, it defaults to `false`.
-
 ### systemd_timesyncd_reboot
 
 The `systemd_timesyncd_reboot` variable is a boolean, when `true` servers which have incorrect clocks will be rebooted by this role in an attempt to correct their clocks, it defaults to `false`.
@@ -192,6 +188,7 @@ The `state` of the item in the `files` list can optionally be set to one of four
 
 * `absent` - the file will be deleted.
 * `edited` - if the file exists it will be edited using the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html), as long as there are no duplicates, if there are duplicates or the file doesn't exist it cannot be edited.  The `edited` option cannot remove variables however unlike the `templated` option, it preserves existing comments.
+* `masked` - the service is masked, the path is symlinked to `/dev/null`.
 * `present` - if the file exists it will be edited using the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html), as long as there are no duplicates, if there are duplicates or it doesn't exist it will be created using the [templates/unit.j2](templates/unit.j2) template, `present` is the default state.
 * `templated` - the file will be created if it does not exist or updated if it already exists using the [templates/unit.j2](templates/unit.j2) template.
 

@@ -1,5 +1,5 @@
 ---
-- name: Remove broken symlinks and delete /dev/null links
+- name: Remove broken symlinks
   block:
 
     - name: Set systemd_file_changed to false
@@ -30,31 +30,6 @@
       when:
         - systemd_delete_broken_symlinks | bool
         - systemd_broken_symlinks is defined
-
-    - name: Delete /dev/null symlinks
-      block:
-
-        - name: Delete /dev/null symlinks
-          ansible.builtin.file:
-            path: "{{ systemd_devnull_symlink }}"
-            state: absent
-          loop: "{{ systemd_devnull_symlinks }}"
-          loop_control:
-            loop_var: systemd_devnull_symlink
-          register: systemd_devnull_symlinks_absent
-
-        - name: Debug systemd_devnull_symlinks_absent
-          ansible.builtin.debug:
-            var: systemd_devnull_symlinks_absent
-            verbosity: 2
-
-        - name: Set systemd_file_changed if one or more variable in the systemd unit file was edited
-          ansible.builtin.set_fact:
-            systemd_file_changed: "{{ systemd_devnull_symlinks_absent | community.general.json_query('results[].changed') | ansible.builtin.unique | community.general.json_query('[0]') }}"
-
-      when:
-        - systemd_delete_devnull_symlinks | bool
-        - systemd_devnull_symlinks is defined
 
     - name: Systemd daemon-reload
       ansible.builtin.systemd_service:

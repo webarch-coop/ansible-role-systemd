@@ -27,19 +27,30 @@
         state: stopped
       when: systemd_file_state.stat.exists | bool
 
-    - name: Systemd unit file absent, backup present
+    - name: Systemd unit file backup present
       ansible.builtin.command: "mv {{ systemd_file.path }} {{ systemd_file_backup }}"
       changed_when: true
       register: systemd_file_absent
       when: systemd_file_state.stat.exists | bool
 
+    - name: Systemd unit file masked
+      ansible.builtin.file:
+        state: link
+        src: "{{ systemd_file.path }}"
+        dest: /dev/null
+        follow: false
+        mode: "0777"
+        owner: root
+        group: root
+      register: systemd_file_masked
+
     - name: Systemd daemon-reload
       ansible.builtin.systemd_service:
         daemon_reload: true
       when:
-        - systemd_file_absent is defined
-        - systemd_file_absent.changed is defined
-        - systemd_file_absent.changed | bool
+        - systemd_file_masked is defined
+        - systemd_file_masked.changed is defined
+        - systemd_file_masked.changed | bool
 
     - name: Stat the systemd unit file
       ansible.builtin.stat:

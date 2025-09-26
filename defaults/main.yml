@@ -10,7 +10,6 @@
 ---
 systemd: true
 systemd_delete_broken_symlinks: false
-systemd_delete_devnull_symlinks: false
 systemd_timesyncd_reboot: false
 systemd_tz: Etc/UTC
 # systemd_units:

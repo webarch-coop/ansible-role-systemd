@@ -36,6 +36,4 @@
       vars:  # noqa var-naming[no-role-prefix]
         systemd: true
         systemd_delete_broken_symlinks: true
-        systemd_delete_devnull_symlinks: true
-
 ...

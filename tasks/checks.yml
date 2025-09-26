@@ -35,18 +35,18 @@
         - systemd_broken_symlinks is defined
         - systemd_broken_symlinks != []
 
-    - name: Find /dev/null symlinks
+    - name: Find masked services, ones with /dev/null symlinks
       ansible.builtin.command: find /etc/systemd -lname /dev/null
       check_mode: false
       changed_when: false
       register: systemd_list_devnull_symlinks
 
-    - name: Set a fact for the list of /dev/null symlinks
+    - name: Set a fact for the list of masked services, /dev/null symlinks
       ansible.builtin.set_fact:
         systemd_devnull_symlinks: "{{ systemd_list_devnull_symlinks.stdout_lines }}"
       when: systemd_list_devnull_symlinks.stdout_lines[0] is defined
 
-    - name: List /dev/null symlinks
+    - name: List masked services, /dev/null symlinks
       ansible.builtin.debug:
         var: systemd_devnull_symlinks
       when:
