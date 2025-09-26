@@ -118,13 +118,6 @@
         path: "{{ systemd_file.path }}"
       register: systemd_file_state
 
-    - name: Set the unit state and restart it when the unit file exists
-      ansible.builtin.include_tasks: file_state.yml
-      when:
-        - systemd_file_state is defined
-        - systemd_file_state.stat is defined
-        - systemd_file_state.stat.exists | bool
-
   tags:
     - systemd
 ...

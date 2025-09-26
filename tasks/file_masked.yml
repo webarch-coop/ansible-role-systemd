@@ -39,6 +39,7 @@
         src: "{{ systemd_file.path }}"
         dest: /dev/null
         follow: false
+        force: true
         mode: "0777"
         owner: root
         group: root

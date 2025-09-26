@@ -1,0 +1,118 @@
+# Copyright 2022-2025 Chris Croome
+#
+# This file is part of the Webarchitects systemd Ansible role.
+#
+# The Webarchitects systemd Ansible role is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+#
+# The Webarchitects Ansible role is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with the Webarchitects systemd Ansible role. If not, see <https://www.gnu.org/licenses/>.
+---
+- name: Systemd unit state configured
+  block:
+
+    - name: "Verify the service when systemd_unit.verify is defined for {{ systemd_unit.name }}"
+      ansible.builtin.command: "systemd-analyze verify {{ systemd_unit.verify }}"
+      check_mode: false
+      changed_when: false
+      when: systemd_unit.verify is defined
+
+    - name: Verify the service when systemd_unit.verify is not defined
+      block:
+
+        - name: "Include the checks for {{ systemd_unit.name }}"
+          ansible.builtin.include_tasks: checks.yml
+
+        - name: "Verify the service when it is in the list of existing unit files after appending .service for {{ systemd_unit.name }}"
+          ansible.builtin.command: "systemd-analyze verify {{ systemd_unit.name }}.service --man=false"
+          check_mode: false
+          changed_when: false
+          when:
+            - systemd_unit.name is not regex('[.]service$')
+            - systemd_unit_verify in systemd_unit_files_enabled
+
+        - name: "Verify the service when it is in the list of existing unit files for {{ systemd_unit.name }}"
+          ansible.builtin.command: "systemd-analyze verify {{ systemd_unit.name }}"
+          check_mode: false
+          changed_when: false
+          when: systemd_unit.name in systemd_unit_files_enabled
+
+      when: systemd_unit.verify is not defined
+
+    - name: Systemd daemon-reload
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+      when:
+        - systemd_file_changed is defined
+        - systemd_file_changed | bool
+
+    - name: "Systemd {{ systemd_unit.name }} unit not enabled and stopped"
+      ansible.builtin.systemd_service:
+        name: "{{ systemd_unit.name }}"
+        enabled: false
+        state: stopped
+      when:
+        - systemd_unit.state is defined
+        - systemd_unit.state == "stopped"
+
+    - name: "Systemd unit {{ systemd_unit.name }} enabled"
+      ansible.builtin.systemd_service:
+        name: "{{ systemd_unit.name }}"
+        enabled: true
+      when: >-
+        ( systemd_unit.state is not defined ) or
+        ( systemd_unit.state == "enabled" ) or
+        ( systemd_unit.state == "reboot" )
+
+    - name: Debug systemd_unit.state
+      ansible.builtin.debug:
+        var: systemd_unit.state
+      when: systemd_unit.state is defined
+
+    - name: "Systemd {{ systemd_unit.name }} unit started tasks included"
+      ansible.builtin.include_tasks: unit_started.yml
+      when: >-
+        ( systemd_unit.state is not defined ) or
+        ( systemd_unit.state == "enabled" )
+
+    - name: "Systemd {{ systemd_unit.name }} unit restarted"
+      ansible.builtin.systemd_service:
+        service: "{{ systemd_unit.name }}"
+        state: restarted
+      when: >-
+        ( ( systemd_unit.state is not defined ) or
+        ( systemd_unit.state == "enabled" ) ) and
+        ( ( systemd_file_changed is defined ) and
+        ( systemd_file_changed | bool ) )
+
+    - name: Reboot and pause for 10 seconds
+      block:
+
+        - name: "Rebooting {{ inventory_hostname }}"
+          ansible.builtin.debug:
+            msg: "The server is about to be rebooted as {{ systemd_unit.name }} is changed"
+
+        - name: Rebooting as {{ systemd_unit.name }} is changed"
+          ansible.builtin.reboot:
+            reboot_command: reboot -h now
+          tags:
+            - molecule-notest
+
+        - name: Pause for 10 seconds to allow the services on the server to all start
+          ansible.builtin.pause:
+            seconds: 10
+
+      when:
+        - systemd_file_changed is defined
+        - systemd_file_changed | bool
+        - systemd_unit.state is defined
+        - systemd_unit.state == "reboot"
+
+  when:
+    - systemd_file_state is defined
+    - systemd_file_state.stat is defined
+    - systemd_file_state.stat.exists | bool
+
+  tags:
+    - systemd
+...
