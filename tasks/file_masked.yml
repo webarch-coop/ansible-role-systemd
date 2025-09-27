@@ -36,8 +36,8 @@
     - name: Systemd unit file masked
       ansible.builtin.file:
         state: link
-        src: "{{ systemd_file.path }}"
-        dest: /dev/null
+        src: /dev/null
+        dest: "{{ systemd_file.path }}"
         follow: false
         force: true
         mode: "0777"

@@ -17,6 +17,13 @@
           - distribution_release
       when: ansible_facts.distribution_release is not defined
 
+    - name: Debug ansible_facts.distribution_release
+      ansible.builtin.debug:
+        var: ansible_facts.distribution_release
+        verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}0{% else %}1{% endif %}"
+      tags:
+        - debug
+
     - name: Update apt cache
       ansible.builtin.apt:
         update_cache: true
