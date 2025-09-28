@@ -57,7 +57,8 @@
       register: systemd_file_masked
       when: >-
         (not systemd_file_state.state.exists | bool) or
-        ((not systemd_file_state.stat.islnk | bool) and
+        ((systemd_file_state.stat is defined) and
+        (not systemd_file_state.stat.islnk | bool) and
         (systemd_file_state.lnk_source != "/dev/null"))
 
     - name: Systemd daemon-reload
