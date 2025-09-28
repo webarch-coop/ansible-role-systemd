@@ -1,0 +1,31 @@
+# Copyright 2022-2025 Chris Croome
+#
+# This file is part of the Webarchitects systemd Ansible role.
+#
+# The Webarchitects systemd Ansible role is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+#
+# The Webarchitects Ansible role is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with the Webarchitects systemd Ansible role. If not, see <https://www.gnu.org/licenses/>.
+---
+- name: Systemd existing unit file masked
+  block:
+
+    - name: Systemd unit file masked when the file existed
+      ansible.builtin.file:
+        state: link
+        src: /dev/null
+        dest: "{{ systemd_file.path }}"
+        follow: false
+        force: true
+        mode: "0777"
+        owner: root
+        group: root
+      register: systemd_file_masked
+      when:
+        - not systemd_file_state.stat.islnk | bool
+        - systemd_file_state.lnk_source != "/dev/null"
+
+  tags:
+    - systemd
+...
