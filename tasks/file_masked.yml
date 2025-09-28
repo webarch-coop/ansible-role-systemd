@@ -21,6 +21,13 @@
         path: "{{ systemd_file.path }}"
       register: systemd_file_state
 
+    - name: Debug systemd_file_state
+      ansible.builtin.debug:
+        var: systemd_file_state
+        verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}0{% else %}1{% endif %}"
+      tags:
+        - debug
+
     - name: Systemd unit stopped
       ansible.builtin.systemd_service:
         service: "{{ systemd_unit.name }}"
@@ -48,9 +55,10 @@
         owner: root
         group: root
       register: systemd_file_masked
-      when:
-        - not systemd_file_state.stat.islnk | bool
-        - systemd_file_state.lnk_source != "/dev/null"
+      when: >-
+        (not systemd_file_state.state.exists | bool) or
+        ((not systemd_file_state.stat.islnk | bool) and
+        (systemd_file_state.lnk_source != "/dev/null"))
 
     - name: Systemd daemon-reload
       ansible.builtin.systemd_service:
