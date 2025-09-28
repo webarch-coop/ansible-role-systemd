@@ -122,6 +122,7 @@ argument_specs:
                   - absent
                   - edited
                   - present
+                  - masked
                   - templated
           name:
             type: str
