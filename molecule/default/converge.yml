@@ -36,4 +36,23 @@
       vars:  # noqa var-naming[no-role-prefix]
         systemd: true
         systemd_delete_broken_symlinks: true
+        systemd_units:
+          - name: fail2ban
+            files:
+              - path: /usr/lib/systemd/system/fail2ban.service.d/override.conf
+                conf:
+                  Unit:
+                    Requires: nftables.service
+                    PartOf: nftables.service
+                  Install:
+                    WantedBy: multi-user.target nftables.service
+                state: present
+            pkgs:
+              - fail2ban
+              - nftables
+            state: enabled
+          - name: quotaon
+            files:
+              - path: /etc/systemd/system/quotaon.service
+                state: masked
 ...
