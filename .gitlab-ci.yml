@@ -21,7 +21,7 @@ variables:
   ANSIBLE_ROLES_PATH: "${CI_PROJECT_DIR}/..:~/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles"
   ANSIBLE_SHELL_ALLOW_WORLD_READABLE_TEMP: "1"
   DEBIAN_FRONTEND: noninteractive
-  MOLECULE_VERBOSITY: "1"
+  MOLECULE_VERBOSITY: "0"
   PRE_COMMIT_COLOR: always
   PY_COLORS: "1"
 before_script:
@@ -40,28 +40,28 @@ stages:
   - noble
   - trixie
 bookworm:
-  image: registry.git.coop/webarch/containers/images/bookworm:20250916
+  image: registry.git.coop/webarch/containers/images/bookworm:20250922
   stage: bookworm
   script:
     - pre-commit install
     - pre-commit run --all-files
     - molecule test --all
 forky:
-  image: registry.git.coop/webarch/containers/images/forky:20250916
+  image: registry.git.coop/webarch/containers/images/forky:20250922
   stage: forky
   script:
     - pre-commit install
     - pre-commit run --all-files
     - molecule test --all
 noble:
-  image: registry.git.coop/webarch/containers/images/noble:20250916
+  image: registry.git.coop/webarch/containers/images/noble:20250922
   stage: noble
   script:
     - pre-commit install
     - pre-commit run --all-files
     - molecule test --all
 trixie:
-  image: registry.git.coop/webarch/containers/images/trixie:20250916
+  image: registry.git.coop/webarch/containers/images/trixie:20250922
   stage: trixie
   script:
     - pre-commit install
