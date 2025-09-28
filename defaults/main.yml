@@ -13,13 +13,51 @@ systemd_delete_broken_symlinks: false
 systemd_timesyncd_reboot: false
 systemd_tz: Etc/UTC
 systemd_verify: true
+systemd_units: []
+# Example config follows
 # systemd_units:
+#   - name: fail2ban
+#     files:
+#       - path: /usr/lib/systemd/system/fail2ban.service.d/override.conf
+#         conf:
+#           Unit:
+#             Requires: nftables.service
+#             PartOf: nftables.service
+#           Install:
+#             WantedBy: multi-user.target nftables.service
+#         state: present
+#     pkgs:
+#       - fail2ban
+#     state: enabled
+#   - name: systemd-networkd
+#     files:
+#       - path: /etc/systemd/network/enX0.network
+#         conf:
+#           Match:
+#             Name: enX0
+#             Type: ether
+#           Network:
+#             Address:
+#               - "{{ ansible_host }}/25"
+#             Gateway: 192.168.0.1
+#     verify: networking.service
+#   - name: systemd-resolved
+#     files:
+#       - path: /etc/systemd/resolved.conf.d/resolved.conf
+#         conf:
+#           Resolve:
+#             DNS: 1.1.1.1 9.9.9.9 8.8.8.8
+#     pkgs:
+#       - systemd-resolved
 #   - name: systemd-timesyncd
 #     files:
 #       - path: /etc/systemd/timesyncd.conf.d/timesyncd.conf
 #         conf:
 #           Time:
-#             NTP: 0.pool.ntp.org 1.pool.ntp.org 2.pool.ntp.org 3.pool.ntp.org
+#             NTP: 0.pool.ntp.org 1.pool.ntp.org 3.pool.ntp.org 2.pool.ntp.org
+#         state: present
 #     pkgs:
 #       - systemd-timesyncd
+#     state: enabled
+#     verify: systemd-timesyncd.service
 ...

@@ -33,7 +33,9 @@
         systemd_file_backup: "{{ systemd_file.path | ansible.builtin.dirname }}/.{{ systemd_file.path | ansible.builtin.basename }}.{{ ansible_facts.date_time.iso8601_basic_short }}.bak"
       changed_when: true
       register: systemd_file_absent
-      when: systemd_file_state.stat.exists | bool
+      when:
+        - systemd_file_state.stat.exists | bool
+        - systemd_file_state.stat.isreg | bool
 
     - name: Systemd unit file masked
       ansible.builtin.file:
@@ -46,6 +48,9 @@
         owner: root
         group: root
       register: systemd_file_masked
+      when:
+        - not systemd_file_state.stat.islnk | bool
+        - systemd_file_state.lnk_source != "/dev/null"
 
     - name: Systemd daemon-reload
       ansible.builtin.systemd_service:
