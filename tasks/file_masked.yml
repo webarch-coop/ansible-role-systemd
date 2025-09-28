@@ -55,11 +55,15 @@
         owner: root
         group: root
       register: systemd_file_masked
-      when: not systemd_file_state.state.exists | bool
+      when: >-
+        (not systemd_file_state.state.exists | bool) or
+        ((not systemd_file_state.stat.islnk | bool) and
+        (systemd_file_state.lnk_source != "/dev/null"))
+#      when: not systemd_file_state.state.exists | bool
 
-    - name: Systemd unit file masked when the file existed
-      ansible.builtin.include_tasks: existing_file_masked.yml
-      when: systemd_file_state.stat.exists | bool
+#     - name: Systemd unit file masked when the file existed
+#       ansible.builtin.include_tasks: existing_file_masked.yml
+#       when: systemd_file_state.stat.exists | bool
 
     - name: Debug systemd_file_masked
       ansible.builtin.debug:
