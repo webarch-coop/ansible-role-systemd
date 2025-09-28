@@ -59,7 +59,7 @@
 
     - name: Systemd unit file masked when the file existed
       ansible.builtin.include_tasks: existing_file_masked.yml
-      when: systemd_file_state.state.exists | bool
+      when: systemd_file_state.stat.exists | bool
 
     - name: Debug systemd_file_masked
       ansible.builtin.debug:
