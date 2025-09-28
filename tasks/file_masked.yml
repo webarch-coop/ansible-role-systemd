@@ -44,7 +44,7 @@
         - systemd_file_state.stat.exists | bool
         - systemd_file_state.stat.isreg | bool
 
-    - name: Systemd unit file masked
+    - name: Systemd unit file masked when the file didn't exist
       ansible.builtin.file:
         state: link
         src: /dev/null
@@ -55,11 +55,23 @@
         owner: root
         group: root
       register: systemd_file_masked
-      when: >-
-        (not systemd_file_state.state.exists | bool) or
-        ((systemd_file_state.stat is defined) and
-        (not systemd_file_state.stat.islnk | bool) and
-        (systemd_file_state.lnk_source != "/dev/null"))
+      when: not systemd_file_state.state.exists | bool
+
+    - name: Systemd unit file masked when the file did exist
+      ansible.builtin.file:
+        state: link
+        src: /dev/null
+        dest: "{{ systemd_file.path }}"
+        follow: false
+        force: true
+        mode: "0777"
+        owner: root
+        group: root
+      register: systemd_file_masked
+      when:
+        - systemd_file_state.stat is defined
+        - (systemd_file_state.stat.islnk is defined) and (not systemd_file_state.stat.islnk | bool)
+        - (systemd_file_state.lnk_source is defined) and (systemd_file_state.lnk_source != "/dev/null")
 
     - name: Systemd daemon-reload
       ansible.builtin.systemd_service:
