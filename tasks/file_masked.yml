@@ -29,6 +29,8 @@
 
     - name: Systemd unit file backup present
       ansible.builtin.command: "mv {{ systemd_file.path }} {{ systemd_file_backup }}"
+      vars:
+        systemd_file_backup: "{{ systemd_file.path | ansible.builtin.dirname }}/.{{ systemd_file.path | ansible.builtin.basename }}.{{ ansible_facts.date_time.iso8601_basic_short }}.bak"
       changed_when: true
       register: systemd_file_absent
       when: systemd_file_state.stat.exists | bool

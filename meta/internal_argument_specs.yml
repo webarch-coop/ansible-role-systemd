@@ -1,0 +1,71 @@
+# Copyright 2022-2025 Chris Croome
+#
+# This file is part of the Webarchitects systemd Ansible role.
+#
+# The Webarchitects systemd Ansible role is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+#
+# The Webarchitects Ansible role is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with the Webarchitects systemd Ansible role. If not, see <https://www.gnu.org/licenses/>.
+---
+argument_specs:
+  main:
+    author: Chris Croome
+    description: Internal variables for an Ansible role for configuring systemd services on Debian.
+    short_description: Internal systemd role variables.
+    options:
+      systemd_argument_spec:
+        type: dict
+        required: false
+        description: Internal variable for the argument spec.
+      systemd_backport_distros:
+        type: list
+        elements: str
+        required: true
+        description: Internal variable for Debian distros that have backports.
+        choices:
+          - bookworm
+          - bullseye
+          - forky
+          - trixie
+      systemd_backport_regex:
+        type: str
+        required: true
+        description: Internal variable for a regular expression for Debian distros that have backports.
+      systemd_combined_argument_spec:
+        type: dict
+        required: false
+        desciption: Internal variable for the combined argument spec.
+      systemd_file:
+        type: str
+        required: false
+        description: Internal variable for a systemd unit file path.
+      systemd_file_changed:
+        type: bool
+        required: true
+        description: A boolean to indicate a file has changed.
+      systemd_internal_argument_spec:
+        type: dict
+        required: false
+        desciption: Internal variable for the internal argument spec.
+      systemd_unit_files_enabled_query:
+        type: str
+        required: true
+        description: JMESPath query for enabled systemd unit files.
+      systemd_unit_names:
+        type: str
+        required: true
+        description: JMESPath query for systemd unit names.
+      systemd_unit_timesyncd_state_query:
+        type: str
+        required: true
+        description: JMESPath query for the state of systemd-timesyncd systemd service.
+      systemd_units_restarted:
+        type: str
+        required: true
+        description: List of restarted systemd units.
+      systemd_verify:
+        type: bool
+        required: true
+        description: A boolean to validate variables using the argument specs.
+...

@@ -26,6 +26,8 @@
         - name: "Verify the service when it is in the list of existing unit files after appending .service for {{ systemd_unit.name }}"
           ansible.builtin.command: "systemd-analyze verify {{ systemd_unit.name }}.service --man=false"
           check_mode: false
+          vars:
+            systemd_unit_verify: "{{ systemd_unit.name }}.service"
           changed_when: false
           when:
             - systemd_unit.name is not regex('[.]service$')

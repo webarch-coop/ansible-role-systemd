@@ -11,6 +11,9 @@
 - name: Configure specified systemd services
   block:
 
+    - name: Include systemd verify variables tasks
+      ansible.builtin.include_tasks: verify.yml
+
     - name: Systemd install tasks included
       ansible.builtin.include_tasks: install.yml
 

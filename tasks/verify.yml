@@ -1,0 +1,41 @@
+# Copyright 2022-2025 Chris Croome
+#
+# This file is part of the Webarchitects systemd Ansible role.
+#
+# The Webarchitects systemd Ansible role is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+#
+# The Webarchitects Ansible role is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along with the Webarchitects systemd Ansible role. If not, see <https://www.gnu.org/licenses/>.
+---
+- name: Verify systemd role variiables
+  block:
+
+    - name: Debug the hostvars variable names that start with systemd_
+      ansible.builtin.debug:
+        var: systemdvarnames
+        verbosity: "{% if ansible_check_mode | bool %}3{% else %}4{% endif %}"
+
+    - name: Debug the hostvars variable names that start with systemd_
+      ansible.builtin.debug:
+        var: systemdhostvars
+        verbosity: "{% if ansible_check_mode | bool %}3{% else %}4{% endif %}"
+
+    - name: Set a fact for the argument spec and internal argument spec
+      ansible.builtin.set_fact:
+        systemd_argument_spec: "{{ (lookup('ansible.builtin.file', 'meta/argument_specs.yml') | from_yaml) }}"
+        systemd_internal_argument_spec: "{{ (lookup('ansible.builtin.file', 'meta/internal_argument_specs.yml') | from_yaml) }}"
+
+    - name: Set a fact for the combined argument spec and internal argument spec
+      ansible.builtin.set_fact:
+        systemd_combined_argument_spec: "{{ systemd_argument_spec | ansible.builtin.combine(systemd_internal_argument_spec, recursive=true) }}"
+
+    - name: Check systemd_ variables using the combined argument spec
+      ansible.builtin.validate_argument_spec:
+        argument_spec: "{{ systemd_combined_argument_spec['argument_specs']['main']['options'] }}"
+        provided_arguments: "{{ systemdhostvars }}"
+
+  when: systemd_verify | bool
+  tags:
+    - systemd
+...

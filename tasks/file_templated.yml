@@ -19,6 +19,8 @@
         owner: root
         group: root
         remote_src: true
+      vars:
+        systemd_file_backup: "{{ systemd_file.path | ansible.builtin.dirname }}/.{{ systemd_file.path | ansible.builtin.basename }}.{{ ansible_facts.date_time.iso8601_basic_short }}.bak"
       changed_when: false
       register: systemd_file_backup_present
       when: systemd_file_state.stat.exists | bool

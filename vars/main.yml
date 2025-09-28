@@ -8,20 +8,27 @@
 #
 # You should have received a copy of the GNU General Public License along with the Webarchitects systemd Ansible role. If not, see <https://www.gnu.org/licenses/>.
 ---
+# https://jpmens.net/2020/09/29/using-ansible-managed/
 ansible_managed: Ansible managed
 
-# https://jpmens.net/2020/09/29/using-ansible-managed/
+# https://docs.ansible.com/ansible/latest/playbook_guide/complex_data_manipulation.html
+systemdvarnames: "{{ q('varnames', '^systemd_') | sort }}"
+systemdhostvars: "{{ dict(systemdvarnames | list | zip(q('vars', *systemdvarnames))) }}"
+
 # https://github.com/ansible/ansible/issues/53627#issuecomment-471562410
-systemd_ansible_managed: "{{ lookup('ansible.builtin.template', './templates/ansible_managed.j2') | trim }}"
 systemd_backport_distros:
-  - bullseye
   - bookworm
+  - bullseye
+  - forky
+  - trixie
 systemd_backport_regex: "^{{ systemd_backport_distros | join('|') }}$"
-systemd_file_backup: "{{ systemd_file.path | ansible.builtin.dirname }}/.{{ systemd_file.path | ansible.builtin.basename }}.{{ ansible_facts.date_time.iso8601_basic_short }}.bak"
+# The systemd_file_backup variable is now set at a task level
+# systemd_file_backup: "{{ systemd_file.path | ansible.builtin.dirname }}/.{{ systemd_file.path | ansible.builtin.basename }}.{{ ansible_facts.date_time.iso8601_basic_short }}.bak"
 systemd_file_changed: false
 systemd_unit_files_enabled_query: "[?state == 'enabled'].unit_file"
 systemd_unit_names: "{{ systemd_units | community.general.json_query('[*].name') }}"
 systemd_unit_timesyncd_state_query: "[?name=='systemd-timesyncd'].state|[0]"
 systemd_units_restarted: []
-systemd_unit_verify: "{{ systemd_unit.name }}.service"
+# The systemd_file_backup variable is now set at a task level
+# systemd_unit_verify: "{{ systemd_unit.name }}.service"
 ...
