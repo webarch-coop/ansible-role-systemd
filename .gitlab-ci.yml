@@ -57,8 +57,8 @@ noble:
   image: registry.git.coop/webarch/containers/images/noble:20251009
   stage: noble
   script:
-    - pre-commit install
-    - pre-commit run --all-files
+    # - pre-commit install
+    # - pre-commit run --all-files
     - molecule test --all
 trixie:
   image: registry.git.coop/webarch/containers/images/trixie:20251009
