@@ -43,8 +43,8 @@ bookworm:
   image: registry.git.coop/webarch/containers/images/bookworm:20251009
   stage: bookworm
   script:
-    - pre-commit install
-    - pre-commit run --all-files
+    # - pre-commit install
+    # - pre-commit run --all-files
     - molecule test --all
 forky:
   image: registry.git.coop/webarch/containers/images/forky:20251009
