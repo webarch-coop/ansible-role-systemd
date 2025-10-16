@@ -30,7 +30,7 @@
       ansible.builtin.debug:
         var: ansible_facts.user_dir
 
-    - name: Include Systemd role as root
+    - name: Include Systemd role
       ansible.builtin.include_role:
         name: systemd
       vars:  # noqa var-naming[no-role-prefix]
@@ -55,4 +55,9 @@
             files:
               - path: /etc/systemd/system/quotaon.service
                 state: masked
+
+    - name: Include argument spec checks for the Systemd role
+      ansible.builtin.include_role:
+        name: systemd
+        tasks_from: verify.yml
 ...
