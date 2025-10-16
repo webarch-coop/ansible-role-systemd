@@ -34,6 +34,8 @@
       when:
         - systemd_broken_symlinks is defined
         - systemd_broken_symlinks != []
+      tags:
+        - debug
 
     - name: Find masked services, ones with /dev/null symlinks
       ansible.builtin.command: find /etc/systemd -lname /dev/null
@@ -52,6 +54,8 @@
       when:
         - systemd_devnull_symlinks is defined
         - systemd_devnull_symlinks != []
+      tags:
+        - debug
 
     # TODO Find files that are not symlinks https://git.coop/webarch/systemd/-/issues/2
 
@@ -65,6 +69,8 @@
       ansible.builtin.debug:
         var: systemd_list_unit_files.stdout
         verbosity: 3
+      tags:
+        - debug
 
     - name: Set a fact for the systemd unit files
       ansible.builtin.set_fact:
@@ -74,6 +80,8 @@
       ansible.builtin.debug:
         var: systemd_unit_files_existing
         verbosity: 2
+      tags:
+        - debug
 
     - name: Set a fact for the enabled systemd unit files
       ansible.builtin.set_fact:
@@ -83,6 +91,8 @@
       ansible.builtin.debug:
         var: systemd_unit_files_enabled
         verbosity: 1
+      tags:
+        - debug
 
     # TODO Add checks for systemd_units variables
 

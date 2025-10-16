@@ -36,22 +36,104 @@ argument_specs:
         type: dict
         required: false
         desciption: Internal variable for the combined argument spec.
+      systemd_conf_depth:
+        type: int
+        required: false
+        description: Internal interger to indicate the nesting level in a systemd configuration file.
+        choices:
+          - 0
+          - 1
+          - 2
+          - 3
+      systemd_dictionary_depth:
+        type: int
+        required: false
+        description: Internal interger to indicate the nesting level in a YAML dictionary.
+        choices:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
       systemd_file:
         type: str
         required: false
         description: Internal variable for a systemd unit file path.
+      systemd_file_b64encoded:
+        type: dict
+        required: false
+        description: Internal dictionary for the results of slurping a systemd configuration file.
+      systemd_file_backup_present:
+        type: dict
+        required: false
+        description: Internal dictionary for the results of copying a systemd configuration file to a backup copy.
       systemd_file_changed:
         type: bool
-        required: true
-        description: A boolean to indicate a file has changed.
+        required: false
+        description: Internal boolean to indicate a file has changed.
+      systemd_file_depth:
+        type: int
+        required: false
+        description: Internal interger to indicate the nesting level in a systemd configuration file.
+        choices:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+          - 5
+      systemd_file_edited:
+        type: dict
+        required: false
+        description: Internal dictionary for the results of editing a systemd configuration file.
+      systemd_file_present:
+        type: dict
+        required: false
+        description: Internal dictionary for the results of templating a systemd configuration file.
+      systemd_file_sections:
+        type: list
+        elements: str
+        required: false
+        description: Internal list of a systemd configuration file sections.
+      systemd_file_state:
+        type: dict
+        required: false
+        description: Internal dictionary for the results of statting a systemd configuration file.
+      systemd_file_vars:
+        type: dict
+        required: false
+        description: Internal dictionary for the contents a systemd configuration file.
       systemd_internal_argument_spec:
         type: dict
         required: false
-        desciption: Internal variable for the internal argument spec.
+        desciption: Internal dictionary for the internal argument spec.
+      systemd_list_broken_symlinks:
+        type: dict
+        required: false
+        desciption: Internal dictionary for the results from finding broken systemd symlinks.
+      systemd_list_devnull_symlinks:
+        type: dict
+        required: false
+        desciption: Internal dictionary for the results from finding masked systemd services, symlinks to /dev/null.
+      systemd_list_unit_files:
+        type: dict
+        required: false
+        desciption: Internal dictionary for the results from running systemctl list-unit-files.
       systemd_unit_files_enabled_query:
         type: str
         required: true
         description: JMESPath query for enabled systemd unit files.
+      systemd_unit_files_enabled:
+        type: list
+        elements: str
+        required: false
+        description: Internal list of enabled systemd unit files.
+      systemd_unit_files_existing:
+        type: list
+        elements: str
+        required: false
+        description: Internal list of existing systemd unit files.
       systemd_unit_names:
         type: str
         required: true
