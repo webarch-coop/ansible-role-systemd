@@ -53,6 +53,11 @@ argument_specs:
           - 1
           - 2
           - 3
+      systemd_devnull_symlinks:
+        type: list
+        elements: str
+        required: false
+        description: Internal list of masked systemd service symlinks that point to /dev/null.
       systemd_dictionary_depth:
         type: int
         required: false
