@@ -14,6 +14,14 @@ argument_specs:
     description: Internal variables for an Ansible role for configuring systemd services on Debian.
     short_description: Internal systemd role variables.
     options:
+      systemd_apt_cache_policy_pkg:
+        type: dict
+        required: false
+        description: Internal dictionary for the results from running apt-cache policy for packages.
+      systemd_apt_cache_policy_systemd:
+        type: dict
+        required: false
+        description: Internal dictionary for the results from running apt-cache policy for systemd.
       systemd_argument_spec:
         type: dict
         required: false
@@ -60,6 +68,10 @@ argument_specs:
         type: str
         required: false
         description: Internal variable for a systemd unit file path.
+      systemd_file_absent:
+        type: dict
+        required: false
+        description: Internal dictionary for the results of mvoing a systemd configuration file to create a backup.
       systemd_file_b64encoded:
         type: dict
         required: false
@@ -87,6 +99,10 @@ argument_specs:
         type: dict
         required: false
         description: Internal dictionary for the results of editing a systemd configuration file.
+      systemd_file_masked:
+        type: dict
+        required: false
+        description: Internal dictionary for the results from masking a systemd configuration file, symlinking it to /dev/null.
       systemd_file_present:
         type: dict
         required: false
