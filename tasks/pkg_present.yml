@@ -25,6 +25,8 @@
             var: systemd_apt_cache_policy_pkg.stdout_lines
             verbosity: 2
           when: systemd_apt_cache_policy_pkg.stdout_lines is defined
+          tags:
+            - debug
 
         - name: Install from backports  # noqa package-latest
           ansible.builtin.apt:

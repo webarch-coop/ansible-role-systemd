@@ -26,6 +26,8 @@
       ansible.builtin.debug:
         var: systemd_etc_network_interfaces_file
       when: systemd_etc_network_interfaces_file is defined
+      tags:
+        - debug
 
     - name: Move /etc/network/interfaces to /etc/network/interfaces.save
       ansible.builtin.command: mv /etc/network/interfaces /etc/network/interfaces.save

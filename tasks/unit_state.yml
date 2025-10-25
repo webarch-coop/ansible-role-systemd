@@ -11,11 +11,30 @@
 - name: Systemd unit state configured
   block:
 
+    - name: Debug systemd_unit.state
+      ansible.builtin.debug:
+        var: systemd_unit.state
+      when: systemd_unit.state is defined
+      tags:
+        - debug
+
+    - name: Debug systemd_unit.verify
+      ansible.builtin.debug:
+        var: systemd_unit.verify
+      when: systemd_unit.verify is defined
+      tags:
+        - debug
+
     - name: "Verify the service when systemd_unit.verify is defined for {{ systemd_unit.name }}"
       ansible.builtin.command: "systemd-analyze verify {{ systemd_unit.verify }}"
       check_mode: false
       changed_when: false
-      when: systemd_unit.verify is defined
+      when:
+        - systemd_unit.verify is defined
+        - >-
+          (systemd_unit.state is not defined) or
+          (systemd_unit.state == "enabled") or
+          (systemd_unit.state == "reboot")
 
     - name: Verify the service when systemd_unit.verify is not defined
       block:
@@ -39,16 +58,14 @@
           changed_when: false
           when: systemd_unit.name in systemd_unit_files_enabled
 
-      when: systemd_unit.verify is not defined
-
-    - name: Systemd daemon-reload
-      ansible.builtin.systemd_service:
-        daemon_reload: true
       when:
-        - systemd_file_changed is defined
-        - systemd_file_changed | bool
+        - systemd_unit.verify is not defined
+        - >-
+          (systemd_unit.state is not defined) or
+          (systemd_unit.state == "enabled") or
+          (systemd_unit.state == "reboot")
 
-    - name: "Systemd {{ systemd_unit.name }} unit not enabled and stopped"
+    - name: "Systemd unit not enabled and stopped for {{ systemd_unit.name }}"
       ansible.builtin.systemd_service:
         name: "{{ systemd_unit.name }}"
         enabled: false
@@ -57,35 +74,29 @@
         - systemd_unit.state is defined
         - systemd_unit.state == "stopped"
 
-    - name: "Systemd unit {{ systemd_unit.name }} enabled"
+    - name: "Systemd unit enabled for {{ systemd_unit.name }}"
       ansible.builtin.systemd_service:
         name: "{{ systemd_unit.name }}"
         enabled: true
       when: >-
-        ( systemd_unit.state is not defined ) or
-        ( systemd_unit.state == "enabled" ) or
-        ( systemd_unit.state == "reboot" )
+        (systemd_unit.state is not defined) or
+        (systemd_unit.state == "enabled") or
+        (systemd_unit.state == "reboot")
 
-    - name: Debug systemd_unit.state
-      ansible.builtin.debug:
-        var: systemd_unit.state
-      when: systemd_unit.state is defined
-
-    - name: "Systemd {{ systemd_unit.name }} unit started tasks included"
+    - name: "Systemd unit started tasks included for {{ systemd_unit.name }}"
       ansible.builtin.include_tasks: unit_started.yml
       when: >-
-        ( systemd_unit.state is not defined ) or
-        ( systemd_unit.state == "enabled" )
+        (systemd_unit.state is not defined) or
+        (systemd_unit.state == "enabled") or
+        (systemd_unit.state == "reboot")
 
-    - name: "Systemd {{ systemd_unit.name }} unit restarted"
+    - name: "Systemd unit restarted for {{ systemd_unit.name }}"
       ansible.builtin.systemd_service:
         service: "{{ systemd_unit.name }}"
         state: restarted
       when: >-
-        ( ( systemd_unit.state is not defined ) or
-        ( systemd_unit.state == "enabled" ) ) and
-        ( ( systemd_file_changed is defined ) and
-        ( systemd_file_changed | bool ) )
+        (systemd_unit.state is not defined) or
+        (systemd_unit.state == "enabled")
 
     - name: Reboot and pause for 10 seconds
       block:
@@ -94,26 +105,19 @@
           ansible.builtin.debug:
             msg: "The server is about to be rebooted as {{ systemd_unit.name }} is changed"
 
-        - name: Rebooting as {{ systemd_unit.name }} is changed"
+        - name: Rebooting as Systemd unit is changed
           ansible.builtin.reboot:
             reboot_command: reboot -h now
           tags:
             - molecule-notest
 
-        - name: Pause for 10 seconds to allow the services on the server to all start
+        - name: Pause for 20 seconds to allow the for the reboot and services on the server to all start
           ansible.builtin.pause:
-            seconds: 10
+            seconds: 20
 
       when:
-        - systemd_file_changed is defined
-        - systemd_file_changed | bool
         - systemd_unit.state is defined
         - systemd_unit.state == "reboot"
-
-  when:
-    - systemd_file_state is defined
-    - systemd_file_state.stat is defined
-    - systemd_file_state.stat.exists | bool
 
   tags:
     - systemd

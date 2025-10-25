@@ -15,16 +15,22 @@
       ansible.builtin.debug:
         var: systemd_section
         verbosity: 3
+      tags:
+        - debug
 
     - name: Debug systemd_section type
       ansible.builtin.debug:
         msg: "{{ systemd_section | type_debug }}"
         verbosity: 3
+      tags:
+        - debug
 
     - name: Debug systemd_section dict2items
       ansible.builtin.debug:
         msg: "{{ systemd_section | ansible.builtin.dict2items }}"
         verbosity: 3
+      tags:
+        - debug
 
     - name: Systemd unit file edited
       community.general.ini_file:
@@ -39,11 +45,7 @@
       loop: "{{ systemd_section | ansible.builtin.dict2items }}"
       loop_control:
         loop_var: systemd_variable_pair
-      register: systemd_file_edited
-
-    - name: Set systemd_file_changed if one or more variable in the systemd unit file was edited
-      ansible.builtin.set_fact:
-        systemd_file_changed: "{{ systemd_file_edited | community.general.json_query('results[].changed') | ansible.builtin.unique | community.general.json_query('[0]') }}"
+      notify: Systemd daemon-reload
 
   tags:
     - systemd

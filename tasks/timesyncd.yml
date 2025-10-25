@@ -61,11 +61,15 @@
       ansible.builtin.debug:
         var: systemd_timedatectl_status
         verbosity: 1
+      tags:
+        - debug
 
     - name: Debug the timedatectl tz
       ansible.builtin.debug:
         var: systemd_timedatectl_tz
         verbosity: 1
+      tags:
+        - debug
 
     - name: Set the timezone
       community.general.timezone:
@@ -100,6 +104,8 @@
           ansible.builtin.debug:
             var: systemd_timedatectl_status
             verbosity: 2
+          tags:
+            - debug
 
         - name: Reboot the server to sync the clock
           block:
@@ -131,6 +137,8 @@
               ansible.builtin.debug:
                 var: systemd_timedatectl_status
                 verbosity: 2
+              tags:
+                - debug
 
           when: systemd_timesyncd_reboot | bool
 

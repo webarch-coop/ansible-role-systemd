@@ -32,16 +32,7 @@
       loop: "{{ systemd_section.value | ansible.builtin.dict2items }}"
       loop_control:
         loop_var: systemd_variable_pair
-      register: systemd_file_edited
-
-    - name: Debug systemd_file_edited variable
-      ansible.builtin.debug:
-        var: systemd_file_edited
-        verbosity: 2
-
-    - name: Set systemd_file_changed if one or more variable in the systemd unit file was edited
-      ansible.builtin.set_fact:
-        systemd_file_changed: "{{ systemd_file_edited | community.general.json_query('results[].changed') | ansible.builtin.unique | community.general.json_query('[0]') }}"
+      notify: Systemd daemon-reload
 
     - name: Vim modelines comment present at the end of the file
       ansible.builtin.lineinfile:

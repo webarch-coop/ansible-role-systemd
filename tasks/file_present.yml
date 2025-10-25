@@ -15,6 +15,8 @@
       ansible.builtin.debug:
         var: systemd_file
         verbosity: 2
+      tags:
+        - debug
 
     - name: Check the depth of the systemd file conf dictionary
       block:
@@ -72,11 +74,15 @@
           ansible.builtin.debug:
             var: systemd_file_vars
             verbosity: 2
+          tags:
+            - debug
 
         - name: Debug the type of the file vars dictionary
           ansible.builtin.debug:
             msg: "{{ systemd_file_vars | ansible.builtin.dict2items | ansible.builtin.type_debug }}"
             verbosity: 2
+          tags:
+            - debug
 
         - name: Include tasks to check the depth of the dictionary
           ansible.builtin.include_tasks: check_depth.yml

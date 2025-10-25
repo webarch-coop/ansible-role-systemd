@@ -45,7 +45,9 @@
     - name: "The following dictionary has a depth of {{ systemd_dictionary_depth }}"
       ansible.builtin.debug:
         var: systemd_dictionary
-        verbosity: 1
+        verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}0{% else %}1{% endif %}"
+      tags:
+        - debug
 
   tags:
     - systemd

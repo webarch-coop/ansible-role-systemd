@@ -11,14 +11,12 @@
 - name: Systemd unit configuration
   block:
 
-    - name: Set systemd_file_changed to false
-      ansible.builtin.set_fact:
-        systemd_file_changed: false
-
     - name: Debug the systemd unit variables
       ansible.builtin.debug:
         var: systemd_unit
         verbosity: 2
+      tags:
+        - debug
 
     - name: The systemd_unit variable needs to be defined
       ansible.builtin.assert:
@@ -72,6 +70,9 @@
       when: >-
         ( systemd_file.state is not defined ) or
         ( systemd_file.state is regex('^edited|present|templated$') )
+
+    - name: Include the systemd unit state tasks
+      ansible.builtin.include_tasks: unit_state.yml
 
   tags:
     - systemd

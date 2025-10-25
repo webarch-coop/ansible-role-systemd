@@ -15,6 +15,8 @@
       ansible.builtin.debug:
         var: systemd_file
         verbosity: 2
+      tags:
+        - debug
 
     - name: Stat the systemd unit file
       ansible.builtin.stat:
@@ -59,7 +61,7 @@
         (not systemd_file_state.stat.exists | bool) or
         ((not systemd_file_state.stat.islnk | bool) and
         (systemd_file_state.stat.lnk_source != "/dev/null"))
-#      when: not systemd_file_state.state.exists | bool
+      notify: Systemd daemon-reload
 
 #     - name: Systemd unit file masked when the file existed
 #       ansible.builtin.include_tasks: existing_file_masked.yml
@@ -71,14 +73,6 @@
         verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}0{% else %}1{% endif %}"
       tags:
         - debug
-
-    - name: Systemd daemon-reload
-      ansible.builtin.systemd_service:
-        daemon_reload: true
-      when:
-        - systemd_file_masked is defined
-        - systemd_file_masked.changed is defined
-        - systemd_file_masked.changed | bool
 
     - name: Stat the systemd unit file
       ansible.builtin.stat:

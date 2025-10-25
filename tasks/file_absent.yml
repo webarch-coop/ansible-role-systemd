@@ -11,10 +11,12 @@
 - name: Systemd unit file absent
   block:
 
-    - name: Debug the systemd unit file variables
+    - name: Debug systemd_file
       ansible.builtin.debug:
         var: systemd_file
-        verbosity: 2
+        verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}0{% else %}1{% endif %}"
+      tags:
+        - debug
 
     - name: Stat the systemd unit file
       ansible.builtin.stat:
@@ -32,16 +34,8 @@
       vars:
         systemd_file_backup: "{{ systemd_file.path | ansible.builtin.dirname }}/.{{ systemd_file.path | ansible.builtin.basename }}.{{ ansible_facts.date_time.iso8601_basic_short }}.bak"
       changed_when: true
-      register: systemd_file_absent
       when: systemd_file_state.stat.exists | bool
-
-    - name: Systemd daemon-reload
-      ansible.builtin.systemd_service:
-        daemon_reload: true
-      when:
-        - systemd_file_absent is defined
-        - systemd_file_absent.changed is defined
-        - systemd_file_absent.changed | bool
+      notify: Systemd daemon-reload
 
     - name: Stat the systemd unit file
       ansible.builtin.stat:

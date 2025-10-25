@@ -22,6 +22,8 @@
           ansible.builtin.debug:
             var: systemd_file_sections
             verbosity: 2
+          tags:
+            - debug
 
       when: systemd_conf_depth == 2
 

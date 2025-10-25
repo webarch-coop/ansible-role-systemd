@@ -17,26 +17,18 @@
           loop_control:
             loop_var: systemd_broken_symlink
           register: systemd_broken_symlinks_absent
+          notify: Systemd daemon-reload
 
         - name: Debug systemd_broken_symlinks_absent
           ansible.builtin.debug:
             var: systemd_broken_symlinks_absent
             verbosity: 2
-
-        - name: Set systemd_file_changed if one or more variable in the systemd unit file was edited
-          ansible.builtin.set_fact:
-            systemd_file_changed: "{{ systemd_broken_symlinks_absent | community.general.json_query('results[].changed') | ansible.builtin.unique | community.general.json_query('[0]') }}"
+          tags:
+            - debug
 
       when:
         - systemd_delete_broken_symlinks | bool
         - systemd_broken_symlinks is defined
-
-    - name: Systemd daemon-reload
-      ansible.builtin.systemd_service:
-        daemon_reload: true
-      when:
-        - systemd_file_changed is defined
-        - systemd_file_changed | bool
 
   tags:
     - systemd

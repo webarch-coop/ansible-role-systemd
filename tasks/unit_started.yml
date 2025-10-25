@@ -28,6 +28,8 @@
       ansible.builtin.debug:
         var: systemd_service_started
         verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}1{% else %}2{% endif %}"
+      tags:
+        - debug
 
     - name: "Systemd daemon-reload for {{ systemd_unit.name }}"
       ansible.builtin.systemd_service:
