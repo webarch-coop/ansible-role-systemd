@@ -46,7 +46,7 @@
                     PartOf: nftables.service
                   Install:
                     WantedBy: multi-user.target nftables.service
-                state: present
+                state: ignore
             pkgs:
               - fail2ban
               - nftables
