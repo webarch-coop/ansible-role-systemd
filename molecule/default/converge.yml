@@ -46,11 +46,11 @@
                     PartOf: nftables.service
                   Install:
                     WantedBy: multi-user.target nftables.service
-                state: ignore
+                state: present
             pkgs:
               - fail2ban
               - nftables
-            state: enabled
+            state: ignore  # Set to ignore as it will fail to start in a Docker container
           - name: quotaon
             files:
               - path: /etc/systemd/system/quotaon.service
