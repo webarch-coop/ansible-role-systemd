@@ -49,7 +49,7 @@
         systemd_devnull_symlinks: "{{ systemd_list_devnull_symlinks.stdout_lines }}"
       when: systemd_list_devnull_symlinks.stdout_lines[0] is defined
 
-    - name: List masked services, /dev/null symlinks
+    - name: Debug systemd_devnull_symlinks
       ansible.builtin.debug:
         var: systemd_devnull_symlinks
         verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}0{% else %}1{% endif %}"
@@ -60,8 +60,8 @@
         - debug
 
     # TODO Find files that are not symlinks https://git.coop/webarch/systemd/-/issues/2
-    #
-    #      Replace systemctl list-unit-files with community.general.systemd_info module
+
+    # TODO Replace systemctl list-unit-files with community.general.systemd_info module
     #      https://docs.ansible.com/ansible/latest/collections/community/general/systemd_info_module.html
 
     - name: List systemd unit files  # noqa command-instead-of-module
@@ -73,7 +73,7 @@
     - name: Debug list systemd unit files standard out
       ansible.builtin.debug:
         var: systemd_list_unit_files.stdout
-        verbosity: 3
+        verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}1{% else %}2{% endif %}"
       tags:
         - debug
 
@@ -84,7 +84,7 @@
     - name: Debug existing systemd unit files
       ansible.builtin.debug:
         var: systemd_unit_files_existing
-        verbosity: 2
+        verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}1{% else %}2{% endif %}"
       tags:
         - debug
 

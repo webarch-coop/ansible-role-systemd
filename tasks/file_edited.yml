@@ -21,7 +21,7 @@
         - name: Debug the existing systemd unit file sections
           ansible.builtin.debug:
             var: systemd_file_sections
-            verbosity: 2
+            verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}1{% else %}2{% endif %}"
           tags:
             - debug
 

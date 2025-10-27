@@ -23,7 +23,7 @@
         - name: Debug apt-cache policy results
           ansible.builtin.debug:
             var: systemd_apt_cache_policy_pkg.stdout_lines
-            verbosity: 2
+            verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}1{% else %}2{% endif %}"
           when: systemd_apt_cache_policy_pkg.stdout_lines is defined
           tags:
             - debug

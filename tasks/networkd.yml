@@ -25,6 +25,7 @@
     - name: Debug systemd_etc_network_interfaces_file
       ansible.builtin.debug:
         var: systemd_etc_network_interfaces_file
+        verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}0{% else %}1{% endif %}"
       when: systemd_etc_network_interfaces_file is defined
       tags:
         - debug
@@ -32,7 +33,9 @@
     - name: Move /etc/network/interfaces to /etc/network/interfaces.save
       ansible.builtin.command: mv /etc/network/interfaces /etc/network/interfaces.save
       changed_when: true
-      when: systemd_etc_network_interfaces.stat.exists | bool
+      when:
+        - systemd_etc_network_interfaces.stat.exists is defined
+        - systemd_etc_network_interfaces.stat.exists | bool
 
   tags:
     - systemd

@@ -14,14 +14,14 @@
     - name: Debug systemd_section
       ansible.builtin.debug:
         var: systemd_section
-        verbosity: 3
+        verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}1{% else %}2{% endif %}"
       tags:
         - debug
 
     - name: Debug systemd_section type
       ansible.builtin.debug:
         msg: "{{ systemd_section | type_debug }}"
-        verbosity: 3
+        verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}1{% else %}2{% endif %}"
       tags:
         - debug
 
@@ -45,7 +45,15 @@
       loop: "{{ systemd_section | ansible.builtin.dict2items }}"
       loop_control:
         loop_var: systemd_variable_pair
+      register: systemd_file_edited
       notify: Systemd daemon-reload
+
+    - name: Set systemd_file_changed to true
+      ansible.builtin.set_fact:
+        systemd_file_changed: true
+      when:
+        - systemd_file_edited.changed is defined
+        - systemd_file_edited.changed | bool
 
   tags:
     - systemd

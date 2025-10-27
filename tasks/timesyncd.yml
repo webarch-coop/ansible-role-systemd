@@ -60,14 +60,14 @@
     - name: Debug the timedatectl status
       ansible.builtin.debug:
         var: systemd_timedatectl_status
-        verbosity: 1
+        verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}0{% else %}1{% endif %}"
       tags:
         - debug
 
     - name: Debug the timedatectl tz
       ansible.builtin.debug:
         var: systemd_timedatectl_tz
-        verbosity: 1
+        verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}0{% else %}1{% endif %}"
       tags:
         - debug
 
@@ -103,7 +103,7 @@
         - name: Debug the timedatectl status
           ansible.builtin.debug:
             var: systemd_timedatectl_status
-            verbosity: 2
+            verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}1{% else %}2{% endif %}"
           tags:
             - debug
 
@@ -136,7 +136,7 @@
             - name: Debug the timedatectl status
               ansible.builtin.debug:
                 var: systemd_timedatectl_status
-                verbosity: 2
+                verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}1{% else %}2{% endif %}"
               tags:
                 - debug
 

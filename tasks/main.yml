@@ -32,7 +32,7 @@
         - name: Debug systemd unit config
           ansible.builtin.debug:
             var: systemd_unit
-            verbosity: 1
+            verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}0{% else %}1{% endif %}"
           loop: "{{ systemd_units }}"
           loop_control:
             loop_var: systemd_unit

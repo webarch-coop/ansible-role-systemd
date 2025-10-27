@@ -65,6 +65,10 @@
           (systemd_unit.state == "enabled") or
           (systemd_unit.state == "reboot")
 
+    - name: Flush handlers for systemd daemon-reload when systemd_file_changed
+      ansible.builtin.meta: flush_handlers
+      when: systemd_file_changed | bool
+
     - name: "Systemd unit not enabled and stopped for {{ systemd_unit.name }}"
       ansible.builtin.systemd_service:
         name: "{{ systemd_unit.name }}"
@@ -90,15 +94,7 @@
         (systemd_unit.state == "enabled") or
         (systemd_unit.state == "reboot")
 
-    - name: "Systemd unit restarted for {{ systemd_unit.name }}"
-      ansible.builtin.systemd_service:
-        service: "{{ systemd_unit.name }}"
-        state: restarted
-      when: >-
-        (systemd_unit.state is not defined) or
-        (systemd_unit.state == "enabled")
-
-    - name: Reboot and pause for 10 seconds
+    - name: Reboot and pause for 10 seconds when a unit files has been changed and the state is set to reboot
       block:
 
         - name: "Rebooting {{ inventory_hostname }}"
@@ -111,11 +107,12 @@
           tags:
             - molecule-notest
 
-        - name: Pause for 20 seconds to allow the for the reboot and services on the server to all start
+        - name: Pause for 10 seconds to allow the for the reboot and services on the server to all start
           ansible.builtin.pause:
-            seconds: 20
+            seconds: 10
 
       when:
+        - systemd_file_changed | bool
         - systemd_unit.state is defined
         - systemd_unit.state == "reboot"
 

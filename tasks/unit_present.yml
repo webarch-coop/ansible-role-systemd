@@ -14,7 +14,7 @@
     - name: Debug the systemd unit variables
       ansible.builtin.debug:
         var: systemd_unit
-        verbosity: 2
+        verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}1{% else %}2{% endif %}"
       tags:
         - debug
 
@@ -23,6 +23,15 @@
         that:
           - systemd_unit is defined
         quiet: "{% if ansible_verbosity == 0 %}true{% else %}false{% endif %}"
+
+    - name: Set systemd_file_changed to false and multiple state variables to empty dictionaries
+      ansible.builtin.set_fact:
+        systemd_file_absent: {}
+        systemd_file_changed: false
+        systemd_file_edited: {}
+        systemd_file_present: {}
+        systemd_service_started: {}
+        systemd_service_restarted: {}
 
     - name: "Include the package install tasks when defined for {{ systemd_unit.name }}"
       ansible.builtin.include_tasks: pkg_present.yml

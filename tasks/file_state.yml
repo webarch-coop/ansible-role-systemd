@@ -14,7 +14,7 @@
     - name: Debug the proposed systemd unit file variables
       ansible.builtin.debug:
         var: systemd_file
-        verbosity: 2
+        verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}1{% else %}2{% endif %}"
       tags:
         - debug
 
@@ -73,14 +73,14 @@
         - name: Debug the existing systemd unit file variables
           ansible.builtin.debug:
             var: systemd_file_vars
-            verbosity: 2
+            verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}1{% else %}2{% endif %}"
           tags:
             - debug
 
         - name: Debug the type of the file vars dictionary
           ansible.builtin.debug:
             msg: "{{ systemd_file_vars | ansible.builtin.dict2items | ansible.builtin.type_debug }}"
-            verbosity: 2
+            verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}1{% else %}2{% endif %}"
           tags:
             - debug
 

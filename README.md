@@ -184,7 +184,7 @@ When files are updated or deleted backups are created based on the existing file
 
 ##### files state
 
-The `state` of the item in the `files` list can optionally be set to one of four states when the `systemd_units` item is `enabled` or `stopped`, if the `systemd_units` item is set to `absent` all the items in the `files` list will be deleted, if the `state` of the item in the `files` list is not set then it defaults to `present`, the the four states are:
+The `state` of the item in the `files` list can optionally be set to one of five states when the `systemd_units` item is `enabled` or `stopped`, if the `systemd_units` item is set to `absent` all the items in the `files` list will be deleted, if the `state` of the item in the `files` list is not set then it defaults to `present`, the the five states are:
 
 * `absent` - the file will be deleted.
 * `edited` - if the file exists it will be edited using the [Ansible ini module](https://docs.ansible.com/ansible/latest/collections/community/general/ini_file_module.html), as long as there are no duplicates, if there are duplicates or the file doesn't exist it cannot be edited.  The `edited` option cannot remove variables however unlike the `templated` option, it preserves existing comments.
