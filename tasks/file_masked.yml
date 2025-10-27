@@ -36,7 +36,7 @@
         state: stopped
       when: systemd_file_state.stat.exists | bool
 
-    - name: Systemd unit file backup present
+    - name: Systemd unit file absent and backup present
       ansible.builtin.command: "mv {{ systemd_file.path }} {{ systemd_file_backup }}"
       vars:
         systemd_file_backup: "{{ systemd_file.path | ansible.builtin.dirname }}/.{{ systemd_file.path | ansible.builtin.basename }}.{{ ansible_facts.date_time.iso8601_basic_short }}.bak"
@@ -45,8 +45,9 @@
       when:
         - systemd_file_state.stat.exists | bool
         - systemd_file_state.stat.isreg | bool
+      notify: Systemd daemon-reload
 
-    - name: Systemd unit file masked when the file didn't exist
+    - name: Systemd unit file masked when the file is absent or is not a symlink pointing to /dev/null
       ansible.builtin.file:
         state: link
         src: /dev/null
@@ -62,10 +63,6 @@
         ((not systemd_file_state.stat.islnk | bool) and
         (systemd_file_state.stat.lnk_source != "/dev/null"))
       notify: Systemd daemon-reload
-
-#     - name: Systemd unit file masked when the file existed
-#       ansible.builtin.include_tasks: existing_file_masked.yml
-#       when: systemd_file_state.stat.exists | bool
 
     - name: Debug systemd_file_masked
       ansible.builtin.debug:
