@@ -141,6 +141,14 @@ argument_specs:
         type: dict
         required: false
         desciption: Internal dictionary for the results from running systemctl list-unit-files.
+      systemd_service_restarted:
+        type: dict
+        required: false
+        desciption: Internal dictionary for the results from restarting a systemd service.
+      systemd_service_started:
+        type: dict
+        required: false
+        desciption: Internal dictionary for the results from starting a systemd service.
       systemd_unit_files_enabled_query:
         type: str
         required: true
