@@ -55,6 +55,7 @@
             files:
               - path: /etc/systemd/system/quotaon.service
                 state: masked
+            state: stopped
 
     - name: Include argument spec checks for the Systemd role
       ansible.builtin.include_role:
