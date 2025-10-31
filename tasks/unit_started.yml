@@ -39,10 +39,10 @@
         systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
       register: systemd_service_restarted
       until:
-        - systemd_service_started.status.SubState is defined
-        - systemd_service_started.status.SubState == "running"
-        - systemd_service_started.status.Result is defined
-        - systemd_service_started.status.Result == "success"
+        - systemd_service_restarted.status.SubState is defined
+        - systemd_service_restarted.status.SubState == "running"
+        - systemd_service_restarted.status.Result is defined
+        - systemd_service_restarted.status.Result == "success"
       retries: 5
       delay: 2
       when:
