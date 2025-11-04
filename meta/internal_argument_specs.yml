@@ -125,6 +125,10 @@ argument_specs:
         type: dict
         required: false
         description: Internal dictionary for the contents a systemd configuration file.
+      systemd_info:
+        type: dict
+        required: false
+        description: Internal dictionary for the result from running the community.general.systemd_info module.
       systemd_internal_argument_spec:
         type: dict
         required: false
