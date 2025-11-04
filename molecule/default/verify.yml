@@ -25,4 +25,12 @@
     - name: Debug the service facts
       ansible.builtin.debug:
         var: molecule_service_facts
+
+    - name: Gather systemd info
+      community.general.systemd_info:
+      register: molecule_systemd_info
+
+    - name: Debug the systemd info
+      ansible.builtin.debug:
+        var: molecule_systemd_info
 ...
