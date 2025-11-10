@@ -41,6 +41,10 @@
 
       rescue:
 
+        - name: Debug systemd_service_started
+          ansible.builtin.debug:
+            var: systemd_service_started
+
         - name: Debug systemd_service_facts
           ansible.builtin.debug:
             var: systemd_service_facts
@@ -51,15 +55,11 @@
           vars:
             systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
 
-        - name: "Debug (systemd_service_facts | community.general.json_query({{ systemd_service_jpq}} )).status.ActiveState }}"
+        - name: "Debug (systemd_service_facts | community.general.json_query({{ systemd_service_jpq }})).status.ActiveState }}"
           ansible.builtin.debug:
-            msg: "{{ (systemd_service_facts | community.general.json_query({{ systemd_service_jpq}} )).status.ActiveState }}"
+            msg: "{{ (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status.ActiveState }}"
           vars:
             systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
-
-        - name: Debug systemd_service_started
-          ansible.builtin.debug:
-            var: systemd_service_started
 
         - name: "Fail as starting {{ systemd_unit.name }} failed."
           ansible.builtin.fail:
@@ -102,6 +102,10 @@
 
       rescue:
 
+        - name: Debug systemd_service_restarted
+          ansible.builtin.debug:
+            var: systemd_service_restarted
+
         - name: Debug systemd_service_facts
           ansible.builtin.debug:
             var: systemd_service_facts
@@ -112,15 +116,16 @@
           vars:
             systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
 
-        - name: "Debug (systemd_service_facts | community.general.json_query({{ systemd_service_jpq}} )).status.ActiveState }}"
+        - name: "Debug (systemd_service_facts | community.general.json_query({{ systemd_service_jpq }})).status.ActiveState }}"  # noqa: jinja[spacing]
           ansible.builtin.debug:
-            msg: "{{ (systemd_service_facts | community.general.json_query({{ systemd_service_jpq}} )).status.ActiveState }}"
+            msg: >-
+              {%- if (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status is defined and
+              (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status.ActiveState is defined -%}
+              {{- (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status.ActiveState -}}
+              {%- elif (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status is not defined -%}
+              status not defined{%- else -%} status.ActiveState is not defined{%- endif -%}
           vars:
             systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
-
-        - name: Debug systemd_service_restarted
-          ansible.builtin.debug:
-            var: systemd_service_restarted
 
         - name: "Fail as restarting {{ systemd_unit.name }} failed."
           ansible.builtin.fail:
