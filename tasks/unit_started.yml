@@ -26,6 +26,7 @@
             systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
           register: systemd_service_started
           until:
+            - systemd_service_started.status is defined
             - systemd_service_started.status.SubState is defined
             - (systemd_service_started.status.SubState == "running") or (systemd_service_started.status.SubState == "exited")
             - systemd_service_started.status.Result is defined
@@ -63,7 +64,14 @@
         - name: "Fail as starting {{ systemd_unit.name }} failed."
           ansible.builtin.fail:
 
-    - name: Restart the service when the unit file has changed
+    - name: "Debug the results from starting the systemd service {{ systemd_unit.name }}"
+      ansible.builtin.debug:
+        var: systemd_service_started
+        verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}1{% else %}2{% endif %}"
+      tags:
+        - debug
+
+    - name: Restart the service, in a block to catch failures for debugging, when the unit file has changed
       block:
 
         - name: Check the state of services
@@ -78,6 +86,7 @@
             systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
           register: systemd_service_restarted
           until:
+            - systemd_service_restarted.status is defined
             - systemd_service_restarted.status.SubState is defined
             - (systemd_service_started.status.SubState == "running") or (systemd_service_started.status.SubState == "exited")
             - systemd_service_restarted.status.Result is defined
@@ -85,17 +94,44 @@
           retries: 5
           delay: 2
           when: >-
-            ((systemd_service_facts | community.general.json_query(systemd_service_jpq)).state == "running") or
+            (((systemd_service_facts | community.general.json_query(systemd_service_jpq)).state is defined) and
+            ((systemd_service_facts | community.general.json_query(systemd_service_jpq)).state == "running")) or
             (((systemd_service_facts | community.general.json_query(systemd_service_jpq)).status is defined) and
             ((systemd_service_facts | community.general.json_query(systemd_service_jpq)).status.ActiveState is defined) and
             ((systemd_service_facts | community.general.json_query(systemd_service_jpq)).status.ActiveState == "active"))
+
+      rescue:
+
+        - name: Debug systemd_service_facts
+          ansible.builtin.debug:
+            var: systemd_service_facts
+
+        - name: "Debug (systemd_service_facts | community.general.json_query({{ systemd_service_jpq }})).state"
+          ansible.builtin.debug:
+            msg: "{{ (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state }}"
+          vars:
+            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
+
+        - name: "Debug (systemd_service_facts | community.general.json_query({{ systemd_service_jpq}} )).status.ActiveState }}"
+          ansible.builtin.debug:
+            msg: "{{ (systemd_service_facts | community.general.json_query({{ systemd_service_jpq}} )).status.ActiveState }}"
+          vars:
+            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
+
+        - name: Debug systemd_service_restarted
+          ansible.builtin.debug:
+            var: systemd_service_restarted
+
+        - name: "Fail as restarting {{ systemd_unit.name }} failed."
+          ansible.builtin.fail:
 
       when: systemd_file_changed | bool
 
     - name: "Debug the results from (re)starting the systemd service {{ systemd_unit.name }}"
       ansible.builtin.debug:
-        var: systemd_service_started
+        var: systemd_service_restarted
         verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}1{% else %}2{% endif %}"
+      when: systemd_service_restarted is defined
       tags:
         - debug
 
