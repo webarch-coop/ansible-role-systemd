@@ -64,6 +64,8 @@
         - name: "Fail as starting {{ systemd_unit.name }} failed."
           ansible.builtin.fail:
 
+      when: not systemd_file_changed | bool
+
     - name: "Debug the results from starting the systemd service {{ systemd_unit.name }}"
       ansible.builtin.debug:
         var: systemd_service_started
@@ -74,10 +76,6 @@
     - name: Restart the service, in a block to catch failures for debugging, when the unit file has changed
       block:
 
-        - name: Check the state of services
-          ansible.builtin.service_facts:
-          register: systemd_service_facts
-
         - name: "Systemd unit restarted when unit file(s) are changed for {{ systemd_unit.name }}"
           ansible.builtin.systemd_service:
             name: "{{ systemd_unit.name }}"
@@ -85,12 +83,12 @@
           vars:
             systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
           register: systemd_service_restarted
-          until:
-            - systemd_service_restarted.status is defined
-            - systemd_service_restarted.status.SubState is defined
-            - (systemd_service_started.status.SubState == "running") or (systemd_service_started.status.SubState == "exited")
-            - systemd_service_restarted.status.Result is defined
-            - systemd_service_restarted.status.Result == "success"
+          # until:
+          #   - systemd_service_restarted.status is defined
+          #   - systemd_service_restarted.status.SubState is defined
+          #   - (systemd_service_started.status.SubState == "running") or (systemd_service_started.status.SubState == "exited")
+          #   - systemd_service_restarted.status.Result is defined
+          #   - systemd_service_restarted.status.Result == "success"
           retries: 5
           delay: 2
           when: >-
@@ -101,6 +99,10 @@
             ((systemd_service_facts | community.general.json_query(systemd_service_jpq)).status.ActiveState == "active"))
 
       rescue:
+
+        - name: Debug systemd_file_changed
+          ansible.builtin.debug:
+            var: systemd_file_changed
 
         - name: Debug systemd_service_restarted
           ansible.builtin.debug:
