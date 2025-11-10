@@ -137,7 +137,7 @@
     - name: "Debug the results from (re)starting the systemd service {{ systemd_unit.name }}"
       ansible.builtin.debug:
         var: systemd_service_restarted
-        verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}1{% else %}2{% endif %}"
+        # verbosity: "{% if ansible_check_mode | bool or ansible_diff_mode | bool %}1{% else %}2{% endif %}"
       when: systemd_service_restarted is defined
       tags:
         - debug
