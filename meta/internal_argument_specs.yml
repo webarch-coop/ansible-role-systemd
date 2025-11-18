@@ -145,6 +145,10 @@ argument_specs:
         type: dict
         required: false
         desciption: Internal dictionary for the results from running systemctl list-unit-files.
+      systemd_service_facts:
+        type: dict
+        required: false
+        desciption: Internal dictionary for the results from running the Ansible service_facts module.
       systemd_service_restarted:
         type: dict
         required: false
