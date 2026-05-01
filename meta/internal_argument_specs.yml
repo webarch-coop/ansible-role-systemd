@@ -40,6 +40,11 @@ argument_specs:
         type: str
         required: true
         description: Internal variable for a regular expression for Debian distros that have backports.
+      systemd_broken_symlinks:
+        type: list
+        elements: str
+        required: false
+        description: List of broken symlinks.
       systemd_combined_argument_spec:
         type: dict
         required: false
