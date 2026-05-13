@@ -10,10 +10,10 @@
 ---
 # https://ansible-lint.readthedocs.io/rules/
 skip_list:
-  - command-instead-of-module
+  # - command-instead-of-module
   - key-order[task]
-  - name[template]
-  - package-latest
+  # - name[template]
+  # - package-latest
 var_naming_pattern: "^[ansible|systemd|molecule]_?[0-9a-z_]*$"
 # vim: syntax=yaml
 ...

@@ -49,19 +49,19 @@
           ansible.builtin.debug:
             var: systemd_service_facts
 
-        - name: "Debug (systemd_service_facts | community.general.json_query({{ systemd_service_jpq }})).state"
+        - name: "Debug (systemd_service_facts | community.general.json_query({{ systemd_service_jpq }})).state"  # noqa: name[template]
           ansible.builtin.debug:
             msg: "{{ (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state }}"
           vars:
             systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
 
-        - name: "Debug (systemd_service_facts | community.general.json_query({{ systemd_service_jpq }})).status.ActiveState }}"
+        - name: "Debug (systemd_service_facts | community.general.json_query({{ systemd_service_jpq }})).status.ActiveState }}"  # noqa: name[template]
           ansible.builtin.debug:
             msg: "{{ (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status.ActiveState }}"
           vars:
             systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
 
-        - name: "Fail as starting {{ systemd_unit.name }} failed."
+        - name: "Fail as starting {{ systemd_unit.name }} failed."   # noqa: name[template]
           ansible.builtin.fail:
 
       when: not systemd_file_changed | bool
@@ -113,13 +113,13 @@
           ansible.builtin.debug:
             var: systemd_service_facts
 
-        - name: "Debug (systemd_service_facts | community.general.json_query({{ systemd_service_jpq }})).state"
+        - name: "Debug (systemd_service_facts | community.general.json_query({{ systemd_service_jpq }})).state"  # noqa: name[template]
           ansible.builtin.debug:
             msg: "{{ (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state }}"
           vars:
             systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
 
-        - name: "Debug (systemd_service_facts | community.general.json_query({{ systemd_service_jpq }})).status.ActiveState }}"  # noqa: jinja[spacing]
+        - name: "Debug (systemd_service_facts | community.general.json_query({{ systemd_service_jpq }})).status.ActiveState }}"  # noqa: jinja[spacing] name[template]
           ansible.builtin.debug:
             msg: >-
               {%- if (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status is defined and
@@ -130,7 +130,7 @@
           vars:
             systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
 
-        - name: "Fail as restarting {{ systemd_unit.name }} failed."
+        - name: "Fail as restarting {{ systemd_unit.name }} failed"  # noqa: name[template]
           ansible.builtin.fail:
 
       when: systemd_file_changed | bool
