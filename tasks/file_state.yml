@@ -110,14 +110,14 @@
       when:
         - systemd_conf_depth is regex('^1|2$')
         - systemd_file_state.stat.exists | bool
-        - ( systemd_file.state is not defined ) or ( systemd_file.state is regex('^edited|present$') )
+        - (systemd_file.state is not defined) or (systemd_file.state is regex('^edited|present$'))
 
     - name: Systemd unit file not existing or templated or depth three tasks
       ansible.builtin.include_tasks: file_templated.yml
       when: >-
-        ( not systemd_file_state.stat.exists | bool ) or
-        ( systemd_file.state is defined and systemd_file.state == "templated" ) or
-        ( systemd_conf_depth == 3 )
+        (not systemd_file_state.stat.exists | bool) or
+        (systemd_file.state is defined and systemd_file.state == "templated") or
+        (systemd_conf_depth == 3)
 
     - name: Stat the systemd unit file
       ansible.builtin.stat:

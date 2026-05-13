@@ -55,26 +55,29 @@
             loop_var: systemd_unit
             label: "{{ systemd_unit.name }}"
           when: >-
-            ( systemd_unit.state is not defined ) or
-            ( ( systemd_unit.state is defined ) and
-            ( systemd_unit.state != "absent" ) )
+            (systemd_unit.state is not defined) or
+            ((systemd_unit.state is defined) and
+            (systemd_unit.state != "absent"))
 
         - name: Include timesyncd tasks
           ansible.builtin.include_tasks: timesyncd.yml
-          when: ( "systemd-timesyncd" in systemd_unit_names )
+          when: ("systemd-timesyncd" in systemd_unit_names)
 
         - name: Include networkd tasks
           ansible.builtin.include_tasks: networkd.yml
-          when: ( "systemd-networkd" in systemd_unit_names )
+          when: ("systemd-networkd" in systemd_unit_names)
 
         # TODO
         # - name: Include resolved tasks
         #   ansible.builtin.include_tasks: resolved.yml
-        #   when: ( "systemd-resolved" in systemd_unit_names )
+        #   when: ("systemd-resolved" in systemd_unit_names)
 
       when:
         - systemd_units is defined
         - systemd_units | length > 0
+
+    - name: Include systemd verify variables tasks
+      ansible.builtin.include_tasks: verify.yml
 
   when: systemd | bool
   tags:

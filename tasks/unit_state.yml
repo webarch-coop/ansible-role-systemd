@@ -26,7 +26,8 @@
         - debug
 
     - name: "Verify the service when systemd_unit.verify is defined for {{ systemd_unit.name }}"
-      ansible.builtin.command: "systemd-analyze verify {{ systemd_unit.verify }}"
+      ansible.builtin.command:
+        cmd: "systemd-analyze verify {{ systemd_unit.verify }}"
       check_mode: false
       changed_when: false
       when:
@@ -43,7 +44,8 @@
           ansible.builtin.include_tasks: checks.yml
 
         - name: "Verify the service when it is in the list of existing unit files after appending .service for {{ systemd_unit.name }}"
-          ansible.builtin.command: "systemd-analyze verify {{ systemd_unit.name }}.service --man=false"
+          ansible.builtin.command:
+            cmd: "systemd-analyze verify {{ systemd_unit.name }}.service --man=false"
           check_mode: false
           vars:
             systemd_unit_verify: "{{ systemd_unit.name }}.service"
@@ -53,7 +55,8 @@
             - systemd_unit_verify in systemd_unit_files_enabled
 
         - name: "Verify the service when it is in the list of existing unit files for {{ systemd_unit.name }}"
-          ansible.builtin.command: "systemd-analyze verify {{ systemd_unit.name }}"
+          ansible.builtin.command:
+            cmd: "systemd-analyze verify {{ systemd_unit.name }}"
           check_mode: false
           changed_when: false
           when: systemd_unit.name in systemd_unit_files_enabled

@@ -47,8 +47,8 @@
     - name: "Include check tasks for {{ systemd_unit.name }}"
       ansible.builtin.include_tasks: checks.yml
       when: >-
-        ( systemd_unit_files_existing is not defined ) or
-        ( systemd_unit_files_enabled is not defined )
+        (systemd_unit_files_existing is not defined) or
+        (systemd_unit_files_enabled is not defined)
 
     - name: "Include the systemd unit file absent tasks for {{ systemd_unit.name }}"
       ansible.builtin.include_tasks: file_absent.yml
@@ -77,8 +77,8 @@
         loop_var: systemd_file
         label: "{{ systemd_file.path | ansible.builtin.basename }}"
       when: >-
-        ( systemd_file.state is not defined ) or
-        ( systemd_file.state is regex('^edited|present|templated$') )
+        (systemd_file.state is not defined) or
+        (systemd_file.state is regex('^edited|present|templated$'))
 
     - name: Include the systemd unit state tasks
       ansible.builtin.include_tasks: unit_state.yml

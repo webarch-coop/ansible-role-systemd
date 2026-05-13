@@ -18,7 +18,8 @@
         quiet: "{% if ansible_verbosity == 0 %}true{% else %}false{% endif %}"
 
     - name: Find broken symlinks
-      ansible.builtin.command: find /etc/systemd -xtype l
+      ansible.builtin.command:
+        cmd: find /etc/systemd -xtype l
       check_mode: false
       changed_when: false
       register: systemd_list_broken_symlinks
@@ -39,7 +40,8 @@
         - debug
 
     - name: Find masked services, ones with /dev/null symlinks
-      ansible.builtin.command: find /etc/systemd -lname /dev/null
+      ansible.builtin.command:
+        cmd: find /etc/systemd -lname /dev/null
       check_mode: false
       changed_when: false
       register: systemd_list_devnull_symlinks
@@ -65,7 +67,8 @@
     #      https://docs.ansible.com/ansible/latest/collections/community/general/systemd_info_module.html
 
     - name: List systemd unit files  # noqa command-instead-of-module
-      ansible.builtin.command: systemctl list-unit-files
+      ansible.builtin.command:
+        cmd: systemctl list-unit-files
       check_mode: false
       changed_when: false
       register: systemd_list_unit_files

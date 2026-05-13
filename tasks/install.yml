@@ -35,7 +35,8 @@
       block:
 
         - name: Run apt-cache policy systemd
-          ansible.builtin.command: apt-cache policy systemd
+          ansible.builtin.command:
+            cmd: apt-cache policy systemd
           check_mode: false
           changed_when: false
           register: systemd_apt_cache_policy_systemd
@@ -46,7 +47,7 @@
               - systemd
             state: latest
             default_release: "{{ ansible_facts.distribution_release }}-backports"
-          when: ( "-backports" in systemd_apt_cache_policy_systemd.stdout )
+          when: ("-backports" in systemd_apt_cache_policy_systemd.stdout)
 
       when: ansible_facts.distribution_release is ansible.builtin.regex(systemd_backport_regex)
 
