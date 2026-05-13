@@ -90,9 +90,10 @@
     - name: "Systemd unit started tasks included for {{ systemd_unit.name }}"
       ansible.builtin.include_tasks: unit_started.yml
       when: >-
-        (systemd_unit.state is not defined) or
+        (systemd_unit.name is not ansible.builtin.regex('.*@$')) and
+        ((systemd_unit.state is not defined) or
         (systemd_unit.state == "enabled") or
-        (systemd_unit.state == "reboot")
+        (systemd_unit.state == "reboot"))
 
     - name: Reboot and pause for 10 seconds when a unit files has been changed and the state is set to reboot
       block:
