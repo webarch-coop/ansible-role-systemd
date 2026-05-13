@@ -74,6 +74,14 @@ argument_specs:
           - 3
           - 4
           - 5
+      systemd_etc_network_interfaces:
+        type: dict
+        required: false
+        description: Results from the ansible.builtin.stat module.
+      systemd_etc_network_interfaces_file:
+        type: dict
+        required: false
+        description: Results from the community.general.interfaces_file module.
       systemd_file:
         type: str
         required: false
@@ -162,6 +170,18 @@ argument_specs:
         type: dict
         required: false
         desciption: Internal dictionary for the results from starting a systemd service.
+      systemd_timedatectl_status:
+        type: dict
+        required: false
+        desciption: Timedatectl status dictionary.
+      systemd_timedatectl_status_command:
+        type: dict
+        required: false
+        desciption: Results from ansible.builtin.command module.
+      systemd_timedatectl_tz:
+        type: str
+        required: false
+        desciption: Timezone string.
       systemd_unit_files_enabled_query:
         type: str
         required: true
