@@ -181,55 +181,76 @@
       tags:
         - debug
 
-    - name: Check that the service is enabled
-      ansible.builtin.assert:
-        that:
-          - (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status is defined
-          - (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status == "enabled"
-        quiet: true
-        fail_msg: "{{ systemd_service_fail_msg | ansible.builtin.regex_replace('[ ][ ]', ' ') | trim }}"
-      vars:
-        systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
-        systemd_service_fail_msg: >-
-          The {{ systemd_unit.name }}.service
-          {% if (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status is defined %}
-          {%     if (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status != "enabled" %} status
-          is {{ (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status }} when it should be enabled
-          {%     endif %}
-          {% else %}
-          status appears not to be defined, the JMESPath query used to check the service facts was {{ systemd_service_jpq }}
-          {% endif %}
+    - name: Check that the service is enabled in a block
+      block:
 
-    - name: Check that the service is running or exited and active
-      ansible.builtin.assert:
-        that: >-
-          (((systemd_service_facts | community.general.json_query(systemd_service_jpq)).state is defined) and
-          ((systemd_service_facts | community.general.json_query(systemd_service_jpq)).state == "running")) or
-          (((systemd_info | community.general.json_query(systemd_info_jpq)).activestate == "active") and
-          ((systemd_info | community.general.json_query(systemd_info_jpq)).substate == "exited"))
-        quiet: true
-        fail_msg: "{{ systemd_service_fail_msg | ansible.builtin.regex_replace('[ ][ ]', ' ') | trim }}"
-      vars:
-        systemd_info_jpq: 'units.["{{ systemd_unit.name }}.service"]|[0]'
-        systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
-        systemd_service_fail_msg: >-
-          The {{ systemd_unit.name }}.service
-          {% if (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state is defined %}
-          {%     if (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state != "running" %}state
-          is {{ (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state }} when
-          it should be running
-          {%     endif %}
-          {% elif (systemd_info | community.general.json_query(systemd_info_jpq)).substate is defined %}
-          {%     if (systemd_info | community.general.json_query(systemd_info_jpq)).activestate != "active" %}activestate
-          is {{ (systemd_info | community.general.json_query(systemd_info_jpq)).activestate }} when it should be active
-          {%     endif %}
-          {%     if (systemd_info | community.general.json_query(systemd_info_jpq)).substate != "exited" %}substate
-          is {{ (systemd_info | community.general.json_query(systemd_info_jpq)).substate }} when it should be exited
-          {%     endif %}
-          {% else %}
-          state appears not to be defined, the JMESPath query used to check the service facts was {{ systemd_service_jpq }}
-          or info appears not to be defined, the JMESPath query used to check the service info was {{ systemd_info_jpq }}
-          {% endif %}
+        - name: "Check that the service is enabled for {{ systemd_unit.name }}"
+          ansible.builtin.assert:
+            that:
+              - (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status is defined
+              - (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status == "enabled"
+            quiet: true
+            fail_msg: "{{ systemd_service_fail_msg | ansible.builtin.regex_replace('[ ][ ]', ' ') | trim }}"
+          vars:
+            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
+            systemd_service_fail_msg: >-
+              The {{ systemd_unit.name }}.service
+              {% if (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status is defined %}
+              {%     if (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status != "enabled" %} status
+              is {{ (systemd_service_facts | community.general.json_query(systemd_service_jpq)).status }} when it should be enabled
+              {%     endif %}
+              {% else %}
+              status appears not to be defined, the JMESPath query used to check the service facts was {{ systemd_service_jpq }}
+              {% endif %}
+
+      rescue:
+
+        - name: "Enable the service with force when it is not enabled for {{ systemd_unit.name }}"
+          ansible.builtin.systemd_service:
+            name: "{{ systemd_unit.name }}"
+            enabled: true
+            force: true
+
+    - name: Check that the service is running or exited and active in a block
+      block:
+
+        - name: Check that the service is running or exited and active
+          ansible.builtin.assert:
+            that: >-
+              (((systemd_service_facts | community.general.json_query(systemd_service_jpq)).state is defined) and
+              ((systemd_service_facts | community.general.json_query(systemd_service_jpq)).state == "running")) or
+              (((systemd_info | community.general.json_query(systemd_info_jpq)).activestate == "active") and
+              ((systemd_info | community.general.json_query(systemd_info_jpq)).substate == "exited"))
+            quiet: true
+            fail_msg: "{{ systemd_service_fail_msg | ansible.builtin.regex_replace('[ ][ ]', ' ') | trim }}"
+          vars:
+            systemd_info_jpq: 'units.["{{ systemd_unit.name }}.service"]|[0]'
+            systemd_service_jpq: 'ansible_facts.services.["{{ systemd_unit.name }}.service"]|[0]'
+            systemd_service_fail_msg: >-
+              The {{ systemd_unit.name }}.service
+              {% if (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state is defined %}
+              {%     if (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state != "running" %}state
+              is {{ (systemd_service_facts | community.general.json_query(systemd_service_jpq)).state }} when
+              it should be running
+              {%     endif %}
+              {% elif (systemd_info | community.general.json_query(systemd_info_jpq)).substate is defined %}
+              {%     if (systemd_info | community.general.json_query(systemd_info_jpq)).activestate != "active" %}activestate
+              is {{ (systemd_info | community.general.json_query(systemd_info_jpq)).activestate }} when it should be active
+              {%     endif %}
+              {%     if (systemd_info | community.general.json_query(systemd_info_jpq)).substate != "exited" %}substate
+              is {{ (systemd_info | community.general.json_query(systemd_info_jpq)).substate }} when it should be exited
+              {%     endif %}
+              {% else %}
+              state appears not to be defined, the JMESPath query used to check the service facts was {{ systemd_service_jpq }}
+              or info appears not to be defined, the JMESPath query used to check the service info was {{ systemd_info_jpq }}
+              {% endif %}
+
+      rescue:
+
+        - name: "Start the service when is not running or exited and active for {{ systemd_unit.name }}"
+          ansible.builtin.systemd_service:
+            name: "{{ systemd_unit.name }}"
+            state: started
 
   tags:
     - systemd
