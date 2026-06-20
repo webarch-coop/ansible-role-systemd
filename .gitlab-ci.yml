@@ -14,13 +14,15 @@ variables:
   ANSIBLE_DEFAULT_VERBOSITY: "1"
   ANSIBLE_DIFF_ALWAYS: "1"
   ANSIBLE_DISPLAY_SKIPPED_HOSTS: "0"
+  # https://docs.ansible.com/projects/ansible/latest/reference_appendices/config.html#display-traceback
+  ANSIBLE_DISPLAY_TRACEBACK: never
   ANSIBLE_FORCE_COLOR: "1"
   ANSIBLE_INJECT_FACT_VARS: "0"
   ANSIBLE_NOCOWS: "1"
   ANSIBLE_REMOTE_TMP: "/tmp"
   ANSIBLE_ROLES_PATH: "${CI_PROJECT_DIR}/..:~/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles"
   ANSIBLE_SHELL_ALLOW_WORLD_READABLE_TEMP: "1"
-  DEBIAN_FRONTEND: noninteractive
+  DEBIAN_FRONTEND: "noninteractive"
   MOLECULE_VERBOSITY: "0"
   PRE_COMMIT_COLOR: always
   PY_COLORS: "1"
@@ -34,34 +36,35 @@ before_script:
   - yamllint --version
   - which molecule
   - molecule --version
+  - ansible-galaxy collection list --format=json | yq -o=yaml -P
 stages:
   - trixie
   - bookworm
   - forky
   - noble
 bookworm:
-  image: registry.git.coop/webarch/containers/images/bookworm:20260424
+  image: registry.git.coop/webarch/containers/images/bookworm:20260604
   stage: bookworm
   script:
     # - pre-commit install
     # - pre-commit run --all-files
     - molecule test --all
 forky:
-  image: registry.git.coop/webarch/containers/images/forky:20260424
+  image: registry.git.coop/webarch/containers/images/forky:20260604
   stage: forky
   script:
     - pre-commit install
     - pre-commit run --all-files
     - molecule test --all
 noble:
-  image: registry.git.coop/webarch/containers/images/noble:20260424
+  image: registry.git.coop/webarch/containers/images/noble:20260604
   stage: noble
   script:
     # - pre-commit install
     # - pre-commit run --all-files
     - molecule test --all
 trixie:
-  image: registry.git.coop/webarch/containers/images/trixie:20260424
+  image: registry.git.coop/webarch/containers/images/trixie:20260604
   stage: trixie
   script:
     - pre-commit install
